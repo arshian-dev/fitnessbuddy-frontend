@@ -17,13 +17,20 @@ const CONDITIONS_LIST = [
   'None'
 ];
 
-const STAPLES_LIST = [
-  { value: 'Roti / Chapati (Daily)', label: 'Roti / Chapati' },
-  { value: 'Rice (Daily)', label: 'Rice / Basmati' },
-  { value: 'Paneer / Tofu', label: 'Paneer / Tofu' },
-  { value: 'Daal / Lentils', label: 'Daal / Lentils' },
-  { value: 'Traditional Desi ghee / Butter', label: 'Desi Ghee / Butter' }
+const DESI_STAPLES = [
+  'Roti / Chapati', 'Naan', 'White Rice / Basmati', 'Brown Rice', 'Daal (Chana / Masoor / Moong)',
+  'Chicken (karahi, roast, boiled)', 'Beef / Mutton', 'Fish', 'Eggs', 'Aloo', 'Mixed sabzi (bhindi, gobi, palak etc.)',
+  'Dahi / Yogurt', 'Doodh / Full fat milk', 'Desi Ghee', 'Olive oil', 'Other cooking oil'
 ];
+
+const WESTERN_STAPLES = [
+  'Oats / Porridge', 'Whole wheat bread / Brown bread', 'Pasta / Macaroni', 'White bread / Sandwich bread',
+  'Chicken breast (grilled / boiled)', 'Beef', 'Eggs', 'Fish', 'Tuna / Canned fish', 'White Rice / Basmati',
+  'Brown Rice', 'Greek yogurt', 'Cottage cheese', 'Peanut butter', 'Salad greens / Vegetables', 'Sweet potato',
+  'Olive oil', 'Other cooking oil', 'Avocados'
+];
+
+const MIXED_STAPLES = Array.from(new Set([...DESI_STAPLES, ...WESTERN_STAPLES]));
 
 export default function OnboardingWizard({ user, onComplete }) {
   const [step, setStep] = useState(1);
@@ -37,7 +44,10 @@ export default function OnboardingWizard({ user, onComplete }) {
   const [age, setAge] = useState(28);
   const [gender, setGender] = useState('MALE');
   const [weight, setWeight] = useState(75);
-  const [height, setHeight] = useState(172);
+  const [heightUnit, setHeightUnit] = useState('cm');
+  const [heightCm, setHeightCm] = useState(172);
+  const [heightFt, setHeightFt] = useState(5);
+  const [heightIn, setHeightIn] = useState(8);
   const [location, setLocation] = useState('Pakistan');
   const [occupation, setOccupation] = useState('Employed');
   const [contactNumber, setContactNumber] = useState('');
@@ -47,11 +57,15 @@ export default function OnboardingWizard({ user, onComplete }) {
   const [workoutTiming, setWorkoutTiming] = useState('EVENING');
   const [workoutDuration, setWorkoutDuration] = useState('45-60');
   const [supplementComfort, setSupplementComfort] = useState(true);
-  const [dietStrictness, setDietStrictness] = useState('MODERATE');
+  const [dietTrackingPref, setDietTrackingPref] = useState('PORTION_CONTROL');
+  const [hasFoodScale, setHasFoodScale] = useState('NO');
   const [cookingControl, setCookingControl] = useState('FULL');
   const [waterGlasses, setWaterGlasses] = useState(8);
   const [chaiCups, setChaiCups] = useState(1);
-  const [selectedStaples, setSelectedStaples] = useState(['Roti / Chapati (Daily)', 'Daal / Lentils']);
+  const [beverageMilk, setBeverageMilk] = useState('YES');
+  const [beverageSugar, setBeverageSugar] = useState('YES');
+  const [dailyDiet, setDailyDiet] = useState('DESI');
+  const [selectedDietStaples, setSelectedDietStaples] = useState([]);
   const [dawatFrequency, setDawatFrequency] = useState('Occasional (Weekends)');
 
   // Step 3: Health & Goals
@@ -81,10 +95,10 @@ export default function OnboardingWizard({ user, onComplete }) {
   };
 
   const toggleStaple = (staple) => {
-    if (selectedStaples.includes(staple)) {
-      setSelectedStaples(selectedStaples.filter((s) => s !== staple));
+    if (selectedDietStaples.includes(staple)) {
+      setSelectedDietStaples(selectedDietStaples.filter((s) => s !== staple));
     } else {
-      setSelectedStaples([...selectedStaples, staple]);
+      setSelectedDietStaples([...selectedDietStaples, staple]);
     }
   };
 
@@ -127,7 +141,7 @@ export default function OnboardingWizard({ user, onComplete }) {
       age: parseInt(age),
       gender,
       weight: parseFloat(weight),
-      height: parseFloat(height),
+      height: heightUnit === 'cm' ? parseFloat(heightCm) : (parseFloat(heightFt) * 30.48 + parseFloat(heightIn) * 2.54),
       location,
       occupation,
       contactNumber,
@@ -147,11 +161,12 @@ export default function OnboardingWizard({ user, onComplete }) {
       workoutDuration,
       equipmentAccess: homeOrGym === 'GYM' ? ['All gym machines', 'Free weights'] : ['Nothing'],
       supplementComfort,
-      dietStrictnessTolerance: dietStrictness,
+      dietTrackingPref,
+      hasFoodScale: dietTrackingPref === 'CALORIE_COUNTED' ? hasFoodScale === 'YES' : false,
       cookingControl,
       goal,
       experience,
-      endGoalDescription: `${endGoalDescription}. Staples: ${selectedStaples.join(', ')}. Dawats: ${dawatFrequency}`
+      endGoalDescription: `${endGoalDescription}. Staples: ${selectedDietStaples.join(', ')}. Dawats: ${dawatFrequency}. Beverages: Milk(${beverageMilk}) Sugar(${beverageSugar})`
     };
 
     try {
@@ -272,17 +287,52 @@ export default function OnboardingWizard({ user, onComplete }) {
                 />
               </div>
               <div className="space-y-xs">
-                <label className="font-label-md text-label-md text-on-surface">Height (cm)</label>
-                <input 
-                  className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
-                  placeholder="e.g. 172" 
-                  type="number"
-                  value={height}
-                  onChange={(e) => setHeight(e.target.value)}
-                  min="100"
-                  max="250"
-                  required
-                />
+                <div className="flex justify-between items-center">
+                  <label className="font-label-md text-label-md text-on-surface">Height</label>
+                  <select 
+                    className="text-xs bg-transparent border-none text-primary cursor-pointer focus:outline-none"
+                    value={heightUnit}
+                    onChange={(e) => setHeightUnit(e.target.value)}
+                  >
+                    <option value="cm">cm</option>
+                    <option value="ft">ft/in</option>
+                  </select>
+                </div>
+                {heightUnit === 'cm' ? (
+                  <input 
+                    className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
+                    placeholder="e.g. 172" 
+                    type="number"
+                    value={heightCm}
+                    onChange={(e) => setHeightCm(e.target.value)}
+                    min="100"
+                    max="250"
+                    required
+                  />
+                ) : (
+                  <div className="flex gap-sm">
+                    <input 
+                      className="w-1/2 bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
+                      placeholder="ft" 
+                      type="number"
+                      value={heightFt}
+                      onChange={(e) => setHeightFt(e.target.value)}
+                      min="3"
+                      max="8"
+                      required
+                    />
+                    <input 
+                      className="w-1/2 bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
+                      placeholder="in" 
+                      type="number"
+                      value={heightIn}
+                      onChange={(e) => setHeightIn(e.target.value)}
+                      min="0"
+                      max="11"
+                      required
+                    />
+                  </div>
+                )}
               </div>
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md text-on-surface">Primary Location</label>
@@ -324,17 +374,47 @@ export default function OnboardingWizard({ user, onComplete }) {
             
             <div className="space-y-lg">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                <div className="space-y-xs">
-                  <label className="font-label-md text-label-md text-on-surface">Diet Strictness Preference</label>
-                  <select 
-                    className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
-                    value={dietStrictness}
-                    onChange={(e) => setDietStrictness(e.target.value)}
-                  >
-                    <option value="FLEXIBLE">Flexible (allows cheat ratios)</option>
-                    <option value="MODERATE">Moderate compliance</option>
-                    <option value="STRICT">Strict macro counting</option>
-                  </select>
+                <div className="space-y-md">
+                  <div className="space-y-xs">
+                    <label className="font-label-md text-label-md text-on-surface">Diet Tracking Preference</label>
+                    <select 
+                      className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
+                      value={dietTrackingPref}
+                      onChange={(e) => setDietTrackingPref(e.target.value)}
+                    >
+                      <option value="PORTION_CONTROL">Meals with portion control guidance</option>
+                      <option value="CALORIE_COUNTED">Exact calorie-counted meals (most effective)</option>
+                    </select>
+                  </div>
+                  {dietTrackingPref === 'CALORIE_COUNTED' && (
+                    <div className="space-y-xs pl-sm border-l-2 border-primary mt-sm">
+                      <label className="font-label-md text-label-md text-on-surface">Do you have a food weighing scale at home?</label>
+                      <div className="flex gap-md">
+                        <label className="flex items-center gap-xs cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="foodScale" 
+                            value="YES" 
+                            checked={hasFoodScale === 'YES'} 
+                            onChange={(e) => setHasFoodScale(e.target.value)} 
+                            className="text-primary focus:ring-primary"
+                          />
+                          <span className="text-sm">Yes</span>
+                        </label>
+                        <label className="flex items-center gap-xs cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="foodScale" 
+                            value="NO" 
+                            checked={hasFoodScale === 'NO'} 
+                            onChange={(e) => setHasFoodScale(e.target.value)} 
+                            className="text-primary focus:ring-primary"
+                          />
+                          <span className="text-sm">No</span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-xs">
                   <label className="font-label-md text-label-md text-on-surface">Kitchen Cooking Dynamic</label>
@@ -344,27 +424,48 @@ export default function OnboardingWizard({ user, onComplete }) {
                     onChange={(e) => setCookingControl(e.target.value)}
                   >
                     <option value="FULL">Cook my own meals</option>
-                    <option value="PARTIAL">Cook sometimes / family cooking</option>
-                    <option value="NONE">Hostel / maid cooks / eat out</option>
+                    <option value="SOMEONE_ELSE">Someone else cooks (family member / maid)</option>
+                    <option value="EATING_OUT">Mostly eating out / ordering in</option>
+                    <option value="HOSTEL">Hostel / Company site - Little control over meals</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
                 <div className="space-y-md">
-                  <label className="font-label-md text-label-md text-on-surface">Traditional Staples Checklist</label>
-                  <div className="grid grid-cols-1 gap-sm">
-                    {STAPLES_LIST.map((staple) => (
-                      <label key={staple.value} className="flex items-center gap-md p-sm bg-surface-container-low rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
-                        <input 
-                          type="checkbox"
-                          checked={selectedStaples.includes(staple.value)}
-                          onChange={() => toggleStaple(staple.value)}
-                          className="rounded border-outline-variant text-primary focus:ring-primary"
-                        />
-                        <span className="font-medium text-sm">{staple.label}</span>
-                      </label>
-                    ))}
+                  <div className="space-y-md">
+                    <label className="font-label-md text-label-md text-on-surface">Daily Diet</label>
+                    <select 
+                      className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
+                      value={dailyDiet}
+                      onChange={(e) => {
+                        setDailyDiet(e.target.value);
+                        setSelectedDietStaples([]); // Reset selections when switching diets
+                      }}
+                    >
+                      <option value="DESI">Desi</option>
+                      <option value="WESTERN">Western</option>
+                      <option value="MIXED">Mixed</option>
+                    </select>
+                  </div>
+                  
+                  <div className="space-y-xs mt-4">
+                    <label className="font-label-md text-label-md text-on-surface">
+                      {dailyDiet === 'DESI' ? "Which of these do you eat regularly or have available at home?" : "Which of these do you eat regularly or have available?"}
+                    </label>
+                    <div className="grid grid-cols-1 gap-sm max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                      {(dailyDiet === 'DESI' ? DESI_STAPLES : dailyDiet === 'WESTERN' ? WESTERN_STAPLES : MIXED_STAPLES).map((staple) => (
+                        <label key={staple} className="flex items-center gap-md p-sm bg-surface-container-low rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
+                          <input 
+                            type="checkbox"
+                            checked={selectedDietStaples.includes(staple)}
+                            onChange={() => toggleStaple(staple)}
+                            className="rounded border-outline-variant text-primary focus:ring-primary"
+                          />
+                          <span className="font-medium text-sm">{staple}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -383,7 +484,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                   </div>
                   <div className="grid grid-cols-2 gap-sm">
                     <div className="space-y-xs">
-                      <label className="font-label-md text-label-md text-on-surface">Chai (cups/day)</label>
+                      <label className="font-label-md text-label-md text-on-surface">Chai / Coffee (cups/day)</label>
                       <input 
                         type="number"
                         className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md"
@@ -391,37 +492,37 @@ export default function OnboardingWizard({ user, onComplete }) {
                         min="0"
                         onChange={(e) => setChaiCups(e.target.value)}
                       />
+                      {chaiCups > 0 && (
+                        <div className="flex flex-col gap-xs mt-sm text-sm">
+                          <div className="flex justify-between items-center bg-surface-container-low p-xs rounded">
+                            <span>Milk?</span>
+                            <div className="flex gap-xs">
+                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="milk" value="YES" checked={beverageMilk === 'YES'} onChange={(e) => setBeverageMilk(e.target.value)} /> Yes</label>
+                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="milk" value="NO" checked={beverageMilk === 'NO'} onChange={(e) => setBeverageMilk(e.target.value)} /> No</label>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center bg-surface-container-low p-xs rounded">
+                            <span>Sugar?</span>
+                            <div className="flex gap-xs">
+                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="sugar" value="YES" checked={beverageSugar === 'YES'} onChange={(e) => setBeverageSugar(e.target.value)} /> Yes</label>
+                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="sugar" value="NO" checked={beverageSugar === 'NO'} onChange={(e) => setBeverageSugar(e.target.value)} /> No</label>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-xs">
                       <label className="font-label-md text-label-md text-on-surface">Water (glasses/day)</label>
                       <input 
                         type="number"
-                        className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md"
+                        className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md h-[46px]"
                         value={waterGlasses}
                         min="0"
                         onChange={(e) => setWaterGlasses(e.target.value)}
                       />
                     </div>
                   </div>
-                  <div className="space-y-xs">
-                    <label className="font-label-md text-label-md text-on-surface">Workout Venue</label>
-                    <div className="grid grid-cols-2 gap-sm">
-                      <button
-                        type="button"
-                        className={`py-sm rounded-lg font-bold border ${homeOrGym === 'GYM' ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-low border-outline-variant text-secondary'}`}
-                        onClick={() => setHomeOrGym('GYM')}
-                      >
-                        Gym
-                      </button>
-                      <button
-                        type="button"
-                        className={`py-sm rounded-lg font-bold border ${homeOrGym === 'HOME' ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-low border-outline-variant text-secondary'}`}
-                        onClick={() => setHomeOrGym('HOME')}
-                      >
-                        Home
-                      </button>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>
@@ -451,6 +552,26 @@ export default function OnboardingWizard({ user, onComplete }) {
                       <span className="text-xs font-semibold">{cond}</span>
                     </label>
                   ))}
+                </div>
+              </div>
+
+              <div className="space-y-xs">
+                <label className="font-label-md text-label-md text-on-surface">Workout Venue</label>
+                <div className="grid grid-cols-2 gap-sm">
+                  <button
+                    type="button"
+                    className={`py-sm rounded-lg font-bold border ${homeOrGym === 'GYM' ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-low border-outline-variant text-secondary'}`}
+                    onClick={() => setHomeOrGym('GYM')}
+                  >
+                    Gym
+                  </button>
+                  <button
+                    type="button"
+                    className={`py-sm rounded-lg font-bold border ${homeOrGym === 'HOME' ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-low border-outline-variant text-secondary'}`}
+                    onClick={() => setHomeOrGym('HOME')}
+                  >
+                    Home
+                  </button>
                 </div>
               </div>
 
