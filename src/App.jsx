@@ -129,9 +129,9 @@ export default function App() {
     <div className="min-h-screen bg-background">
       {/* Top Banner role toggle if they are COACH role to switch perspective */}
       {currentUser.role === 'COACH' && (
-        <div className="bg-primary-container text-on-primary-container px-lg py-xs flex justify-between items-center text-xs font-bold shadow-sm">
-          <span>Logged in as Coach ({currentUser.name})</span>
-          <div className="flex gap-xs">
+        <div className="bg-primary-container text-on-primary-container px-lg py-xs flex flex-col sm:flex-row justify-between items-center gap-xs sm:gap-0 text-xs font-bold shadow-sm">
+          <span className="text-center sm:text-left">Logged in as Coach ({currentUser.name})</span>
+          <div className="flex gap-xs w-full sm:w-auto justify-center sm:justify-start">
             <button 
               onClick={() => setCurrentRole('COACH')}
               className={`px-sm py-1 rounded transition-all ${currentRole === 'COACH' ? 'bg-primary text-white shadow-sm' : 'hover:bg-primary-container/20 text-on-primary-container'}`}

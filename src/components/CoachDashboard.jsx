@@ -338,7 +338,14 @@ export default function CoachDashboard({ user, onLogout }) {
 
       {/* Main Content Canvas */}
       <main className="md:ml-64 min-h-screen p-container-margin md:p-xl">
-        {/* Header & Search */}
+        {/* Mobile Header Nav & Search */}
+        <div className="md:hidden flex overflow-x-auto custom-scrollbar gap-xs mb-md pb-1">
+          <button onClick={() => setActiveTab('dashboard')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'dashboard' ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Overview</button>
+          <button onClick={() => setActiveTab('registry')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'registry' ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Registry</button>
+          <button onClick={() => setActiveTab('library')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'library' ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Library</button>
+          <button onClick={() => setActiveTab('chat')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'chat' ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>AI Assist</button>
+        </div>
+        
         <header className="flex flex-col md:flex-row md:items-center justify-between mb-xl gap-md">
           <div>
             <div className="flex items-center gap-md">
@@ -486,7 +493,7 @@ export default function CoachDashboard({ user, onLogout }) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
             
             {/* Client Registry List */}
-            <section className="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col h-[750px]">
+            <section className="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col h-[400px] lg:h-[750px]">
               <div className="p-md border-b border-outline-variant/20 flex justify-between items-center">
                 <h3 className="font-headline-md text-[20px] font-extrabold text-on-surface">Client Registry</h3>
                 <span className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full font-bold">{filteredClients.length} Active</span>
@@ -689,7 +696,7 @@ export default function CoachDashboard({ user, onLogout }) {
                               <div className="bg-primary-container/10 border border-primary/20 p-md rounded-xl text-xs text-primary font-semibold">
                                 Step 1 of 2: Define Workout Split Protocol
                               </div>
-                              <div className="grid grid-cols-3 gap-sm">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-sm">
                                 <div className="space-y-xs">
                                   <label className="text-xs font-bold text-secondary">Split Name</label>
                                   <input 

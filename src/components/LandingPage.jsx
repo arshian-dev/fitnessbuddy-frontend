@@ -37,7 +37,7 @@ export default function LandingPage({
           <span className="material-symbols-outlined text-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>fitness_center</span>
           <span className="font-headline-md text-headline-md text-primary tracking-tight">Fitness Buddy</span>
         </div>
-        <nav className="hidden md:flex items-center gap-xl">
+        <nav className="hidden md:flex flex-wrap items-center gap-md lg:gap-xl">
           <button onClick={() => scrollToSection('services')} className="text-secondary font-medium hover:text-primary transition-colors font-body-md text-body-md">Programs</button>
           <button onClick={() => scrollToSection('testimonials')} className="text-secondary font-medium hover:text-primary transition-colors font-body-md text-body-md">Success Stories</button>
           <button onClick={() => scrollToSection('auth')} className="text-secondary font-medium hover:text-primary transition-colors font-body-md text-body-md">Portal Access</button>
@@ -55,8 +55,8 @@ export default function LandingPage({
           </div>
           <div className="container mx-auto px-container-margin flex flex-col md:flex-row items-center gap-xl relative z-10 max-w-7xl">
             <div className="flex-1 space-y-lg text-center md:text-left">
-              <div className="inline-flex items-center gap-xs bg-primary-container/20 px-md py-xs rounded-full border border-primary/20">
-                <span className="relative flex h-2 w-2">
+              <div className="inline-flex items-center gap-xs bg-primary-container/20 px-md py-xs rounded-full border border-primary/20 whitespace-nowrap">
+                <span className="relative flex h-2 w-2 flex-shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
@@ -70,11 +70,11 @@ export default function LandingPage({
               <p className="font-body-lg text-body-lg text-secondary max-w-xl mx-auto md:mx-0">
                 Bridging clinical precision with athletic energy. Personalized health tracks designed for Desi lifestyles, optimizing nutrition and movement for global standards.
               </p>
-              <div className="flex flex-col sm:flex-row gap-md justify-center md:justify-start pt-md">
-                <button onClick={() => scrollToSection('auth')} className="bg-primary text-on-primary px-xl py-md rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-primary/20 transition-all text-center">Start Free Assessment</button>
-                <button onClick={() => scrollToSection('services')} className="border-2 border-outline text-secondary font-bold px-xl py-md rounded-xl hover:bg-surface-container transition-all text-center">Explore Programs</button>
+              <div className="flex flex-col sm:flex-row flex-wrap gap-md justify-center md:justify-start pt-md w-full">
+                <button onClick={() => scrollToSection('auth')} className="w-full sm:w-auto bg-primary text-on-primary px-xl py-md rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-primary/20 transition-all text-center">Start Free Assessment</button>
+                <button onClick={() => scrollToSection('services')} className="w-full sm:w-auto border-2 border-outline text-secondary font-bold px-xl py-md rounded-xl hover:bg-surface-container transition-all text-center">Explore Programs</button>
               </div>
-              <div className="flex items-center gap-lg pt-xl justify-center md:justify-start">
+              <div className="flex flex-wrap items-center gap-lg pt-xl justify-center md:justify-start">
                 <div className="text-center">
                   <p className="font-stat-display text-[32px] md:text-stat-display text-primary">12k+</p>
                   <p className="font-label-md text-label-md text-secondary">Active Athletes</p>
@@ -261,7 +261,7 @@ export default function LandingPage({
           <div className="container mx-auto px-container-margin max-w-7xl relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
               <div className="text-on-primary-container text-slate-300">
-                <h2 className="font-headline-xl text-headline-xl mb-md text-white">Join the Movement</h2>
+                <h2 className="font-headline-xl text-[36px] md:text-headline-xl mb-md text-white leading-tight">Join the Movement</h2>
                 <p className="font-body-lg text-body-lg mb-xl opacity-80">Access your personalized health dashboard and sync with the South Asian fitness community. Disciplined health starts here.</p>
                 <div className="space-y-md">
                   <div className="flex gap-md">
@@ -339,15 +339,15 @@ export default function LandingPage({
                       <div className="relative flex justify-center text-xs uppercase"><span class="bg-surface px-md text-secondary">Demo Access</span></div>
                     </div>
 
-                    <div className="flex gap-md">
+                    <div className="flex flex-col sm:flex-row gap-md">
                       <button
-                        className="flex-1 border border-outline-variant rounded-xl py-sm flex items-center justify-center gap-base hover:bg-surface-container-high transition-all"
+                        className="w-full sm:flex-1 border border-outline-variant rounded-xl py-sm flex items-center justify-center gap-base hover:bg-surface-container-high transition-all"
                         onClick={() => handleQuickLogin('client@test.com')}
                       >
                         <span className="font-bold text-primary text-xs">Test Client</span>
                       </button>
                       <button
-                        className="flex-1 border border-outline-variant rounded-xl py-sm flex items-center justify-center gap-base hover:bg-surface-container-high transition-all"
+                        className="w-full sm:flex-1 border border-outline-variant rounded-xl py-sm flex items-center justify-center gap-base hover:bg-surface-container-high transition-all"
                         onClick={() => handleQuickLogin('coach@test.com')}
                       >
                         <span className="font-bold text-primary text-xs">Coach Portal</span>

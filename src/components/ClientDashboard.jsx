@@ -449,17 +449,23 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
       {/* Main Canvas */}
       <main className="md:ml-64 min-h-screen pb-xl">
         {/* Mobile Header Nav */}
-        <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md flex justify-between items-center w-full px-container-margin py-md md:px-lg border-b border-outline-variant/30">
-          <h2 className="font-headline-md text-headline-md text-primary tracking-tight capitalize">{activeTab}</h2>
-          <div className="flex items-center gap-md">
-            <div className="md:hidden flex bg-surface-container p-1 rounded-lg gap-xs">
-              <button onClick={() => setActiveTab('overview')} className={`px-2 py-1 rounded text-xs ${activeTab === 'overview' ? 'bg-primary text-white' : 'text-secondary'}`}>Home</button>
-              <button onClick={() => setActiveTab('workouts')} className={`px-2 py-1 rounded text-xs ${activeTab === 'workouts' ? 'bg-primary text-white' : 'text-secondary'}`}>Split</button>
-              <button onClick={() => setActiveTab('nutrition')} className={`px-2 py-1 rounded text-xs ${activeTab === 'nutrition' ? 'bg-primary text-white' : 'text-secondary'}`}>Diet</button>
-              <button onClick={() => setActiveTab('chat')} className={`px-2 py-1 rounded text-xs ${activeTab === 'chat' ? 'bg-primary text-white' : 'text-secondary'}`}>AI</button>
-              <button onClick={() => setActiveTab('progress')} className={`px-2 py-1 rounded text-xs ${activeTab === 'progress' ? 'bg-primary text-white' : 'text-secondary'}`}>Logs</button>
+        <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md flex flex-col md:flex-row justify-between items-center w-full px-container-margin py-sm md:py-md md:px-lg border-b border-outline-variant/30 gap-sm md:gap-0">
+          <div className="flex justify-between items-center w-full md:w-auto">
+            <h2 className="font-headline-md text-headline-md text-primary tracking-tight capitalize">{activeTab}</h2>
+            <div className="md:hidden bg-secondary-container text-on-secondary-container px-sm py-1 rounded-full font-label-md text-xs flex items-center gap-xs">
+              <span className="material-symbols-outlined text-[14px]">bolt</span>
+              {checkinHistory.length}
             </div>
-            <div className="bg-secondary-container text-on-secondary-container px-sm py-1 rounded-full font-label-md text-xs flex items-center gap-xs">
+          </div>
+          <div className="flex items-center gap-md w-full md:w-auto overflow-x-auto custom-scrollbar pb-1 md:pb-0">
+            <div className="md:hidden flex bg-surface-container p-1 rounded-lg gap-xs min-w-max">
+              <button onClick={() => setActiveTab('overview')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'overview' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Home</button>
+              <button onClick={() => setActiveTab('workouts')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'workouts' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Split</button>
+              <button onClick={() => setActiveTab('nutrition')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'nutrition' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Diet</button>
+              <button onClick={() => setActiveTab('chat')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'chat' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>AI</button>
+              <button onClick={() => setActiveTab('progress')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'progress' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Logs</button>
+            </div>
+            <div className="hidden md:flex bg-secondary-container text-on-secondary-container px-sm py-1 rounded-full font-label-md text-xs items-center gap-xs">
               <span className="material-symbols-outlined text-[14px]">bolt</span>
               {checkinHistory.length} Check-ins
             </div>
@@ -722,7 +728,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     </div>
                   )}
 
-                  <form onSubmit={handleCheckinSubmit} className="grid grid-cols-2 gap-md">
+                  <form onSubmit={handleCheckinSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-md">
                     <div className="space-y-xs">
                       <label className="text-xs font-bold text-secondary">BODY WEIGHT (KG) *</label>
                       <input 
@@ -772,7 +778,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                         required
                       />
                     </div>
-                    <div className="space-y-xs col-span-2 grid grid-cols-2 gap-sm">
+                    <div className="space-y-xs sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-sm">
                       <div>
                         <label className="text-xs font-bold text-secondary flex justify-between">
                           <span>Energy</span>
