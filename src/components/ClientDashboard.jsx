@@ -19,7 +19,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 
-export default function ClientDashboard({ user, initialData, onReOnboard, onLogout }) {
+export default function ClientDashboard({ user, initialData, onReOnboard, onUpdateUser, onLogout }) {
   const [activeTab, setActiveTab] = useState('overview'); // overview, workouts, nutrition, chat, progress
   const [profile, setProfile] = useState(initialData.profile);
   const [workoutPlan, setWorkoutPlan] = useState(initialData.workoutPlan);
@@ -77,6 +77,28 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onLogo
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef(null);
+
+  // Link Coach State
+  const [linkCoachCode, setLinkCoachCode] = useState('');
+  const [linkCoachLoading, setLinkCoachLoading] = useState(false);
+  const [linkCoachError, setLinkCoachError] = useState('');
+
+  const handleLinkCoach = async (e) => {
+    e.preventDefault();
+    if (!linkCoachCode.trim()) return;
+    setLinkCoachLoading(true);
+    setLinkCoachError('');
+    try {
+      const updatedUser = await api.linkCoach(user.id, linkCoachCode.trim());
+      if (onUpdateUser) {
+        onUpdateUser(updatedUser);
+      }
+    } catch (err) {
+      setLinkCoachError(err.message || 'Invalid Coach Code');
+    } finally {
+      setLinkCoachLoading(false);
+    }
+  };
 
   const toggleExercise = (id) => {
     setCompletedExercises(prev => ({
@@ -567,6 +589,40 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onLogo
                   </div>
                 </div>
               </div>
+
+              {/* Link Coach Card (Only visible if no coach assigned) */}
+              {!user.assigned_coach_id && (
+                <div className="bg-primary-container/20 rounded-xl p-lg shadow-sm border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-md mb-lg">
+                  <div>
+                    <h3 className="font-headline-md text-lg text-primary font-extrabold flex items-center gap-sm">
+                      <span className="material-symbols-outlined">person_add</span>
+                      Link to a Professional Coach
+                    </h3>
+                    <p className="text-sm text-on-surface-variant mt-1">Have a Coach Invite Code? Link your account to sync your profile directly with their dashboard.</p>
+                  </div>
+                  <form onSubmit={handleLinkCoach} className="flex gap-sm w-full md:w-auto">
+                    <input 
+                      type="text" 
+                      placeholder="Enter 6-digit Code" 
+                      className="bg-white border border-primary/30 rounded-lg px-md py-sm focus:ring-2 focus:ring-primary uppercase flex-1 max-w-[200px]"
+                      value={linkCoachCode}
+                      onChange={(e) => setLinkCoachCode(e.target.value.toUpperCase())}
+                      maxLength={6}
+                      disabled={linkCoachLoading}
+                    />
+                    <button 
+                      type="submit" 
+                      className="bg-primary text-white font-bold px-lg py-sm rounded-lg hover:bg-primary/90 transition-all shadow-sm"
+                      disabled={linkCoachLoading}
+                    >
+                      {linkCoachLoading ? 'Linking...' : 'Link'}
+                    </button>
+                  </form>
+                  {linkCoachError && (
+                    <div className="text-error text-xs font-bold w-full md:w-auto mt-2 md:mt-0">{linkCoachError}</div>
+                  )}
+                </div>
+              )}
 
               {/* Weekly Analytics & Adherence Card */}
               <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 mb-lg">

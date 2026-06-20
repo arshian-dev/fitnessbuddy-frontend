@@ -59,6 +59,8 @@ export const api = {
     request('/plans/revert', { method: 'POST', body: { userId } }),
   resolveAlert: (alertId) => 
     request('/coach/resolve-alert', { method: 'POST', body: { alertId } }),
+  linkCoach: (clientId, coachCode) => 
+    request('/coach/link', { method: 'POST', body: { clientId, coachCode } }),
   getExercises: () => 
     request('/coach/exercises'),
   addExercise: (exerciseData) => 

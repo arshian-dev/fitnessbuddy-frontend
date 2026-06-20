@@ -168,6 +168,7 @@ export default function App() {
             user={currentUser}
             initialData={onboardData}
             onReOnboard={() => setOnboardData(null)}
+            onUpdateUser={setCurrentUser}
             onLogout={handleLogout}
           />
         )
