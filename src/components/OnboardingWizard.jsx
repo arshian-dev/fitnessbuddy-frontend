@@ -202,31 +202,31 @@ export default function OnboardingWizard({ user, onComplete }) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-container-margin py-lg">
+    <div className="w-full max-w-4xl mx-auto px-container-margin py-xl">
       {/* Progress Tracker */}
-      <div className="mb-xl px-md">
+      <div className="mb-xl px-md max-w-3xl mx-auto">
         <div className="flex justify-between relative mb-base">
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-surface-container-highest -translate-y-1/2 z-0"></div>
+          <div className="absolute top-1/2 left-0 w-full h-1 bg-surface-container-highest rounded-full -translate-y-1/2 z-0"></div>
           <div 
-            className="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 z-0 transition-all duration-500" 
+            className="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-primary to-primary-container rounded-full -translate-y-1/2 z-0 transition-all duration-700 ease-in-out" 
             style={{ width: `${((step - 1) / 3) * 100}%` }}
           ></div>
           {/* Step Bubbles */}
-          <div className="step-indicator z-10 flex flex-col items-center gap-xs">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-label-md transition-colors duration-300 ${step >= 1 ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-secondary'}`}>1</div>
-            <span className={`text-xs font-bold ${step >= 1 ? 'text-primary' : 'text-secondary'}`}>Profile</span>
+          <div className="step-indicator z-10 flex flex-col items-center gap-2">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-md ring-4 ring-white transition-all duration-500 ${step >= 1 ? 'bg-primary text-on-primary scale-110' : 'bg-surface-container-highest text-secondary'}`}>1</div>
+            <span className={`text-xs font-bold transition-colors ${step >= 1 ? 'text-primary' : 'text-secondary'}`}>Profile</span>
           </div>
-          <div className="step-indicator z-10 flex flex-col items-center gap-xs">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-label-md transition-colors duration-300 ${step >= 2 ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-secondary'}`}>2</div>
-            <span className={`text-xs font-bold ${step >= 2 ? 'text-primary' : 'text-secondary'}`}>Culture</span>
+          <div className="step-indicator z-10 flex flex-col items-center gap-2">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-md ring-4 ring-white transition-all duration-500 ${step >= 2 ? 'bg-primary text-on-primary scale-110' : 'bg-surface-container-highest text-secondary'}`}>2</div>
+            <span className={`text-xs font-bold transition-colors ${step >= 2 ? 'text-primary' : 'text-secondary'}`}>Culture</span>
           </div>
-          <div className="step-indicator z-10 flex flex-col items-center gap-xs">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-label-md transition-colors duration-300 ${step >= 3 ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-secondary'}`}>3</div>
-            <span className={`text-xs font-bold ${step >= 3 ? 'text-primary' : 'text-secondary'}`}>Health</span>
+          <div className="step-indicator z-10 flex flex-col items-center gap-2">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-md ring-4 ring-white transition-all duration-500 ${step >= 3 ? 'bg-primary text-on-primary scale-110' : 'bg-surface-container-highest text-secondary'}`}>3</div>
+            <span className={`text-xs font-bold transition-colors ${step >= 3 ? 'text-primary' : 'text-secondary'}`}>Health</span>
           </div>
-          <div className="step-indicator z-10 flex flex-col items-center gap-xs">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-label-md transition-colors duration-300 ${step >= 4 ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-secondary'}`}>4</div>
-            <span className={`text-xs font-bold ${step >= 4 ? 'text-primary' : 'text-secondary'}`}>AI Review</span>
+          <div className="step-indicator z-10 flex flex-col items-center gap-2">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-md ring-4 ring-white transition-all duration-500 ${step >= 4 ? 'bg-primary text-on-primary scale-110' : 'bg-surface-container-highest text-secondary'}`}>4</div>
+            <span className={`text-xs font-bold transition-colors ${step >= 4 ? 'text-primary' : 'text-secondary'}`}>AI Review</span>
           </div>
         </div>
       </div>
@@ -239,20 +239,25 @@ export default function OnboardingWizard({ user, onComplete }) {
       )}
 
       {/* Form Container */}
-      <div className="glass-card rounded-xl p-md md:p-xl shadow-lg relative overflow-hidden bg-white">
+      <div className="glass-card rounded-2xl p-6 md:p-10 shadow-xl shadow-primary/5 border border-white/60 relative overflow-hidden bg-white/95 backdrop-blur-xl">
         {/* STEP 1: Basic Bio Metrics */}
         {step === 1 && (
-          <div className="space-y-lg">
-            <div className="space-y-xs">
-              <h2 className="font-headline-lg text-headline-lg text-on-surface">Tell us about yourself</h2>
-              <p className="text-on-surface-variant">This helps us calculate your baseline metabolic rate accurately.</p>
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards">
+            <div className="space-y-2 border-b border-outline-variant/30 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-xl text-primary shadow-sm">
+                  <span className="material-symbols-outlined text-2xl">person</span>
+                </div>
+                <h2 className="text-2xl font-bold text-on-surface">Tell us about yourself</h2>
+              </div>
+              <p className="text-on-surface-variant text-sm ml-14">This helps us calculate your baseline metabolic rate accurately.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md text-on-surface">Age (years)</label>
                 <input 
-                  className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
+                  className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm" 
                   placeholder="e.g. 28" 
                   type="number"
                   value={age}
@@ -265,7 +270,7 @@ export default function OnboardingWizard({ user, onComplete }) {
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md text-on-surface">Gender</label>
                 <select 
-                  className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all"
+                  className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
                   value={gender}
                   onChange={(e) => { setGender(e.target.value); if (e.target.value === 'MALE') setCycleStatus('NOT_APPLICABLE'); else setCycleStatus('REGULAR'); }}
                 >
@@ -276,7 +281,7 @@ export default function OnboardingWizard({ user, onComplete }) {
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md text-on-surface">Weight (kg)</label>
                 <input 
-                  className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
+                  className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm" 
                   placeholder="e.g. 75" 
                   type="number"
                   value={weight}
@@ -300,7 +305,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                 </div>
                 {heightUnit === 'cm' ? (
                   <input 
-                    className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
+                    className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm" 
                     placeholder="e.g. 172" 
                     type="number"
                     value={heightCm}
@@ -312,7 +317,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                 ) : (
                   <div className="flex gap-sm">
                     <input 
-                      className="w-1/2 bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
+                      className="w-1/2 bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm" 
                       placeholder="ft" 
                       type="number"
                       value={heightFt}
@@ -322,7 +327,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                       required
                     />
                     <input 
-                      className="w-1/2 bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
+                      className="w-1/2 bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm" 
                       placeholder="in" 
                       type="number"
                       value={heightIn}
@@ -337,7 +342,7 @@ export default function OnboardingWizard({ user, onComplete }) {
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md text-on-surface">Primary Location</label>
                 <select 
-                  className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
+                  className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                 >
@@ -352,7 +357,7 @@ export default function OnboardingWizard({ user, onComplete }) {
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md text-on-surface">WhatsApp Contact Number</label>
                 <input 
-                  className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none transition-all" 
+                  className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm" 
                   placeholder="e.g. +923001234567" 
                   type="tel"
                   value={contactNumber}
@@ -366,10 +371,15 @@ export default function OnboardingWizard({ user, onComplete }) {
 
         {/* STEP 2: Diet & Habits (Culture) */}
         {step === 2 && (
-          <div className="space-y-lg">
-            <div className="space-y-xs">
-              <h2 className="font-headline-lg text-headline-lg text-on-surface">Dietary Habits & staples</h2>
-              <p className="text-on-surface-variant">We customize macros and swaps based on traditional South Asian staples.</p>
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards">
+            <div className="space-y-2 border-b border-outline-variant/30 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-secondary/10 rounded-xl text-secondary shadow-sm">
+                  <span className="material-symbols-outlined text-2xl">restaurant_menu</span>
+                </div>
+                <h2 className="text-2xl font-bold text-on-surface">Dietary Habits & Staples</h2>
+              </div>
+              <p className="text-on-surface-variant text-sm ml-14">We customize macros and swaps based on traditional South Asian staples.</p>
             </div>
             
             <div className="space-y-lg">
@@ -378,7 +388,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                   <div className="space-y-xs">
                     <label className="font-label-md text-label-md text-on-surface">Diet Tracking Preference</label>
                     <select 
-                      className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
+                      className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
                       value={dietTrackingPref}
                       onChange={(e) => setDietTrackingPref(e.target.value)}
                     >
@@ -419,7 +429,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                 <div className="space-y-xs">
                   <label className="font-label-md text-label-md text-on-surface">Kitchen Cooking Dynamic</label>
                   <select 
-                    className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
+                    className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
                     value={cookingControl}
                     onChange={(e) => setCookingControl(e.target.value)}
                   >
@@ -436,7 +446,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                   <div className="space-y-md">
                     <label className="font-label-md text-label-md text-on-surface">Daily Diet</label>
                     <select 
-                      className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
+                      className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
                       value={dailyDiet}
                       onChange={(e) => {
                         setDailyDiet(e.target.value);
@@ -455,14 +465,19 @@ export default function OnboardingWizard({ user, onComplete }) {
                     </label>
                     <div className="grid grid-cols-1 gap-sm max-h-60 overflow-y-auto pr-2 custom-scrollbar">
                       {(dailyDiet === 'DESI' ? DESI_STAPLES : dailyDiet === 'WESTERN' ? WESTERN_STAPLES : MIXED_STAPLES).map((staple) => (
-                        <label key={staple} className="flex items-center gap-md p-sm bg-surface-container-low rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
-                          <input 
-                            type="checkbox"
-                            checked={selectedDietStaples.includes(staple)}
-                            onChange={() => toggleStaple(staple)}
-                            className="rounded border-outline-variant text-primary focus:ring-primary"
-                          />
-                          <span className="font-medium text-sm">{staple}</span>
+                        <label key={staple} className="flex items-center gap-3 p-3 bg-surface-container-low/40 rounded-xl border border-transparent cursor-pointer hover:bg-surface-container-low hover:border-outline-variant/50 hover:shadow-sm transition-all group">
+                          <div className="relative flex items-center">
+                            <input 
+                              type="checkbox"
+                              checked={selectedDietStaples.includes(staple)}
+                              onChange={() => toggleStaple(staple)}
+                              className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-outline-variant checked:border-primary checked:bg-primary transition-all"
+                            />
+                            <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity">
+                              <span className="material-symbols-outlined text-[16px] font-bold">check</span>
+                            </span>
+                          </div>
+                          <span className="font-medium text-sm text-on-surface group-hover:text-primary transition-colors">{staple}</span>
                         </label>
                       ))}
                     </div>
@@ -473,7 +488,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                   <div className="space-y-xs">
                     <label className="font-label-md text-label-md text-on-surface">Dawat Frequency (Social Eating)</label>
                     <select 
-                      className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
+                      className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
                       value={dawatFrequency}
                       onChange={(e) => setDawatFrequency(e.target.value)}
                     >
@@ -531,10 +546,15 @@ export default function OnboardingWizard({ user, onComplete }) {
 
         {/* STEP 3: Health, Medical & Goals */}
         {step === 3 && (
-          <div className="space-y-lg">
-            <div className="space-y-xs">
-              <h2 className="font-headline-lg text-headline-lg text-on-surface">Health &amp; Objectives</h2>
-              <p className="text-on-surface-variant">We align training triggers to prevent joint pain and manage hormone stress.</p>
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards">
+            <div className="space-y-2 border-b border-outline-variant/30 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-tertiary/10 rounded-xl text-tertiary shadow-sm">
+                  <span className="material-symbols-outlined text-2xl">favorite</span>
+                </div>
+                <h2 className="text-2xl font-bold text-on-surface">Health & Objectives</h2>
+              </div>
+              <p className="text-on-surface-variant text-sm ml-14">We align training triggers to prevent joint pain and manage hormone stress.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
@@ -542,14 +562,19 @@ export default function OnboardingWizard({ user, onComplete }) {
                 <label className="font-label-md text-label-md text-on-surface">Medical Conditions (Select all that apply)</label>
                 <div className="grid grid-cols-2 gap-sm">
                   {CONDITIONS_LIST.slice(0, 8).map((cond) => (
-                    <label key={cond} className="flex items-center gap-base p-sm border border-outline-variant/30 rounded-lg cursor-pointer">
-                      <input 
-                        type="checkbox"
-                        checked={selectedConditions.includes(cond)}
-                        onChange={() => toggleCondition(cond)}
-                        className="rounded text-primary"
-                      />
-                      <span className="text-xs font-semibold">{cond}</span>
+                    <label key={cond} className="flex items-center gap-3 p-3 bg-surface-container-low/40 rounded-xl border border-outline-variant/30 cursor-pointer hover:bg-surface-container-low hover:border-primary/50 hover:shadow-sm transition-all group">
+                      <div className="relative flex items-center">
+                        <input 
+                          type="checkbox"
+                          checked={selectedConditions.includes(cond)}
+                          onChange={() => toggleCondition(cond)}
+                          className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-outline-variant checked:border-primary checked:bg-primary transition-all"
+                        />
+                        <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity">
+                          <span className="material-symbols-outlined text-[16px] font-bold">check</span>
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors">{cond}</span>
                     </label>
                   ))}
                 </div>
@@ -560,14 +585,14 @@ export default function OnboardingWizard({ user, onComplete }) {
                 <div className="grid grid-cols-2 gap-sm">
                   <button
                     type="button"
-                    className={`py-sm rounded-lg font-bold border ${homeOrGym === 'GYM' ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-low border-outline-variant text-secondary'}`}
+                    className={`py-3 px-4 rounded-xl font-bold border-2 transition-all shadow-sm ${homeOrGym === 'GYM' ? 'bg-primary-container/30 text-primary border-primary hover:bg-primary-container/50' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
                     onClick={() => setHomeOrGym('GYM')}
                   >
                     Gym
                   </button>
                   <button
                     type="button"
-                    className={`py-sm rounded-lg font-bold border ${homeOrGym === 'HOME' ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-low border-outline-variant text-secondary'}`}
+                    className={`py-3 px-4 rounded-xl font-bold border-2 transition-all shadow-sm ${homeOrGym === 'HOME' ? 'bg-primary-container/30 text-primary border-primary hover:bg-primary-container/50' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
                     onClick={() => setHomeOrGym('HOME')}
                   >
                     Home
@@ -578,7 +603,7 @@ export default function OnboardingWizard({ user, onComplete }) {
               <div className="space-y-md">
                 <label className="font-label-md text-label-md text-on-surface">Primary Fitness Goal</label>
                 <select 
-                  className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
+                  className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
                 >
@@ -591,7 +616,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                   <div className="space-y-xs">
                     <label className="font-label-md text-label-md text-on-surface">Menstrual Cycle Pacing</label>
                     <select
-                      className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md focus:ring-2 focus:ring-primary focus:outline-none"
+                      className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
                       value={cycleStatus}
                       onChange={(e) => setCycleStatus(e.target.value)}
                     >
@@ -610,7 +635,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                       <button
                         type="button"
                         key={exp}
-                        className={`py-xs rounded text-xs font-bold border ${experience === exp ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-low border-outline-variant text-secondary'}`}
+                        className={`py-2 px-3 rounded-lg text-xs font-bold border-2 transition-all shadow-sm ${experience === exp ? 'bg-primary-container/30 text-primary border-primary' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
                         onClick={() => setExperience(exp)}
                       >
                         {exp}
@@ -627,7 +652,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                     <button
                       type="button"
                       key={stress}
-                      className={`py-xs rounded text-xs font-bold border ${stressLevel === stress ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-surface-container-low border-outline-variant text-secondary'}`}
+                      className={`py-2 px-1 rounded-lg text-[10px] sm:text-xs font-bold border-2 transition-all shadow-sm ${stressLevel === stress ? 'bg-primary-container/30 text-primary border-primary' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
                       onClick={() => setStressLevel(stress)}
                     >
                       {stress}
@@ -736,14 +761,14 @@ export default function OnboardingWizard({ user, onComplete }) {
         )}
 
         {/* Navigation Buttons */}
-        <div className="mt-xl flex justify-between items-center border-t border-outline-variant/30 pt-lg" id="form-nav">
+        <div className="mt-10 flex justify-between items-center border-t border-outline-variant/20 pt-6" id="form-nav">
           {step > 1 && step < 4 ? (
             <button 
               type="button"
-              className="flex items-center gap-xs px-lg py-md text-secondary font-bold hover:bg-surface-container rounded-xl transition-all" 
+              className="flex items-center gap-2 px-6 py-3 text-secondary font-bold hover:bg-surface-container-high hover:text-on-surface rounded-xl transition-all shadow-sm active:scale-95" 
               onClick={handlePrev}
             >
-              <span className="material-symbols-outlined">arrow_back</span>
+              <span className="material-symbols-outlined text-[20px]">arrow_back</span>
               Back
             </button>
           ) : (
@@ -753,30 +778,30 @@ export default function OnboardingWizard({ user, onComplete }) {
           {step < 3 ? (
             <button 
               type="button"
-              className="flex items-center gap-xs px-xl py-md bg-primary text-on-primary font-bold rounded-xl shadow-md hover:bg-primary-container transition-all" 
+              className="flex items-center gap-2 px-8 py-3 bg-primary text-on-primary font-bold rounded-xl shadow-md shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container hover:shadow-lg transition-all active:scale-95" 
               onClick={handleNext}
             >
               Next
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
             </button>
           ) : step === 3 ? (
             <button 
               type="button"
-              className="flex items-center gap-xs px-xl py-md bg-primary text-on-primary font-bold rounded-xl shadow-md hover:bg-primary-container transition-all animate-pulse" 
+              className="flex items-center gap-2 px-8 py-3 bg-primary text-on-primary font-bold rounded-xl shadow-md shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container hover:shadow-lg transition-all active:scale-95 animate-pulse" 
               onClick={handleNext}
             >
               Generate AI Plan
-              <span className="material-symbols-outlined">auto_awesome</span>
+              <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
             </button>
           ) : (
             !aiAnalyzing && (
               <button 
                 type="button"
-                className="flex items-center gap-xs px-xl py-md bg-primary text-on-primary font-bold rounded-xl shadow-md hover:bg-primary-container transition-all"
+                className="flex items-center gap-2 px-8 py-3 bg-primary text-on-primary font-bold rounded-xl shadow-md shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container hover:shadow-lg transition-all active:scale-95"
                 onClick={handleFinish}
               >
                 Enter Dashboard
-                <span className="material-symbols-outlined">rocket_launch</span>
+                <span className="material-symbols-outlined text-[20px]">rocket_launch</span>
               </button>
             )
           )}
