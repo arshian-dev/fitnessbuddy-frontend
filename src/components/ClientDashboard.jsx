@@ -322,9 +322,9 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onLogo
     const targetFreq = workoutPlan?.frequency || 3;
     const adherenceRate = Math.min(100, Math.round((workoutsCompletedThisWeek / targetFreq) * 100));
 
-    const currentWeight = checkinHistory[0]?.weight || parseFloat(profile?.weight) || 0;
+    const currentWeight = checkinHistory[0]?.weight ? parseFloat(checkinHistory[0].weight) : (parseFloat(profile?.weight) || 0);
     const startingWeight = parseFloat(profile?.weight) || 0;
-    const prevWeight = checkinHistory[1]?.weight || startingWeight;
+    const prevWeight = checkinHistory[1]?.weight ? parseFloat(checkinHistory[1].weight) : startingWeight;
     const weightDiff = currentWeight && prevWeight ? currentWeight - prevWeight : 0;
 
     let avgEnergy = 0;
@@ -526,14 +526,14 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onLogo
                           <div>
                             <p className="font-label-md text-xs text-on-surface font-bold">Clinical Guidance</p>
                             <p className="text-xs text-on-surface-variant mt-1">
-                              Your recovery index is at <strong className="text-primary">{(profile?.recovery_score * 100).toFixed(0)}%</strong>. {profile?.recovery_score > 0.6 ? 'Perfect state for muscular overload. Keep pushing!' : 'Focus on active joint recovery.'}
+                            Your recovery index is at <strong className="text-primary">{((profile?.recovery_score || 0.5) * 100).toFixed(0)}%</strong>. {(profile?.recovery_score || 0.5) > 0.6 ? 'Perfect state for muscular overload. Keep pushing!' : 'Focus on active joint recovery.'}
                             </p>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div className="mt-md text-xs text-secondary italic">
-                      Adherence Probability: <strong className="text-primary">{(profile?.adherence_probability * 100).toFixed(0)}%</strong>
+                      Adherence Probability: <strong className="text-primary">{((profile?.adherence_probability || 0.5) * 100).toFixed(0)}%</strong>
                     </div>
                   </div>
 
@@ -544,7 +544,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onLogo
                       <div className="grid grid-cols-3 gap-sm">
                         <div className="bg-surface-container-low p-md rounded-xl text-center">
                           <span className="text-xs text-secondary block">Recovery</span>
-                          <span className="font-bold text-primary block mt-1">{(profile?.recovery_score * 100).toFixed(0)}%</span>
+                          <span className="font-bold text-primary block mt-1">{((profile?.recovery_score || 0.5) * 100).toFixed(0)}%</span>
                         </div>
                         <div className="bg-surface-container-low p-md rounded-xl text-center">
                           <span className="text-xs text-secondary block">Complexity</span>
