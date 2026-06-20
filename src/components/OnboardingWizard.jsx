@@ -382,9 +382,10 @@ export default function OnboardingWizard({ user, onComplete }) {
               <p className="text-on-surface-variant text-sm ml-14">We customize macros and swaps based on traditional South Asian staples.</p>
             </div>
             
-            <div className="space-y-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                <div className="space-y-md">
+            <div className="space-y-8">
+              {/* Top Section: Preferences */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
+                <div className="space-y-6">
                   <div className="space-y-xs">
                     <label className="font-label-md text-label-md text-on-surface">Diet Tracking Preference</label>
                     <select 
@@ -397,7 +398,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                     </select>
                   </div>
                   {dietTrackingPref === 'CALORIE_COUNTED' && (
-                    <div className="space-y-xs pl-sm border-l-2 border-primary mt-sm">
+                    <div className="space-y-xs pl-sm border-l-2 border-primary mt-sm animate-in fade-in slide-in-from-left-2">
                       <label className="font-label-md text-label-md text-on-surface">Do you have a food weighing scale at home?</label>
                       <div className="flex gap-md">
                         <label className="flex items-center gap-xs cursor-pointer">
@@ -425,66 +426,23 @@ export default function OnboardingWizard({ user, onComplete }) {
                       </div>
                     </div>
                   )}
-                </div>
-                <div className="space-y-xs">
-                  <label className="font-label-md text-label-md text-on-surface">Kitchen Cooking Dynamic</label>
-                  <select 
-                    className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
-                    value={cookingControl}
-                    onChange={(e) => setCookingControl(e.target.value)}
-                  >
-                    <option value="FULL">Cook my own meals</option>
-                    <option value="SOMEONE_ELSE">Someone else cooks (family member / maid)</option>
-                    <option value="EATING_OUT">Mostly eating out / ordering in</option>
-                    <option value="HOSTEL">Hostel / Company site - Little control over meals</option>
-                  </select>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
-                <div className="space-y-md">
-                  <div className="space-y-md">
-                    <label className="font-label-md text-label-md text-on-surface">Daily Diet</label>
+                  <div className="space-y-xs">
+                    <label className="font-label-md text-label-md text-on-surface">Kitchen Cooking Dynamic</label>
                     <select 
                       className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
-                      value={dailyDiet}
-                      onChange={(e) => {
-                        setDailyDiet(e.target.value);
-                        setSelectedDietStaples([]); // Reset selections when switching diets
-                      }}
+                      value={cookingControl}
+                      onChange={(e) => setCookingControl(e.target.value)}
                     >
-                      <option value="DESI">Desi</option>
-                      <option value="WESTERN">Western</option>
-                      <option value="MIXED">Mixed</option>
+                      <option value="FULL">Cook my own meals</option>
+                      <option value="SOMEONE_ELSE">Someone else cooks (family member / maid)</option>
+                      <option value="EATING_OUT">Mostly eating out / ordering in</option>
+                      <option value="HOSTEL">Hostel / Company site - Little control over meals</option>
                     </select>
-                  </div>
-                  
-                  <div className="space-y-xs mt-4">
-                    <label className="font-label-md text-label-md text-on-surface">
-                      {dailyDiet === 'DESI' ? "Which of these do you eat regularly or have available at home?" : "Which of these do you eat regularly or have available?"}
-                    </label>
-                    <div className="grid grid-cols-1 gap-sm max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                      {(dailyDiet === 'DESI' ? DESI_STAPLES : dailyDiet === 'WESTERN' ? WESTERN_STAPLES : MIXED_STAPLES).map((staple) => (
-                        <label key={staple} className="flex items-center gap-3 p-3 bg-surface-container-low/40 rounded-xl border border-transparent cursor-pointer hover:bg-surface-container-low hover:border-outline-variant/50 hover:shadow-sm transition-all group">
-                          <div className="relative flex items-center">
-                            <input 
-                              type="checkbox"
-                              checked={selectedDietStaples.includes(staple)}
-                              onChange={() => toggleStaple(staple)}
-                              className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-outline-variant checked:border-primary checked:bg-primary transition-all"
-                            />
-                            <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity">
-                              <span className="material-symbols-outlined text-[16px] font-bold">check</span>
-                            </span>
-                          </div>
-                          <span className="font-medium text-sm text-on-surface group-hover:text-primary transition-colors">{staple}</span>
-                        </label>
-                      ))}
-                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-lg">
+                <div className="space-y-6">
                   <div className="space-y-xs">
                     <label className="font-label-md text-label-md text-on-surface">Dawat Frequency (Social Eating)</label>
                     <select 
@@ -497,30 +455,31 @@ export default function OnboardingWizard({ user, onComplete }) {
                       <option value="Frequent (3+ times a week)">Frequent (3+ times a week)</option>
                     </select>
                   </div>
+
                   <div className="grid grid-cols-2 gap-sm">
                     <div className="space-y-xs">
                       <label className="font-label-md text-label-md text-on-surface">Chai / Coffee (cups/day)</label>
                       <input 
                         type="number"
-                        className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md"
+                        className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
                         value={chaiCups}
                         min="0"
                         onChange={(e) => setChaiCups(e.target.value)}
                       />
                       {chaiCups > 0 && (
-                        <div className="flex flex-col gap-xs mt-sm text-sm">
-                          <div className="flex justify-between items-center bg-surface-container-low p-xs rounded">
+                        <div className="flex flex-col gap-xs mt-sm text-sm animate-in fade-in slide-in-from-top-2">
+                          <div className="flex justify-between items-center bg-surface-container-low/40 p-2 rounded-lg">
                             <span>Milk?</span>
                             <div className="flex gap-xs">
-                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="milk" value="YES" checked={beverageMilk === 'YES'} onChange={(e) => setBeverageMilk(e.target.value)} /> Yes</label>
-                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="milk" value="NO" checked={beverageMilk === 'NO'} onChange={(e) => setBeverageMilk(e.target.value)} /> No</label>
+                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="milk" value="YES" checked={beverageMilk === 'YES'} onChange={(e) => setBeverageMilk(e.target.value)} className="accent-primary" /> Yes</label>
+                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="milk" value="NO" checked={beverageMilk === 'NO'} onChange={(e) => setBeverageMilk(e.target.value)} className="accent-primary" /> No</label>
                             </div>
                           </div>
-                          <div className="flex justify-between items-center bg-surface-container-low p-xs rounded">
+                          <div className="flex justify-between items-center bg-surface-container-low/40 p-2 rounded-lg">
                             <span>Sugar?</span>
                             <div className="flex gap-xs">
-                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="sugar" value="YES" checked={beverageSugar === 'YES'} onChange={(e) => setBeverageSugar(e.target.value)} /> Yes</label>
-                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="sugar" value="NO" checked={beverageSugar === 'NO'} onChange={(e) => setBeverageSugar(e.target.value)} /> No</label>
+                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="sugar" value="YES" checked={beverageSugar === 'YES'} onChange={(e) => setBeverageSugar(e.target.value)} className="accent-primary" /> Yes</label>
+                              <label className="flex items-center gap-xs cursor-pointer"><input type="radio" name="sugar" value="NO" checked={beverageSugar === 'NO'} onChange={(e) => setBeverageSugar(e.target.value)} className="accent-primary" /> No</label>
                             </div>
                           </div>
                         </div>
@@ -530,14 +489,56 @@ export default function OnboardingWizard({ user, onComplete }) {
                       <label className="font-label-md text-label-md text-on-surface">Water (glasses/day)</label>
                       <input 
                         type="number"
-                        className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md h-[46px]"
+                        className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm h-[46px]"
                         value={waterGlasses}
                         min="0"
                         onChange={(e) => setWaterGlasses(e.target.value)}
                       />
                     </div>
                   </div>
+                </div>
+              </div>
 
+              {/* Bottom Section: Dietary Staples (Full Width) */}
+              <div className="space-y-6 pt-6 border-t border-outline-variant/20">
+                <div className="space-y-xs max-w-md">
+                  <label className="font-label-md text-label-md text-on-surface">Daily Diet</label>
+                  <select 
+                    className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
+                    value={dailyDiet}
+                    onChange={(e) => {
+                      setDailyDiet(e.target.value);
+                      setSelectedDietStaples([]); // Reset selections when switching diets
+                    }}
+                  >
+                    <option value="DESI">Desi</option>
+                    <option value="WESTERN">Western</option>
+                    <option value="MIXED">Mixed</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="font-label-md text-label-md text-on-surface">
+                    {dailyDiet === 'DESI' ? "Which of these do you eat regularly or have available at home?" : "Which of these do you eat regularly or have available?"}
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+                    {(dailyDiet === 'DESI' ? DESI_STAPLES : dailyDiet === 'WESTERN' ? WESTERN_STAPLES : MIXED_STAPLES).map((staple) => (
+                      <label key={staple} className="flex items-center gap-3 p-3 bg-surface-container-low/40 rounded-xl border border-transparent cursor-pointer hover:bg-surface-container-low hover:border-outline-variant/50 hover:shadow-sm transition-all group">
+                        <div className="relative flex items-center">
+                          <input 
+                            type="checkbox"
+                            checked={selectedDietStaples.includes(staple)}
+                            onChange={() => toggleStaple(staple)}
+                            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-outline-variant checked:border-primary checked:bg-primary transition-all"
+                          />
+                          <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity">
+                            <span className="material-symbols-outlined text-[16px] font-bold">check</span>
+                          </span>
+                        </div>
+                        <span className="font-medium text-sm text-on-surface group-hover:text-primary transition-colors">{staple}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -557,13 +558,14 @@ export default function OnboardingWizard({ user, onComplete }) {
               <p className="text-on-surface-variant text-sm ml-14">We align training triggers to prevent joint pain and manage hormone stress.</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
-              <div className="space-y-md">
+            <div className="space-y-8">
+              {/* Top Section: Full Width Medical Conditions */}
+              <div className="space-y-4">
                 <label className="font-label-md text-label-md text-on-surface">Medical Conditions (Select all that apply)</label>
-                <div className="grid grid-cols-2 gap-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {CONDITIONS_LIST.slice(0, 8).map((cond) => (
                     <label key={cond} className="flex items-center gap-3 p-3 bg-surface-container-low/40 rounded-xl border border-outline-variant/30 cursor-pointer hover:bg-surface-container-low hover:border-primary/50 hover:shadow-sm transition-all group">
-                      <div className="relative flex items-center">
+                      <div className="relative flex items-center shrink-0">
                         <input 
                           type="checkbox"
                           checked={selectedConditions.includes(cond)}
@@ -574,102 +576,111 @@ export default function OnboardingWizard({ user, onComplete }) {
                           <span className="material-symbols-outlined text-[16px] font-bold">check</span>
                         </span>
                       </div>
-                      <span className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors">{cond}</span>
+                      <span className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors leading-tight">{cond}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-xs">
-                <label className="font-label-md text-label-md text-on-surface">Workout Venue</label>
-                <div className="grid grid-cols-2 gap-sm">
-                  <button
-                    type="button"
-                    className={`py-3 px-4 rounded-xl font-bold border-2 transition-all shadow-sm ${homeOrGym === 'GYM' ? 'bg-primary-container/30 text-primary border-primary hover:bg-primary-container/50' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
-                    onClick={() => setHomeOrGym('GYM')}
-                  >
-                    Gym
-                  </button>
-                  <button
-                    type="button"
-                    className={`py-3 px-4 rounded-xl font-bold border-2 transition-all shadow-sm ${homeOrGym === 'HOME' ? 'bg-primary-container/30 text-primary border-primary hover:bg-primary-container/50' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
-                    onClick={() => setHomeOrGym('HOME')}
-                  >
-                    Home
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-md">
-                <label className="font-label-md text-label-md text-on-surface">Primary Fitness Goal</label>
-                <select 
-                  className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
-                  value={goal}
-                  onChange={(e) => setGoal(e.target.value)}
-                >
-                  <option value="FAT_LOSS">Fat Loss / Body Recomp</option>
-                  <option value="MUSCLE_GAIN">Hypertrophy / Lean Muscle Gain</option>
-                  <option value="RECOMP">Maintenance &amp; Recovery</option>
-                </select>
-                
-                {gender === 'FEMALE' && (
+              {/* Bottom Section: Left & Right Columns */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-xl pt-6 border-t border-outline-variant/20">
+                {/* Left Column */}
+                <div className="space-y-6">
                   <div className="space-y-xs">
-                    <label className="font-label-md text-label-md text-on-surface">Menstrual Cycle Pacing</label>
-                    <select
+                    <label className="font-label-md text-label-md text-on-surface">Primary Fitness Goal</label>
+                    <select 
                       className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
-                      value={cycleStatus}
-                      onChange={(e) => setCycleStatus(e.target.value)}
+                      value={goal}
+                      onChange={(e) => setGoal(e.target.value)}
                     >
-                      <option value="REGULAR">Regular Cycle</option>
-                      <option value="IRREGULAR">Irregular / PCOS irregular</option>
-                      <option value="PREGNANT">Pregnant (Low stress focus)</option>
-                      <option value="POSTPARTUM">Postpartum (Rehab focus)</option>
+                      <option value="FAT_LOSS">Fat Loss / Body Recomp</option>
+                      <option value="MUSCLE_GAIN">Hypertrophy / Lean Muscle Gain</option>
+                      <option value="RECOMP">Maintenance &amp; Recovery</option>
                     </select>
                   </div>
-                )}
-
-                <div className="space-y-xs">
-                  <label className="font-label-md text-label-md text-on-surface">Experience Level</label>
-                  <div className="grid grid-cols-3 gap-sm">
-                    {['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].map((exp) => (
-                      <button
-                        type="button"
-                        key={exp}
-                        className={`py-2 px-3 rounded-lg text-xs font-bold border-2 transition-all shadow-sm ${experience === exp ? 'bg-primary-container/30 text-primary border-primary' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
-                        onClick={() => setExperience(exp)}
+                  
+                  {gender === 'FEMALE' && (
+                    <div className="space-y-xs animate-in fade-in slide-in-from-top-2">
+                      <label className="font-label-md text-label-md text-on-surface">Menstrual Cycle Pacing</label>
+                      <select
+                        className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
+                        value={cycleStatus}
+                        onChange={(e) => setCycleStatus(e.target.value)}
                       >
-                        {exp}
-                      </button>
-                    ))}
+                        <option value="REGULAR">Regular Cycle</option>
+                        <option value="IRREGULAR">Irregular / PCOS irregular</option>
+                        <option value="PREGNANT">Pregnant (Low stress focus)</option>
+                        <option value="POSTPARTUM">Postpartum (Rehab focus)</option>
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="space-y-xs">
+                    <label className="font-label-md text-label-md text-on-surface">Experience Level</label>
+                    <div className="grid grid-cols-3 gap-sm">
+                      {['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].map((exp) => (
+                        <button
+                          type="button"
+                          key={exp}
+                          className={`py-2 px-3 rounded-lg text-xs font-bold border-2 transition-all shadow-sm ${experience === exp ? 'bg-primary-container/30 text-primary border-primary' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
+                          onClick={() => setExperience(exp)}
+                        >
+                          {exp}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-xs">
-                <label className="font-label-md text-label-md text-on-surface">Average stress level</label>
-                <div className="grid grid-cols-4 gap-sm">
-                  {['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'].map((stress) => (
-                    <button
-                      type="button"
-                      key={stress}
-                      className={`py-2 px-1 rounded-lg text-[10px] sm:text-xs font-bold border-2 transition-all shadow-sm ${stressLevel === stress ? 'bg-primary-container/30 text-primary border-primary' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
-                      onClick={() => setStressLevel(stress)}
-                    >
-                      {stress}
-                    </button>
-                  ))}
+                {/* Right Column */}
+                <div className="space-y-6">
+                  <div className="space-y-xs">
+                    <label className="font-label-md text-label-md text-on-surface">Workout Venue</label>
+                    <div className="grid grid-cols-2 gap-sm">
+                      <button
+                        type="button"
+                        className={`py-3 px-4 rounded-xl font-bold border-2 transition-all shadow-sm ${homeOrGym === 'GYM' ? 'bg-primary-container/30 text-primary border-primary hover:bg-primary-container/50' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
+                        onClick={() => setHomeOrGym('GYM')}
+                      >
+                        Gym
+                      </button>
+                      <button
+                        type="button"
+                        className={`py-3 px-4 rounded-xl font-bold border-2 transition-all shadow-sm ${homeOrGym === 'HOME' ? 'bg-primary-container/30 text-primary border-primary hover:bg-primary-container/50' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
+                        onClick={() => setHomeOrGym('HOME')}
+                      >
+                        Home
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-xs">
+                    <label className="font-label-md text-label-md text-on-surface">Average stress level</label>
+                    <div className="grid grid-cols-4 gap-sm">
+                      {['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'].map((stress) => (
+                        <button
+                          type="button"
+                          key={stress}
+                          className={`py-2 px-1 rounded-lg text-[10px] sm:text-xs font-bold border-2 transition-all shadow-sm ${stressLevel === stress ? 'bg-primary-container/30 text-primary border-primary' : 'bg-surface-container-low/50 border-transparent text-secondary hover:bg-surface-container-low hover:border-outline-variant/50'}`}
+                          onClick={() => setStressLevel(stress)}
+                        >
+                          {stress}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-xs">
+                    <label className="font-label-md text-label-md text-on-surface">End Goal Description</label>
+                    <input 
+                      type="text"
+                      className="w-full bg-surface-container-low/50 hover:bg-surface-container-low border border-outline-variant/60 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/80 focus:border-primary focus:outline-none transition-all shadow-sm text-sm"
+                      placeholder="e.g. wedding prep, lower visceral fat..."
+                      value={endGoalDescription}
+                      onChange={(e) => setEndGoalDescription(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
-
-              <div className="space-y-xs">
-                <label className="font-label-md text-label-md text-on-surface">End Goal Description</label>
-                <input 
-                  type="text"
-                  className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg p-md"
-                  placeholder="e.g. wedding prep, lower visceral fat..."
-                  value={endGoalDescription}
-                  onChange={(e) => setEndGoalDescription(e.target.value)}
-                />
               </div>
             </div>
           </div>
