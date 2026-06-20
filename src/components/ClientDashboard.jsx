@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import ReactMarkdown from 'react-markdown';
 import { api } from '../services/api';
 import { 
@@ -47,7 +48,11 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
   const [waist, setWaist] = useState('');
   const [energy, setEnergy] = useState(7);
   const [mood, setMood] = useState(7);
-  const [workoutsCompleted, setWorkoutsCompleted] = useState('');
+  const [workoutCompletedToday, setWorkoutCompletedToday] = useState(false);
+  const [logDate, setLogDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
   const [caloriesLogged, setCaloriesLogged] = useState('');
   const [loggedProtein, setLoggedProtein] = useState(0);
   const [loggedCarbs, setLoggedCarbs] = useState(0);
@@ -61,6 +66,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
   const [isResting, setIsResting] = useState(false);
   const [workoutLogWeight, setWorkoutLogWeight] = useState('');
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [chartTimeRange, setChartTimeRange] = useState('monthly');
   
   
   const [formLoading, setFormLoading] = useState(false);
@@ -183,30 +189,35 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
 
   const handleCheckinSubmit = async (e) => {
     if (e) e.preventDefault();
-    setFormLoading(true);
-    setFormSuccess('');
-    setFormError('');
-
     try {
+      setFormLoading(true);
+      setFormSuccess('');
+      setFormError('');
+
       const data = {
         userId: user.id,
+        log_date: logDate,
         weight: parseFloat(weight),
-        waist_cm: waist ? parseFloat(waist) : null,
+        waist_cm: parseFloat(waist),
         energy_score: parseInt(energy),
         mood_score: parseInt(mood),
-        workouts_completed: workoutsCompleted ? parseInt(workoutsCompleted) : 0,
+        workout_completed: workoutCompletedToday,
+        calories_logged: caloriesLogged ? parseInt(caloriesLogged) : 0,
+        protein_logged: parseInt(loggedProtein) || 0,
+        carbs_logged: parseInt(loggedCarbs) || 0,
+        fats_logged: parseInt(loggedFats) || 0,
       };
 
       const res = await api.submitCheckin(data);
       
       setFormSuccess('Progress logged successfully!');
       
-      // Reset input fields
+      // Reset input fields but keep logDate
       setWeight('');
       setWaist('');
       setEnergy(7);
       setMood(7);
-      setWorkoutsCompleted('');
+      setWorkoutCompletedToday(false);
       setCaloriesLogged('');
 
       await loadCheckinHistory();
@@ -730,6 +741,16 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
 
                   <form onSubmit={handleCheckinSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-md">
                     <div className="space-y-xs">
+                      <label className="text-xs font-bold text-secondary">LOG DATE *</label>
+                      <input 
+                        className="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg p-md focus:ring-2 focus:ring-primary focus:border-primary transition-all" 
+                        type="date"
+                        value={logDate}
+                        onChange={(e) => setLogDate(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-xs">
                       <label className="text-xs font-bold text-secondary">BODY WEIGHT (KG) *</label>
                       <input 
                         className="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg p-md focus:ring-2 focus:ring-primary focus:border-primary transition-all" 
@@ -766,17 +787,14 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                       />
                     </div>
                     <div className="space-y-xs">
-                      <label className="text-xs font-bold text-secondary">WORKOUTS COMPLETED THIS WEEK *</label>
-                      <input 
-                        className="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg p-md focus:ring-2 focus:ring-primary focus:border-primary transition-all" 
-                        placeholder={`Planned target: ${workoutPlan?.frequency || 3}`}
-                        type="number"
-                        min="0"
-                        max="21"
-                        value={workoutsCompleted}
-                        onChange={(e) => setWorkoutsCompleted(e.target.value)}
-                        required
-                      />
+                      <label className="text-xs font-bold text-secondary">WORKOUT COMPLETED TODAY?</label>
+                      <div 
+                        onClick={() => setWorkoutCompletedToday(!workoutCompletedToday)}
+                        className={`w-full flex items-center justify-between border rounded-lg p-md cursor-pointer transition-all ${workoutCompletedToday ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container-low border-outline-variant/30 text-secondary'}`}
+                      >
+                        <span className="font-semibold text-sm">{workoutCompletedToday ? 'Yes, crushed it!' : 'No, taking a rest'}</span>
+                        {workoutCompletedToday && <Check size={18} className="text-primary" />}
+                      </div>
                     </div>
                     <div className="space-y-xs sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-sm">
                       <div>
@@ -1659,34 +1677,70 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
           {activeTab === 'progress' && (
             <div className="space-y-lg">
               
-              {/* Weight trend visualizer */}
+              {/* Performance Curve Chart */}
               <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20">
-                <h3 className="font-headline-md text-lg text-on-surface mb-lg">Weight trend logged over time</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-lg gap-md">
+                  <h3 className="font-headline-md text-lg text-on-surface">Performance Curve</h3>
+                  <div className="flex gap-xs bg-surface-container p-1 rounded-xl">
+                    <button 
+                      onClick={() => setChartTimeRange('weekly')} 
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'weekly' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                    >
+                      Weekly
+                    </button>
+                    <button 
+                      onClick={() => setChartTimeRange('monthly')} 
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'monthly' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                    >
+                      Monthly
+                    </button>
+                    <button 
+                      onClick={() => setChartTimeRange('annual')} 
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'annual' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                    >
+                      Annual
+                    </button>
+                  </div>
+                </div>
+
                 {checkinHistory.length > 0 ? (
-                  <div>
-                    <div className="flex justify-between items-end h-36 gap-xs bg-slate-50 p-md rounded-xl border border-outline-variant/10">
-                      {checkinHistory.slice().reverse().map((log, idx) => {
-                        const baseWeight = Math.min(...checkinHistory.map((l) => l.weight)) - 5;
-                        const maxWeight = Math.max(...checkinHistory.map((l) => l.weight)) + 5;
-                        const heightPercent = ((log.weight - baseWeight) / (maxWeight - baseWeight)) * 100;
-                        return (
-                          <div 
-                            key={log.id} 
-                            style={{ height: `${Math.max(20, Math.min(100, heightPercent))}%` }}
-                            className="flex-grow flex flex-col items-center justify-end gap-xs"
-                          >
-                            <span className="text-[10px] font-bold text-primary">{log.weight} kg</span>
-                            <div className="w-full bg-primary hover:bg-primary-container transition-all rounded-t-sm h-full"></div>
-                            <span className="text-[8px] text-secondary font-semibold">
-                              {new Date(log.log_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  <div className="h-64 w-full text-xs">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={(() => {
+                          const now = new Date();
+                          const cutoff = new Date();
+                          if (chartTimeRange === 'weekly') cutoff.setDate(now.getDate() - 7);
+                          else if (chartTimeRange === 'monthly') cutoff.setMonth(now.getMonth() - 1);
+                          else if (chartTimeRange === 'annual') cutoff.setFullYear(now.getFullYear() - 1);
+                          
+                          return checkinHistory
+                            .filter(log => new Date(log.log_date) >= cutoff)
+                            .sort((a, b) => new Date(a.log_date) - new Date(b.log_date))
+                            .map(log => ({
+                              date: new Date(log.log_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+                              Weight: log.weight,
+                              Calories: log.calories_logged || null
+                            }));
+                        })()}
+                        margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748B' }} dy={10} />
+                        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#64748B' }} dx={-10} domain={['auto', 'auto']} />
+                        <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#64748B' }} dx={10} />
+                        <Tooltip 
+                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                          cursor={{ stroke: '#CBD5E1', strokeWidth: 1, strokeDasharray: '4 4' }}
+                        />
+                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                        <Line yAxisId="left" type="monotone" dataKey="Weight" stroke="#00B88C" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                        <Line yAxisId="right" type="monotone" dataKey="Calories" stroke="#8B5CF6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} connectNulls />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 ) : (
-                  <p className="text-secondary text-sm text-center py-md">No progress entries logged yet. Write one on the overview tab!</p>
+                  <p className="text-secondary text-sm text-center py-md bg-slate-50 rounded-xl border border-outline-variant/10">No progress entries logged yet. Track your weight or calories on the overview tab to see your curve!</p>
                 )}
               </div>
 
@@ -1706,10 +1760,14 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                             {log.waist_cm && <span> | Waist: <strong className="text-primary">{log.waist_cm} cm</strong></span>}
                           </span>
                         </div>
-                        <div className="grid grid-cols-3 gap-sm text-[10px] text-slate-500 font-bold mb-sm">
-                          <span>Workouts completed: {log.workouts_completed}</span>
-                          <span>Energy index: {log.energy_score}/10</span>
-                          <span>Mood index: {log.mood_score}/10</span>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-sm text-[10px] text-slate-500 font-bold mb-sm">
+                          <span className="flex items-center gap-1">
+                            {log.workout_completed ? <Check size={12} className="text-primary" /> : <span className="w-3" />}
+                            Workout: {log.workout_completed ? 'Yes' : 'No'}
+                          </span>
+                          <span>Calories: {log.calories_logged || '-'}</span>
+                          <span>Energy: {log.energy_score}/10</span>
+                          <span>Mood: {log.mood_score}/10</span>
                         </div>
                         {log.ai_insight && (
                           <div className="bg-teal-50 border-l-2 border-primary p-sm rounded text-slate-700 italic">
