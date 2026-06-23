@@ -1,16 +1,49 @@
-# React + Vite
+# Fitness Buddy - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend for the Personalized Fitness Intelligence Platform. Built with React and Vite.
 
-Currently, two official plugins are available:
+## Overview
+This application provides a comprehensive interface for both clients and fitness coaches. It includes features for tracking workouts, diets, communicating with an AI assistant for meal substitutions and fitness advice, and allowing coaches to manage their clients' progress.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Key Features
+- **Landing Page**: An engaging entry point introducing the platform's capabilities.
+- **Client Dashboard**: A personalized space for users to log daily check-ins, view performance metrics, and interact with the AI Chat Widget.
+- **Coach Dashboard**: A command center for fitness coaches to monitor client progress, review daily logs, and provide personalized feedback.
+- **Onboarding Wizard**: A smooth step-by-step setup process for new users to define their fitness goals, body metrics, and dietary preferences.
+- **AI Chat Widget**: An integrated chat interface leveraging AI to assist clients with meal substitutions and fitness inquiries.
 
-## React Compiler
+## Technology Stack
+- **Framework**: React 19
+- **Build Tool**: Vite
+- **Icons**: Lucide React
+- **Charts**: Recharts for data visualization
+- **Markdown Rendering**: react-markdown for displaying AI responses
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
+- Node.js
+- npm or yarn
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Installation
+1. Navigate to the `frontend` directory.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Building for Production
+To create a production build:
+```bash
+npm run build
+```
+
+## Scripts
+- `npm run dev`: Starts the local development server.
+- `npm run build`: Compiles the application for production.
+- `npm run lint`: Runs ESLint to identify and fix code issues.
+- `npm run preview`: Previews the production build locally.
