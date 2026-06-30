@@ -3,16 +3,19 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
   const headers = {
-    'Content-Type': 'application/json',
     ...options.headers,
   };
+
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  }
 
   const config = {
     ...options,
     headers,
   };
 
-  if (config.body && typeof config.body !== 'string') {
+  if (config.body && !(config.body instanceof FormData) && typeof config.body !== 'string') {
     config.body = JSON.stringify(config.body);
   }
 
@@ -74,4 +77,10 @@ export const api = {
   sendMessage: (userId, message) => request('/chat', { method: 'POST', body: { userId, message } }),
   sendCoachMessage: (coachId, message) => request('/chat/coach', { method: 'POST', body: { coachId, message } }),
   estimateMacros: (foodDescription) => request('/chat/estimate-macros', { method: 'POST', body: { foodDescription } }),
+
+  // Knowledge Base Management
+  getKnowledge: (coachId) => request(`/coach/knowledge?coachId=${coachId}`),
+  addKnowledgeText: (coachId, title, content) => request('/coach/knowledge/text', { method: 'POST', body: { coachId, title, content } }),
+  addKnowledgeYoutube: (coachId, url) => request('/coach/knowledge/youtube', { method: 'POST', body: { coachId, url } }),
+  uploadKnowledge: (formData) => request('/knowledge/upload', { method: 'POST', body: formData }),
 };

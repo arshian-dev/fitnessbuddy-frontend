@@ -22,12 +22,24 @@ import {
   AlertTriangle, 
   LogOut,
   Edit2,
-  RefreshCw
+  RefreshCw,
+  BrainCircuit,
+  Database
 } from 'lucide-react';
 
 export default function CoachDashboard({ user, onLogout }) {
-  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, registry, library, settings
+  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, registry, library, chat, intelligence
   const [clients, setClients] = useState([]);
+  
+  // Knowledge Base States
+  const [knowledgeSources, setKnowledgeSources] = useState([]);
+  const [newNoteTitle, setNewNoteTitle] = useState('');
+  const [newNoteContent, setNewNoteContent] = useState('');
+  const [newAssetUrl, setNewAssetUrl] = useState('');
+  const [newAssetFile, setNewAssetFile] = useState(null);
+  const [kbLoading, setKbLoading] = useState(false);
+  const [kbMessage, setKbMessage] = useState({ type: '', text: '' });
+  const [previewChunks, setPreviewChunks] = useState(null);
   const [selectedClient, setSelectedClient] = useState(null);
   
   // Library Lists
@@ -144,6 +156,15 @@ export default function CoachDashboard({ user, onLogout }) {
     }
   };
 
+  const loadKnowledge = async () => {
+    try {
+      const data = await api.getKnowledge(user.id);
+      setKnowledgeSources(data);
+    } catch (err) {
+      console.error('Failed to load knowledge base:', err.message);
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, []);
@@ -151,6 +172,9 @@ export default function CoachDashboard({ user, onLogout }) {
   useEffect(() => {
     if (activeTab === 'library' || (activeTab === 'registry' && selectedClient)) {
       loadLibrary();
+    }
+    if (activeTab === 'intelligence') {
+      loadKnowledge();
     }
   }, [activeTab, selectedClient]);
 
@@ -320,6 +344,13 @@ export default function CoachDashboard({ user, onLogout }) {
             <span className="material-symbols-outlined">smart_toy</span>
             <span className="font-label-md text-label-md">AI Assistant</span>
           </button>
+          <button 
+            onClick={() => setActiveTab('intelligence')}
+            className={`w-full flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'intelligence' ? 'bg-primary-container text-on-primary-container font-bold scale-[0.99]' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
+          >
+            <span className="material-symbols-outlined">psychology</span>
+            <span className="font-label-md text-label-md">Intelligence Base</span>
+          </button>
         </nav>
         <div className="mt-auto pt-lg border-t border-outline-variant/20 space-y-2">
           <div className="px-md py-sm mb-md flex items-center gap-md">
@@ -350,7 +381,7 @@ export default function CoachDashboard({ user, onLogout }) {
           <div>
             <div className="flex items-center gap-md">
               <h2 className="font-headline-lg text-headline-lg text-on-background tracking-tight">
-                {activeTab === 'dashboard' ? 'Coach Overview' : activeTab === 'registry' ? 'Client Management' : activeTab === 'chat' ? 'AI Assistant' : 'Asset Library'}
+                {activeTab === 'dashboard' ? 'Coach Overview' : activeTab === 'registry' ? 'Client Management' : activeTab === 'chat' ? 'AI Assistant' : activeTab === 'intelligence' ? 'Intelligence Base' : 'Asset Library'}
               </h2>
               {user.coach_code && (
                 <div className="bg-primary/10 border border-primary/20 px-sm py-1 rounded-md flex items-center gap-xs">
@@ -362,6 +393,7 @@ export default function CoachDashboard({ user, onLogout }) {
             <p className="text-on-surface-variant">
               {activeTab === 'dashboard' ? `You have ${clients.length} active clients. ${escalations.length > 0 ? `${escalations.length} require immediate attention.` : 'All good today!'}` : 
                activeTab === 'chat' ? 'Brainstorm splits, manage plateaus, and plan diets.' : 
+               activeTab === 'intelligence' ? 'Manage your unique coaching data embedded into the AI brain.' :
                'Manage clients, design target meal plans, and override workouts.'}
             </p>
           </div>
@@ -1247,6 +1279,193 @@ export default function CoachDashboard({ user, onLogout }) {
                   Send
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* INTELLIGENCE BASE TAB */}
+        {activeTab === 'intelligence' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg animate-in fade-in duration-500">
+            {/* Knowledge Base Overview */}
+            <div className="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col h-[750px]">
+              <div className="p-md border-b border-outline-variant/20 flex justify-between items-center">
+                <div className="flex items-center gap-sm">
+                  <Database className="text-primary" size={24} />
+                  <h3 className="font-headline-md text-[20px] font-extrabold text-on-surface">Knowledge Base Assets</h3>
+                </div>
+                <button onClick={loadKnowledge} className="text-primary hover:bg-primary/10 p-2 rounded-lg transition-colors">
+                  <RefreshCw size={18} />
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1 p-md space-y-md">
+                {knowledgeSources.length === 0 ? (
+                  <p className="text-secondary text-sm text-center mt-xl">No knowledge base assets found. Add some text or YouTube videos to get started.</p>
+                ) : (
+                  knowledgeSources.map((source, idx) => (
+                    <div key={idx} className="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl flex items-center justify-between">
+                      <div className="flex items-center gap-md">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${source.source_type === 'YOUTUBE_VIDEO' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+                          <span className="material-symbols-outlined text-[20px]">
+                            {source.source_type === 'YOUTUBE_VIDEO' ? 'play_circle' : 'description'}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-on-surface">{source.name}</p>
+                          <p className="text-[11px] text-secondary font-medium uppercase tracking-wider">{source.source_type.replace('_', ' ')}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-primary font-bold text-lg">{source.chunks_count}</p>
+                        <p className="text-[10px] text-secondary">Embedded Chunks</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Ingestion Controls */}
+            <div className="lg:col-span-5 space-y-lg">
+              {kbMessage.text && (
+                <div className={`p-md rounded-xl text-sm font-semibold flex items-center gap-sm ${kbMessage.type === 'error' ? 'bg-error-container text-on-error-container' : 'bg-teal-50 text-teal-800 border border-teal-200'}`}>
+                  <span className="material-symbols-outlined">{kbMessage.type === 'error' ? 'error' : 'check_circle'}</span>
+                  <span>{kbMessage.text}</span>
+                </div>
+              )}
+
+              {/* Add Text Note */}
+              <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+                <h4 className="font-bold text-on-surface mb-sm flex items-center gap-xs">
+                  <span className="material-symbols-outlined text-primary">edit_note</span>
+                  Add Text Note
+                </h4>
+                <p className="text-xs text-secondary mb-md">Paste specific philosophies, diet rules, or workout cues directly into the AI's brain.</p>
+                <div className="space-y-sm">
+                  <input
+                    type="text"
+                    className="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-sm text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    placeholder="Note Title (e.g. PCOS Cardio Rules)"
+                    value={newNoteTitle}
+                    onChange={(e) => setNewNoteTitle(e.target.value)}
+                  />
+                  <textarea
+                    className="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-sm text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary h-32 resize-none"
+                    placeholder="Enter the exact rules or philosophy here..."
+                    value={newNoteContent}
+                    onChange={(e) => setNewNoteContent(e.target.value)}
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!newNoteTitle || !newNoteContent) return;
+                      setKbLoading(true);
+                      setKbMessage({ type: '', text: '' });
+                      try {
+                        const res = await api.addKnowledgeText(user.id, newNoteTitle, newNoteContent);
+                        setKbMessage({ type: 'success', text: res.message });
+                        setNewNoteTitle('');
+                        setNewNoteContent('');
+                        loadKnowledge();
+                      } catch (err) {
+                        setKbMessage({ type: 'error', text: err.message });
+                      } finally {
+                        setKbLoading(false);
+                      }
+                    }}
+                    disabled={kbLoading || !newNoteTitle || !newNoteContent}
+                    className="w-full bg-primary hover:opacity-90 disabled:opacity-50 text-white py-sm rounded-lg font-bold text-sm transition-all"
+                  >
+                    Embed Text Note
+                  </button>
+                </div>
+              </div>
+
+              {/* Universal Asset Uploader */}
+              <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+                <h4 className="font-bold text-on-surface mb-sm flex items-center gap-xs">
+                  <span className="material-symbols-outlined text-primary">upload_file</span>
+                  Universal Asset Uploader
+                </h4>
+                <p className="text-xs text-secondary mb-md">Upload a document (PDF, DOCX, XLS) OR paste a YouTube link. We'll automatically parse and embed it into the AI's brain.</p>
+                <div className="space-y-sm">
+                  <input
+                    type="file"
+                    accept=".pdf,.docx,.xls,.xlsx"
+                    className="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-xs text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                    onChange={(e) => setNewAssetFile(e.target.files[0])}
+                    disabled={!!newAssetUrl}
+                  />
+                  <div className="text-center text-xs text-secondary font-bold">OR</div>
+                  <input
+                    type="text"
+                    className="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-sm text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    value={newAssetUrl}
+                    onChange={(e) => setNewAssetUrl(e.target.value)}
+                    disabled={!!newAssetFile}
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!newAssetUrl && !newAssetFile) return;
+                      setKbLoading(true);
+                      setKbMessage({ type: '', text: '' });
+                      try {
+                        const formData = new FormData();
+                        formData.append('trainerId', user.id);
+                        if (newAssetFile) {
+                          formData.append('file', newAssetFile);
+                        } else if (newAssetUrl) {
+                          formData.append('url', newAssetUrl);
+                        }
+                        
+                        const res = await api.uploadKnowledge(formData);
+                        setKbMessage({ type: 'success', text: res.message });
+                        if (res.chunks && res.chunks.length > 0) {
+                          setPreviewChunks(res.chunks);
+                        }
+                        setNewAssetUrl('');
+                        setNewAssetFile(null);
+                        // Reset file input visually
+                        const fileInput = document.querySelector('input[type="file"]');
+                        if (fileInput) fileInput.value = '';
+                        loadKnowledge();
+                      } catch (err) {
+                        setKbMessage({ type: 'error', text: err.message });
+                      } finally {
+                        setKbLoading(false);
+                      }
+                    }}
+                    disabled={kbLoading || (!newAssetUrl && !newAssetFile)}
+                    className="w-full bg-primary hover:opacity-90 disabled:opacity-50 text-white py-sm rounded-lg font-bold text-sm transition-all"
+                  >
+                    Start Ingestion Job
+                  </button>
+                </div>
+              </div>
+
+              {/* Transcript Preview Section */}
+              {previewChunks && (
+                <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+                  <div className="flex justify-between items-center mb-md">
+                    <h4 className="font-bold text-on-surface flex items-center gap-xs">
+                      <span className="material-symbols-outlined text-primary">subtitles</span>
+                      Extracted Transcripts & Embeddings
+                    </h4>
+                    <button onClick={() => setPreviewChunks(null)} className="text-secondary hover:text-primary">
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <p className="text-xs text-secondary mb-md">These chunks have been successfully embedded and saved to your knowledge base. The original file has been securely discarded from memory.</p>
+                  <div className="space-y-sm max-h-[400px] overflow-y-auto pr-sm custom-scrollbar">
+                    {previewChunks.map((chunk, idx) => (
+                      <div key={idx} className="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl">
+                        <span className="text-[10px] font-bold text-primary uppercase mb-xs block">Chunk {idx + 1} • {chunk.source_name}</span>
+                        <p className="text-xs text-on-surface-variant leading-relaxed font-mono">{chunk.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         )}
