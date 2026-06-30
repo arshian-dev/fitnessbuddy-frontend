@@ -1414,7 +1414,7 @@ export default function CoachDashboard({ user, onLogout }) {
                         if (newAssetFile) {
                           formData.append('file', newAssetFile);
                         } else if (newAssetUrl) {
-                          formData.append('url', newAssetUrl);
+                          formData.append('youtubeUrl', newAssetUrl);
                         }
                         
                         const res = await api.uploadKnowledge(formData);
