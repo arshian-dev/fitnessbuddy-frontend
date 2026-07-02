@@ -35,7 +35,6 @@ export default function CoachDashboard({ user, onLogout }) {
   const [knowledgeSources, setKnowledgeSources] = useState([]);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [newNoteContent, setNewNoteContent] = useState('');
-  const [newAssetUrl, setNewAssetUrl] = useState('');
   const [newAssetFile, setNewAssetFile] = useState(null);
   const [kbLoading, setKbLoading] = useState(false);
   const [kbMessage, setKbMessage] = useState({ type: '', text: '' });
@@ -1379,50 +1378,35 @@ export default function CoachDashboard({ user, onLogout }) {
                 </div>
               </div>
 
-              {/* Universal Asset Uploader */}
+              {/* Document Asset Uploader */}
               <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
                 <h4 className="font-bold text-on-surface mb-sm flex items-center gap-xs">
                   <span className="material-symbols-outlined text-primary">upload_file</span>
-                  Universal Asset Uploader
+                  Document Asset Uploader
                 </h4>
-                <p className="text-xs text-secondary mb-md">Upload a document (PDF, DOCX, XLS) OR paste a YouTube link. We'll automatically parse and embed it into the AI's brain.</p>
+                <p className="text-xs text-secondary mb-md">Upload a document (PDF, DOCX, XLS). We'll automatically parse and embed it into the AI's brain.</p>
                 <div className="space-y-sm">
                   <input
                     type="file"
                     accept=".pdf,.docx,.xls,.xlsx"
                     className="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-xs text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                     onChange={(e) => setNewAssetFile(e.target.files[0])}
-                    disabled={!!newAssetUrl}
-                  />
-                  <div className="text-center text-xs text-secondary font-bold">OR</div>
-                  <input
-                    type="text"
-                    className="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-sm text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    value={newAssetUrl}
-                    onChange={(e) => setNewAssetUrl(e.target.value)}
-                    disabled={!!newAssetFile}
                   />
                   <button
                     onClick={async () => {
-                      if (!newAssetUrl && !newAssetFile) return;
+                      if (!newAssetFile) return;
                       setKbLoading(true);
                       setKbMessage({ type: '', text: '' });
                       try {
                         const formData = new FormData();
                         formData.append('trainerId', user.id);
-                        if (newAssetFile) {
-                          formData.append('file', newAssetFile);
-                        } else if (newAssetUrl) {
-                          formData.append('youtubeUrl', newAssetUrl);
-                        }
+                        formData.append('file', newAssetFile);
                         
                         const res = await api.uploadKnowledge(formData);
                         setKbMessage({ type: 'success', text: res.message });
                         if (res.chunks && res.chunks.length > 0) {
                           setPreviewChunks(res.chunks);
                         }
-                        setNewAssetUrl('');
                         setNewAssetFile(null);
                         // Reset file input visually
                         const fileInput = document.querySelector('input[type="file"]');
@@ -1434,7 +1418,7 @@ export default function CoachDashboard({ user, onLogout }) {
                         setKbLoading(false);
                       }
                     }}
-                    disabled={kbLoading || (!newAssetUrl && !newAssetFile)}
+                    disabled={kbLoading || !newAssetFile}
                     className="w-full bg-primary hover:opacity-90 disabled:opacity-50 text-white py-sm rounded-lg font-bold text-sm transition-all"
                   >
                     Start Ingestion Job

@@ -81,6 +81,5 @@ export const api = {
   // Knowledge Base Management
   getKnowledge: (coachId) => request(`/coach/knowledge?coachId=${coachId}`),
   addKnowledgeText: (coachId, title, content) => request('/coach/knowledge/text', { method: 'POST', body: { coachId, title, content } }),
-  addKnowledgeYoutube: (coachId, url) => request('/coach/knowledge/youtube', { method: 'POST', body: { coachId, url } }),
   uploadKnowledge: (formData) => request('/knowledge/upload', { method: 'POST', body: formData }),
 };
