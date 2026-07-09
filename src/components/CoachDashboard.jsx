@@ -164,6 +164,22 @@ export default function CoachDashboard({ user, onLogout }) {
     }
   };
 
+  const handleRemoveKnowledge = async (sourceName) => {
+    if (!window.confirm(`Are you sure you want to remove all knowledge chunks associated with "${sourceName}"?`)) {
+      return;
+    }
+    setKbLoading(true);
+    try {
+      const res = await api.removeKnowledge(user.id, sourceName);
+      setKbMessage({ type: 'success', text: res.message });
+      loadKnowledge();
+    } catch (err) {
+      setKbMessage({ type: 'error', text: err.message });
+    } finally {
+      setKbLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, []);
@@ -1313,9 +1329,18 @@ export default function CoachDashboard({ user, onLogout }) {
                           <p className="text-[11px] text-secondary font-medium uppercase tracking-wider">{source.source_type.replace('_', ' ')}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-primary font-bold text-lg">{source.chunks_count}</p>
-                        <p className="text-[10px] text-secondary">Embedded Chunks</p>
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="text-right">
+                          <p className="text-primary font-bold text-lg leading-none">{source.chunks_count}</p>
+                          <p className="text-[10px] text-secondary">Embedded Chunks</p>
+                        </div>
+                        <button 
+                          onClick={() => handleRemoveKnowledge(source.name)}
+                          className="text-error hover:bg-error-container p-1 rounded transition-colors flex items-center justify-center mt-1"
+                          title="Remove Knowledge Source"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </div>
                   ))

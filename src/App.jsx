@@ -9,6 +9,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentRole, setCurrentRole] = useState('CLIENT'); // CLIENT or COACH
   const [onboardData, setOnboardData] = useState(null); // { profile, workoutPlan, nutritionPlan }
+  const [isInitializing, setIsInitializing] = useState(true);
   
   // Login Page States
   const [email, setEmail] = useState('');
@@ -29,6 +30,25 @@ export default function App() {
     }
   };
 
+  // Restore session from localStorage on mount
+  useEffect(() => {
+    const restoreSession = async () => {
+      const storedUser = localStorage.getItem('fitness_buddy_user');
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          setCurrentUser(user);
+          setCurrentRole(user.role);
+          await checkProfileStatus(user);
+        } catch (e) {
+          localStorage.removeItem('fitness_buddy_user');
+        }
+      }
+      setIsInitializing(false);
+    };
+    restoreSession();
+  }, []);
+
   const handleLogin = async (emailToUse) => {
     setAuthLoading(true);
     setAuthError('');
@@ -42,6 +62,7 @@ export default function App() {
 
     try {
       const user = await api.login(targetEmail.trim());
+      localStorage.setItem('fitness_buddy_user', JSON.stringify(user));
       setCurrentUser(user);
       setCurrentRole(user.role);
       await checkProfileStatus(user);
@@ -70,6 +91,7 @@ export default function App() {
 
     try {
       const user = await api.register(name.trim(), email.trim(), registerRole, coachCode.trim());
+      localStorage.setItem('fitness_buddy_user', JSON.stringify(user));
       setCurrentUser(user);
       setCurrentRole(user.role);
       await checkProfileStatus(user);
@@ -94,12 +116,21 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('fitness_buddy_user');
     setCurrentUser(null);
     setOnboardData(null);
     setEmail('');
     setName('');
     setShowRegister(false);
   };
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="loader-ring"></div>
+      </div>
+    );
+  }
 
   // If not logged in, render authentication / login interface
   if (!currentUser) {
@@ -155,7 +186,7 @@ export default function App() {
       )}
 
       {currentRole === 'CLIENT' ? (
-        !onboardData || !onboardData.profile ? (
+        (!onboardData || !onboardData.profile) && currentUser.role !== 'COACH' ? (
           <div className="max-w-4xl mx-auto py-xl">
             <div className="text-center mb-lg">
               <h1 className="text-headline-lg font-bold text-primary">Onboarding Wizard</h1>
@@ -166,7 +197,34 @@ export default function App() {
         ) : (
           <ClientDashboard
             user={currentUser}
-            initialData={onboardData}
+            initialData={
+              onboardData?.profile ? onboardData : {
+                user: currentUser,
+                profile: {
+                  goal: 'Demonstration',
+                  weight: 75,
+                  adherence_probability: 1.0,
+                  age: 30,
+                  gender: 'MALE',
+                  height: 180,
+                  location: 'Global',
+                  stress_level: 'LOW'
+                },
+                workoutPlan: {
+                  split: 'Demo Split',
+                  frequency: 3,
+                  exercises: [{ name: 'Pushups', sets: 3, reps: 10, day: 'Monday' }]
+                },
+                nutritionPlan: {
+                  calories: 2500,
+                  protein: 150,
+                  carbs: 300,
+                  fats: 80,
+                  meal_templates: [{ meal: 'Breakfast', options: 'Oats' }]
+                },
+                activeAlerts: []
+              }
+            }
             onReOnboard={() => setOnboardData(null)}
             onUpdateUser={setCurrentUser}
             onLogout={handleLogout}

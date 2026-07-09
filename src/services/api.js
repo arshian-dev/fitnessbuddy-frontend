@@ -82,4 +82,28 @@ export const api = {
   getKnowledge: (coachId) => request(`/coach/knowledge?coachId=${coachId}`),
   addKnowledgeText: (coachId, title, content) => request('/coach/knowledge/text', { method: 'POST', body: { coachId, title, content } }),
   uploadKnowledge: (formData) => request('/knowledge/upload', { method: 'POST', body: formData }),
+  removeKnowledge: (coachId, name) => request('/coach/knowledge', { method: 'DELETE', body: { coachId, name } }),
+
+  // Wger Integration
+  searchWgerExercise: (query) => request(`/exercises/search?q=${encodeURIComponent(query)}`),
+
+  // Bloodwork
+  getBloodworkLogs: (userId) => request(`/bloodwork/${userId}`),
+  uploadBloodwork: (formData) => request('/bloodwork/upload', { method: 'POST', body: formData }),
+
+  // Community & Social
+  getCommunityFeed: (userId) => request(`/community/feed/${userId}`),
+  searchUsers: (query, excludeId) => request(`/community/users/search?q=${encodeURIComponent(query)}&excludeId=${excludeId}`),
+  getFriends: (userId) => request(`/community/friends/${userId}`),
+  sendFriendRequest: (userId, friendId) => request('/community/friends/request', { method: 'POST', body: { userId, friendId } }),
+  acceptFriendRequest: (userId, friendId) => request('/community/friends/accept', { method: 'POST', body: { userId, friendId } }),
+  createPost: (postData) => request('/community/posts', { method: 'POST', body: postData }),
+  toggleLike: (postId, userId) => request(`/community/posts/${postId}/like`, { method: 'POST', body: { userId } }),
+  addComment: (postId, userId, content) => request(`/community/posts/${postId}/comment`, { method: 'POST', body: { userId, content } }),
+  getComments: (postId) => request(`/community/posts/${postId}/comments`),
+
+  // Routines & Templates
+  saveRoutine: (userId, name, exercises) => request('/workouts/routines', { method: 'POST', body: { userId, name, exercises } }),
+  getRoutines: (userId) => request(`/workouts/routines/${userId}`),
+  importRoutine: (userId, name, exercises) => request('/workouts/routines', { method: 'POST', body: { userId, name, exercises } })
 };

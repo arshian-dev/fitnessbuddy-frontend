@@ -2,6 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import ReactMarkdown from 'react-markdown';
 import { api } from '../services/api';
+import WgerAnimation from './WgerAnimation';
+import WorkoutPlayer from './WorkoutPlayer';
+import BloodworkPage from './BloodworkPage';
+import CommunityPage from './CommunityPage';
+import ExercisesPage from './ExercisesPage';
+import ProfilePage from './ProfilePage';
+import { TextEffect } from '../../components/motion-primitives/text-effect';
 import { 
   Dumbbell, 
   Flame, 
@@ -17,8 +24,11 @@ import {
   Zap, 
   Save, 
   MessageSquare,
-  RefreshCw
+  RefreshCw,
+  Share2,
+  User
 } from 'lucide-react';
+import { calculateTotalVolume } from '../utils/calculations';
 
 export default function ClientDashboard({ user, initialData, onReOnboard, onUpdateUser, onLogout }) {
   const [activeTab, setActiveTab] = useState('overview'); // overview, workouts, nutrition, chat, progress
@@ -30,6 +40,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
   const [checkinHistory, setCheckinHistory] = useState([]);
   const [completedExercises, setCompletedExercises] = useState({});
   const [dietContext, setDietContext] = useState('TRADITIONAL'); // TRADITIONAL, STANDARD
+  const [chartMetric, setChartMetric] = useState('body'); // 'body' or 'performance'
   
   // Diet & Hydration States
   const [waterGlasses, setWaterGlasses] = useState(0);
@@ -53,6 +64,50 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
     const today = new Date();
     return today.toISOString().split('T')[0];
   });
+  
+  // Track specific workout split days completed today to prevent re-initiation
+  const [completedWorkoutDays, setCompletedWorkoutDays] = useState(() => {
+    if (!user?.id) return [];
+    const today = new Date().toDateString();
+    const stored = localStorage.getItem(`fitness_buddy_completed_workouts_${user.id}`);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.date === today) return parsed.days || [];
+      } catch (e) {}
+    }
+    return [];
+  });
+  
+  const markWorkoutDayCompleted = (dayName) => {
+    if (!dayName) return;
+    
+    // Check off all exercises for this day in the overview list
+    const exercises = getExercises();
+    setCompletedExercises(prev => {
+      const newCompleted = { ...prev };
+      exercises.forEach((ex, idx) => {
+        if (ex.day === dayName) {
+          newCompleted[idx] = true;
+        }
+      });
+      return newCompleted;
+    });
+
+    setCompletedWorkoutDays(prev => {
+      if (prev.includes(dayName)) return prev;
+      const newDays = [...prev, dayName];
+      const today = new Date().toDateString();
+      localStorage.setItem(`fitness_buddy_completed_workouts_${user?.id}`, JSON.stringify({
+        date: today,
+        days: newDays
+      }));
+      return newDays;
+    });
+  };
+
+  // Confirmation state for Retake Onboarding
+  const [showReOnboardConfirm, setShowReOnboardConfirm] = useState(false);
   const [caloriesLogged, setCaloriesLogged] = useState('');
   const [loggedProtein, setLoggedProtein] = useState(0);
   const [loggedCarbs, setLoggedCarbs] = useState(0);
@@ -66,6 +121,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
   const [isResting, setIsResting] = useState(false);
   const [workoutLogWeight, setWorkoutLogWeight] = useState('');
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [previewExercise, setPreviewExercise] = useState(null);
   const [chartTimeRange, setChartTimeRange] = useState('monthly');
   
   
@@ -125,6 +181,22 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
   useEffect(() => {
     loadCheckinHistory();
   }, [user.id]);
+
+  const handleShareWorkout = async (dayName, e) => {
+    e.stopPropagation();
+    try {
+      await api.createPost({
+        userId: user.id,
+        content: `Just crushed my ${dayName} workout! 💪`,
+        postType: 'WORKOUT',
+        referenceId: workoutPlan.id,
+        imageUris: []
+      });
+      alert('Workout shared to community feed!');
+    } catch (err) {
+      alert('Failed to share workout: ' + err.message);
+    }
+  };
 
   // Persistence for daily logging
   useEffect(() => {
@@ -411,6 +483,13 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
             <span className="font-label-md text-label-md">Workouts</span>
           </button>
           <button
+            onClick={() => setActiveTab('exercises')}
+            className={`flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'exercises' ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
+          >
+            <span className="material-symbols-outlined">library_books</span>
+            <span className="font-label-md text-label-md">Exercises</span>
+          </button>
+          <button
             onClick={() => setActiveTab('nutrition')}
             className={`flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'nutrition' ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
           >
@@ -425,18 +504,51 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
             <span className="font-label-md text-label-md">Progress Logs</span>
           </button>
           <button
-            onClick={onReOnboard}
+            onClick={() => setActiveTab('bloodwork')}
+            className={`flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'bloodwork' ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
+          >
+            <span className="material-symbols-outlined">science</span>
+            <span className="font-label-md text-label-md">Bloodwork</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('community')}
+            className={`flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'community' ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
+          >
+            <span className="material-symbols-outlined">group</span>
+            <span className="font-label-md text-label-md">Feed</span>
+          </button>
+          <button
+            onClick={() => setShowReOnboardConfirm(true)}
             className="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-secondary-container/40 rounded-xl transition-all text-left"
           >
             <span className="material-symbols-outlined">settings</span>
             <span className="font-label-md text-label-md">Retake Onboarding</span>
           </button>
+          
+          {showReOnboardConfirm && (
+            <div className="absolute left-0 top-0 w-full h-full bg-surface-container/90 z-10 flex flex-col items-center justify-center p-md animate-in fade-in rounded-2xl border border-outline/10">
+              <span className="material-symbols-outlined text-red-500 mb-sm text-3xl">warning</span>
+              <p className="text-sm font-bold text-center mb-sm">Are you sure you want to retake onboarding?</p>
+              <div className="flex gap-sm">
+                <button onClick={() => setShowReOnboardConfirm(false)} className="px-sm py-1 rounded bg-secondary-container text-on-secondary-container text-xs font-bold hover:bg-secondary-container/80 transition-colors">Cancel</button>
+                <button onClick={onReOnboard} className="px-sm py-1 rounded bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors">Yes, Retake</button>
+              </div>
+            </div>
+          )}
           <button
             onClick={() => setActiveTab('chat')}
             className={`flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'chat' ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
           >
             <span className="material-symbols-outlined">smart_toy</span>
             <span className="font-label-md text-label-md">AI Chat</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'profile' ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
+          >
+            <User size={20} />
+            <span className="font-label-md text-label-md">Profile</span>
           </button>
         </div>
 
@@ -462,7 +574,9 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
         {/* Mobile Header Nav */}
         <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md flex flex-col md:flex-row justify-between items-center w-full px-container-margin py-sm md:py-md md:px-lg border-b border-outline-variant/30 gap-sm md:gap-0">
           <div className="flex justify-between items-center w-full md:w-auto">
-            <h2 className="font-headline-md text-headline-md text-primary tracking-tight capitalize">{activeTab}</h2>
+            <TextEffect as="h2" per="word" preset="slide" className="font-headline-md text-headline-md text-primary tracking-tight capitalize">
+              {activeTab}
+            </TextEffect>
             <div className="md:hidden bg-secondary-container text-on-secondary-container px-sm py-1 rounded-full font-label-md text-xs flex items-center gap-xs">
               <span className="material-symbols-outlined text-[14px]">bolt</span>
               {checkinHistory.length}
@@ -472,9 +586,13 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
             <div className="md:hidden flex bg-surface-container p-1 rounded-lg gap-xs min-w-max">
               <button onClick={() => setActiveTab('overview')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'overview' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Home</button>
               <button onClick={() => setActiveTab('workouts')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'workouts' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Split</button>
+              <button onClick={() => setActiveTab('exercises')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'exercises' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Library</button>
               <button onClick={() => setActiveTab('nutrition')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'nutrition' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Diet</button>
               <button onClick={() => setActiveTab('chat')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'chat' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>AI</button>
               <button onClick={() => setActiveTab('progress')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'progress' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Logs</button>
+              <button onClick={() => setActiveTab('bloodwork')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'bloodwork' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Labs</button>
+              <button onClick={() => setActiveTab('community')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'community' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Feed</button>
+              <button onClick={() => setActiveTab('profile')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'profile' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Profile</button>
             </div>
             <div className="hidden md:flex bg-secondary-container text-on-secondary-container px-sm py-1 rounded-full font-label-md text-xs items-center gap-xs">
               <span className="material-symbols-outlined text-[14px]">bolt</span>
@@ -514,7 +632,9 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                 
                 {/* Daily Energy Circular Progress */}
                 <div className="lg:col-span-4 bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col items-center justify-center text-center">
-                  <h3 className="font-headline-md text-lg text-on-surface mb-md self-start">Daily Energy</h3>
+                  <TextEffect as="h3" per="word" preset="slide" className="font-headline-md text-lg text-on-surface mb-md self-start">
+                    Daily Energy
+                  </TextEffect>
                   <div className="relative w-48 h-48 flex items-center justify-center">
                     <svg className="w-full h-full -rotate-90">
                       <circle className="text-surface-container-high" cx="96" cy="96" fill="transparent" r="84" stroke="currentColor" strokeWidth="12"></circle>
@@ -555,7 +675,9 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     <div>
                       <div className="flex items-center gap-sm mb-md">
                         <Activity className="text-primary" size={20} />
-                        <h3 className="font-headline-md text-lg text-primary">Biometric Health Triggers</h3>
+                        <TextEffect as="h3" per="word" preset="slide" className="font-headline-md text-lg text-primary">
+                          Biometric Health Triggers
+                        </TextEffect>
                       </div>
                       <div className="space-y-md">
                         <div className="flex gap-md bg-white p-md rounded-lg border-l-4 border-primary shadow-sm">
@@ -579,7 +701,9 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   {/* Workout Streak Visualizer */}
                   <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col justify-between">
                     <div>
-                      <h3 className="font-headline-md text-lg text-on-surface mb-md">Active Indicators</h3>
+                      <TextEffect as="h3" per="word" preset="slide" className="font-headline-md text-lg text-on-surface mb-md">
+                        Active Indicators
+                      </TextEffect>
                       <div className="grid grid-cols-3 gap-sm">
                         <div className="bg-surface-container-low p-md rounded-xl text-center">
                           <span className="text-xs text-secondary block">Recovery</span>
@@ -720,121 +844,40 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
               </div>
 
               {/* Lower Bento Area: Logger Form & Live Assistant */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
                 
-                {/* Daily Progress Form */}
-                <div className="lg:col-span-7 bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20">
-                  <h3 className="font-headline-md text-lg text-on-surface mb-lg">Log Daily Progress</h3>
-                  
-                  {formSuccess && (
-                    <div className="bg-teal-50 border border-teal-200 text-teal-800 p-md rounded-xl mb-md text-sm font-semibold flex items-center gap-sm">
-                      <span className="material-symbols-outlined text-teal-600">check_circle</span>
-                      <span>{formSuccess}</span>
-                    </div>
-                  )}
-                  {formError && (
-                    <div className="bg-error-container text-on-error-container p-md rounded-xl mb-md text-sm font-semibold flex items-center gap-sm">
-                      <span className="material-symbols-outlined text-error">error</span>
-                      <span>{formError}</span>
-                    </div>
-                  )}
+                {/* Daily Progress / Log Workout CTA */}
+                <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col items-center justify-center text-center hover:border-primary/40 transition-colors duration-300">
+                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-md">
+                    <Dumbbell size={32} />
+                  </div>
+                  <TextEffect as="h3" per="word" preset="slide" className="font-headline-md text-xl text-on-surface font-extrabold mb-xs">
+                    Ready to train?
+                  </TextEffect>
+                  <p className="text-secondary text-sm mb-lg">Complete your session and log your physical progress all in one place.</p>
+                  <button 
+                    onClick={() => setActiveTab('workouts')}
+                    className="bg-primary text-white font-bold px-xl py-md rounded-xl hover:bg-primary/90 transition-all shadow-md text-sm w-full sm:w-auto"
+                  >
+                    Start & Log Workout
+                  </button>
+                </div>
 
-                  <form onSubmit={handleCheckinSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-md">
-                    <div className="space-y-xs">
-                      <label className="text-xs font-bold text-secondary">LOG DATE *</label>
-                      <input 
-                        className="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg p-md focus:ring-2 focus:ring-primary focus:border-primary transition-all" 
-                        type="date"
-                        value={logDate}
-                        onChange={(e) => setLogDate(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-xs">
-                      <label className="text-xs font-bold text-secondary">BODY WEIGHT (KG) *</label>
-                      <input 
-                        className="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg p-md focus:ring-2 focus:ring-primary focus:border-primary transition-all" 
-                        placeholder="00.0" 
-                        step="0.1" 
-                        type="number"
-                        min="0"
-                        value={weight}
-                        onChange={(e) => setWeight(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-xs">
-                      <label className="text-xs font-bold text-secondary">CALORIES LOGGED TODAY</label>
-                      <input 
-                        className="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg p-md focus:ring-2 focus:ring-primary focus:border-primary transition-all" 
-                        placeholder="e.g. 2100" 
-                        type="number"
-                        min="0"
-                        value={caloriesLogged}
-                        onChange={(e) => setCaloriesLogged(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-xs">
-                      <label className="text-xs font-bold text-secondary">WAIST CIRCUMFERENCE (CM)</label>
-                      <input 
-                        className="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg p-md focus:ring-2 focus:ring-primary focus:border-primary transition-all" 
-                        placeholder="e.g. 88.0" 
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        value={waist}
-                        onChange={(e) => setWaist(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-xs">
-                      <label className="text-xs font-bold text-secondary">WORKOUT COMPLETED TODAY?</label>
-                      <div 
-                        onClick={() => setWorkoutCompletedToday(!workoutCompletedToday)}
-                        className={`w-full flex items-center justify-between border rounded-lg p-md cursor-pointer transition-all ${workoutCompletedToday ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container-low border-outline-variant/30 text-secondary'}`}
-                      >
-                        <span className="font-semibold text-sm">{workoutCompletedToday ? 'Yes, crushed it!' : 'No, taking a rest'}</span>
-                        {workoutCompletedToday && <Check size={18} className="text-primary" />}
-                      </div>
-                    </div>
-                    <div className="space-y-xs sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-sm">
-                      <div>
-                        <label className="text-xs font-bold text-secondary flex justify-between">
-                          <span>Energy</span>
-                          <span>{energy}/10</span>
-                        </label>
-                        <input 
-                          type="range"
-                          min="1"
-                          max="10"
-                          value={energy}
-                          onChange={(e) => setEnergy(parseInt(e.target.value))}
-                          className="w-full mt-2 accent-primary"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-bold text-secondary flex justify-between">
-                          <span>Mood</span>
-                          <span>{mood}/10</span>
-                        </label>
-                        <input 
-                          type="range"
-                          min="1"
-                          max="10"
-                          value={mood}
-                          onChange={(e) => setMood(parseInt(e.target.value))}
-                          className="w-full mt-2 accent-primary"
-                        />
-                      </div>
-                    </div>
-                    <button 
-                      type="submit"
-                      disabled={formLoading}
-                      className="col-span-2 mt-md bg-primary text-on-primary py-md rounded-xl font-bold hover:opacity-90 transition-colors flex items-center justify-center gap-sm"
-                    >
-                      <Save size={16} />
-                      <span>{formLoading ? 'Submitting...' : 'Save Log Entry'}</span>
-                    </button>
-                  </form>
+                {/* Log Meal CTA */}
+                <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col items-center justify-center text-center hover:border-primary/40 transition-colors duration-300">
+                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-md">
+                    <span className="material-symbols-outlined text-[32px]">restaurant</span>
+                  </div>
+                  <TextEffect as="h3" per="word" preset="slide" className="font-headline-md text-xl text-on-surface font-extrabold mb-xs">
+                    Fuel your progress
+                  </TextEffect>
+                  <p className="text-secondary text-sm mb-lg">Track your meals, macros, and water intake to stay on target.</p>
+                  <button 
+                    onClick={() => setActiveTab('nutrition')}
+                    className="bg-primary text-white font-bold px-xl py-md rounded-xl hover:bg-primary/90 transition-all shadow-md text-sm w-full sm:w-auto"
+                  >
+                    Log Meal & Macros
+                  </button>
                 </div>
 
               </div>
@@ -938,264 +981,51 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
             </div>
           )}
 
+          {/* TAB 2.5: EXERCISES LIBRARY */}
+          {activeTab === 'exercises' && (
+            <div className="h-[calc(100vh-140px)] min-h-[600px] w-full mt-0">
+              <ExercisesPage user={user} />
+            </div>
+          )}
+
+          {/* TAB 4: COMMUNITY PAGE */}
+          {activeTab === 'community' && (
+            <div className="h-[calc(100vh-140px)] min-h-[600px] w-full mt-0">
+              <CommunityPage 
+                user={user} 
+                workoutPlan={workoutPlan}
+                checkinHistory={checkinHistory}
+              />
+            </div>
+          )}
+
+          {/* TAB 5: PROFILE PAGE */}
+          {activeTab === 'profile' && (
+            <div className="w-full">
+              <ProfilePage 
+                user={user} 
+                checkinHistory={checkinHistory} 
+              />
+            </div>
+          )}
+
           {/* TAB 2: WORKOUT PLAN */}
           {activeTab === 'workouts' && (
             <div className="w-full">
               {activeWorkoutDay ? (
-                /* ACTIVE WORKOUT MODE RUNNER */
-                <div className="bg-slate-900 text-white rounded-2xl shadow-xl border border-white/10 overflow-hidden max-w-2xl mx-auto animate-in fade-in duration-300">
-                  {/* Runner Header */}
-                  <div className="bg-slate-950 px-lg py-md border-b border-white/10 flex justify-between items-center">
-                    {!showQuitConfirm ? (
-                      <>
-                        <div>
-                          <span className="text-[10px] text-teal-400 font-extrabold uppercase tracking-widest flex items-center gap-xs">
-                            <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" />
-                            <span>Workout Running</span>
-                          </span>
-                          <h3 className="text-white font-bold text-base mt-0.5">{activeWorkoutDay} — {workoutPlan?.split || 'Custom Split'}</h3>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowQuitConfirm(true);
-                          }}
-                          className="text-xs font-bold text-red-400 hover:text-red-300 transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10"
-                        >
-                          Quit Session
-                        </button>
-                      </>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-sm">
-                        <div className="flex items-center gap-xs">
-                          <span className="material-symbols-outlined text-red-400 text-sm">warning</span>
-                          <span className="text-xs font-bold text-slate-300">Are you sure? Progress will not be saved.</span>
-                        </div>
-                        <div className="flex gap-xs self-end">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowQuitConfirm(false);
-                            }}
-                            className="text-xs font-bold text-slate-400 hover:text-white px-2.5 py-1 rounded hover:bg-white/5 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveWorkoutDay(null);
-                              setWorkoutStepIndex(0);
-                              setCompletedSets({});
-                              setIsResting(false);
-                              setRestSecondsLeft(null);
-                              setShowQuitConfirm(false);
-                            }}
-                            className="text-xs font-bold bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded transition-colors"
-                          >
-                            Yes, Quit
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Runner Body */}
-                  {(() => {
-                    const activeWorkoutExercises = getExercises().filter(ex => ex.day === activeWorkoutDay);
-                    
-                    if (activeWorkoutExercises.length === 0) {
-                      return (
-                        <div className="p-xl text-center">
-                          <p className="text-slate-400 text-sm">No exercises scheduled for {activeWorkoutDay}.</p>
-                          <button 
-                            onClick={() => setActiveWorkoutDay(null)} 
-                            className="mt-md bg-primary text-white px-lg py-sm rounded-xl font-bold hover:opacity-90 transition-all text-xs"
-                          >
-                            Back to Workouts
-                          </button>
-                        </div>
-                      );
-                    }
-
-                    const isFinished = workoutStepIndex >= activeWorkoutExercises.length;
-
-                    if (isFinished) {
-                      /* WORKOUT COMPLETION SCREEN */
-                      return (
-                        <div className="p-xl space-y-lg text-center bg-slate-900">
-                          <div className="w-16 h-16 bg-teal-950 border border-teal-500/30 text-teal-400 rounded-full flex items-center justify-center mx-auto shadow-sm animate-bounce">
-                            <span className="material-symbols-outlined text-[36px]">celebration</span>
-                          </div>
-                          <div className="space-y-sm">
-                            <h4 className="text-xl font-extrabold text-white">Workout Completed! 🎉</h4>
-                            <p className="text-sm text-slate-300">Outstanding effort today! You finished all {activeWorkoutExercises.length} scheduled exercises.</p>
-                          </div>
-
-                          <div className="bg-slate-950 border border-white/10 p-lg rounded-xl max-w-sm mx-auto text-left space-y-md">
-                            <h5 className="text-xs font-bold text-teal-400 uppercase tracking-wide">Quick Progress Check-in</h5>
-                            
-                            <div className="space-y-xs">
-                              <label className="text-[10px] font-bold text-slate-400">CURRENT BODY WEIGHT (KG)</label>
-                              <input
-                                type="number"
-                                step="0.1"
-                                placeholder={profile?.weight ? `${profile.weight} kg` : '00.0'}
-                                value={workoutLogWeight}
-                                onChange={(e) => setWorkoutLogWeight(e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-white text-sm placeholder:text-slate-600"
-                              />
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={async () => {
-                              const currentCompleted = checkinHistory[0]?.workouts_completed || 0;
-                              const weightVal = parseFloat(workoutLogWeight) || parseFloat(profile?.weight) || 70;
-                              const logData = {
-                                userId: user.id,
-                                weight: weightVal,
-                                workouts_completed: currentCompleted + 1,
-                                energy_score: 8,
-                                mood_score: 8
-                              };
-                              setFormLoading(true);
-                              try {
-                                await api.submitCheckin(logData);
-                                await loadCheckinHistory();
-                                setFormSuccess("Session logged successfully! Checked in on your dashboard.");
-                                setTimeout(() => setFormSuccess(''), 5000);
-                              } catch (err) {
-                                setFormError("Failed to log workout session.");
-                              } finally {
-                                setFormLoading(false);
-                                setActiveWorkoutDay(null);
-                                setWorkoutStepIndex(0);
-                                setCompletedSets({});
-                                setWorkoutLogWeight('');
-                              }
-                            }}
-                            className="w-full py-md bg-teal-500 hover:bg-teal-600 text-slate-950 rounded-xl font-bold transition-all text-sm shadow-md"
-                          >
-                            {formLoading ? 'Saving Log...' : 'Log Workout & Exit'}
-                          </button>
-                        </div>
-                      );
-                    }
-
-                    const currentExercise = activeWorkoutExercises[workoutStepIndex];
-                    const progressPct = (workoutStepIndex / activeWorkoutExercises.length) * 100;
-                    const targetSetsNum = parseInt(currentExercise.sets) || 3;
-
-                    return (
-                      <div className="p-lg space-y-lg">
-                        {/* Progress Bar */}
-                        <div className="space-y-xs">
-                          <div className="flex justify-between text-[10px] font-bold text-slate-400">
-                            <span>EXERCISE {workoutStepIndex + 1} OF {activeWorkoutExercises.length}</span>
-                            <span>{progressPct.toFixed(0)}% COMPLETE</span>
-                          </div>
-                          <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div className="bg-teal-400 h-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
-                          </div>
-                        </div>
-
-                        {/* Exercise Details Card */}
-                        <div className="bg-slate-950 border border-white/5 rounded-xl p-lg space-y-md">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="text-lg font-extrabold text-white leading-tight">{currentExercise.name}</h4>
-                              <p className="text-xs text-teal-400 font-bold mt-1 uppercase tracking-widest">{currentExercise.sets} Sets x {currentExercise.reps} Reps</p>
-                            </div>
-                          </div>
-
-                          {currentExercise.notes && (
-                            <div className="bg-slate-905 bg-slate-900 border border-white/10 p-md rounded-lg border-l-4 border-teal-500 shadow-sm flex items-start gap-sm">
-                              <span className="material-symbols-outlined text-teal-400 text-[18px] mt-0.5">tips_and_updates</span>
-                              <p className="text-xs text-slate-300 italic">"{currentExercise.notes}"</p>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Sets Tracker Checklist */}
-                        <div className="space-y-sm">
-                          <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Track Your Sets</h5>
-                          <div className="grid grid-cols-1 gap-xs">
-                            {Array.from({ length: targetSetsNum }, (_, setIdx) => {
-                              const isDone = !!completedSets[workoutStepIndex]?.[setIdx];
-                              return (
-                                <div
-                                  key={setIdx}
-                                  onClick={() => {
-                                    const currentSetsState = { ...(completedSets[workoutStepIndex] || {}) };
-                                    const wasDone = !!currentSetsState[setIdx];
-                                    currentSetsState[setIdx] = !wasDone;
-                                    setCompletedSets(prev => ({
-                                      ...prev,
-                                      [workoutStepIndex]: currentSetsState
-                                    }));
-                                    if (!wasDone) {
-                                      setRestSecondsLeft(currentExercise.restSeconds || 60);
-                                      setIsResting(true);
-                                    }
-                                  }}
-                                  className={`p-md border rounded-xl flex items-center justify-between cursor-pointer transition-all ${isDone ? 'bg-teal-500/10 border-teal-500' : 'bg-slate-950 border-white/10 hover:border-white/20'}`}
-                                >
-                                  <span className={`text-xs font-bold ${isDone ? 'text-teal-400' : 'text-slate-300'}`}>SET {setIdx + 1}</span>
-                                  <div className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${isDone ? 'bg-teal-500 border-teal-500 text-slate-950' : 'border-white/20 text-transparent'}`}>
-                                    <Check size={14} />
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Rest Timer display */}
-                        {isResting && restSecondsLeft !== null && (
-                          <div className="bg-teal-950 border border-teal-500/30 p-md rounded-xl flex items-center justify-between animate-in fade-in duration-300">
-                            <div className="flex items-center gap-sm">
-                              <span className="material-symbols-outlined text-teal-400 text-[20px] animate-spin">alarm</span>
-                              <span className="text-xs font-bold text-slate-300">Rest Timer: <strong className="text-teal-400 text-sm">{restSecondsLeft}s</strong> remaining</span>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setIsResting(false);
-                                setRestSecondsLeft(null);
-                              }}
-                              className="bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1 rounded-lg text-[10px] font-bold border border-white/10 transition-all shadow-sm"
-                            >
-                              Skip Rest
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Navigation Controls */}
-                        <div className="flex gap-sm pt-md border-t border-white/10">
-                          <button
-                            disabled={workoutStepIndex === 0}
-                            onClick={() => setWorkoutStepIndex(prev => prev - 1)}
-                            className="px-lg py-sm bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-xs"
-                          >
-                            <span className="material-symbols-outlined text-xs">arrow_back</span>
-                            <span>Prev</span>
-                          </button>
-                          <button
-                            onClick={() => {
-                              setWorkoutStepIndex(prev => prev + 1);
-                              setIsResting(false);
-                              setRestSecondsLeft(null);
-                            }}
-                            className="flex-grow py-sm bg-teal-500 text-slate-950 rounded-xl font-bold hover:bg-teal-400 transition-all text-xs flex items-center justify-center gap-xs"
-                          >
-                            <span>{workoutStepIndex === activeWorkoutExercises.length - 1 ? 'Finish Workout' : 'Next Exercise'}</span>
-                            <span className="material-symbols-outlined text-xs font-bold">arrow_forward</span>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
+                <WorkoutPlayer 
+                  activeWorkoutDay={activeWorkoutDay}
+                  setActiveWorkoutDay={setActiveWorkoutDay}
+                  workoutPlan={workoutPlan}
+                  getExercises={getExercises}
+                  user={user}
+                  profile={profile}
+                  checkinHistory={checkinHistory}
+                  onComplete={(dayName) => {
+                    loadCheckinHistory();
+                    if (dayName) markWorkoutDayCompleted(dayName);
+                  }}
+                />
               ) : (
                 /* REGULAR WORKOUTS PAGE VIEW */
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg animate-in fade-in duration-500">
@@ -1250,21 +1080,40 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                         }).map(([dayName, dayExercises]) => (
                           <div key={dayName} className="space-y-sm bg-white p-lg rounded-xl border border-outline-variant/15 shadow-sm">
                             <div className="flex justify-between items-center border-b border-outline-variant/15 pb-xs mb-sm">
-                              <h4 className="font-bold text-xs text-primary uppercase tracking-widest">{dayName}</h4>
-                              <button
-                                onClick={() => {
-                                  setActiveWorkoutDay(dayName);
-                                  setWorkoutStepIndex(0);
-                                  setCompletedSets({});
-                                  setIsResting(false);
-                                  setRestSecondsLeft(null);
-                                  setShowQuitConfirm(false);
-                                }}
-                                className="bg-primary hover:bg-primary/95 text-on-primary px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-xs shadow-sm hover:scale-[1.02]"
-                              >
-                                <Dumbbell size={12} />
-                                <span>Initiate Workout</span>
-                              </button>
+                              <div>
+                                <h4 className="font-bold text-xs text-primary uppercase tracking-widest">{dayName}</h4>
+                                <p className="text-[10px] font-bold text-secondary uppercase mt-0.5 tracking-wider">
+                                  Vol: {calculateTotalVolume(dayExercises).toLocaleString()} kg
+                                </p>
+                              </div>
+                              {completedWorkoutDays.includes(dayName) ? (
+                                <div className="flex items-center gap-sm">
+                                  <span className="text-teal-500 text-[11px] font-bold flex items-center gap-xs">
+                                    <Check size={14} /> Completed Today
+                                  </span>
+                                  <button
+                                    onClick={(e) => handleShareWorkout(dayName, e)}
+                                    className="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-[10px] font-bold transition-all flex items-center gap-xs shadow-sm ml-2"
+                                  >
+                                    <Share2 size={10} /> Share to Feed
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    setActiveWorkoutDay(dayName);
+                                    setWorkoutStepIndex(0);
+                                    setCompletedSets({});
+                                    setIsResting(false);
+                                    setRestSecondsLeft(null);
+                                    setShowQuitConfirm(false);
+                                  }}
+                                  className="bg-primary hover:bg-primary/95 text-on-primary px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-xs shadow-sm hover:scale-[1.02]"
+                                >
+                                  <Dumbbell size={12} />
+                                  <span>Initiate Workout</span>
+                                </button>
+                              )}
                             </div>
                             <div className="space-y-sm">
                               {dayExercises.map((ex) => {
@@ -1284,17 +1133,31 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                                     </button>
                                     
                                     <div className="flex-grow space-y-sm">
-                                      <div className="flex justify-between items-start flex-wrap gap-xs">
-                                        <div>
+                                      <div className="flex justify-between items-start gap-sm">
+                                        <div 
+                                          className="cursor-pointer hover:opacity-80 transition-opacity"
+                                          onClick={() => setPreviewExercise(ex.name)}
+                                        >
                                           <h5 className={`font-bold text-sm ${isCompleted ? 'line-through text-secondary' : 'text-on-surface'}`}>{ex.name}</h5>
                                           <p className="text-xs text-secondary mt-0.5">{ex.sets} Sets x {ex.reps} reps</p>
+                                          {hasKneeAlert && (
+                                            <span className="bg-amber-50 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-xs mt-1 w-max">
+                                              <AlertTriangle size={10} />
+                                              <span>KNEE LONGEVITY TIP</span>
+                                            </span>
+                                          )}
                                         </div>
-                                        {hasKneeAlert && (
-                                          <span className="bg-amber-50 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-xs">
-                                            <AlertTriangle size={10} />
-                                            <span>KNEE LONGEVITY TIP</span>
-                                          </span>
-                                        )}
+                                        <div 
+                                          className="flex-shrink-0 cursor-pointer hover:scale-105 transition-transform"
+                                          onClick={() => setPreviewExercise(ex.name)}
+                                        >
+                                          <WgerAnimation 
+                                            exerciseName={ex.name} 
+                                            mediaType="image" 
+                                            containerClassName="w-16 h-16 rounded-lg bg-surface-container border border-outline-variant/30 flex items-center justify-center overflow-hidden pointer-events-none"
+                                            className="w-full h-full object-cover"
+                                          />
+                                        </div>
                                       </div>
                                       {ex.notes && (
                                         <p className="text-xs text-on-surface-variant bg-white p-sm rounded-lg border-l-2 border-primary/40 italic shadow-sm">
@@ -1681,25 +1544,45 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
               <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-lg gap-md">
                   <h3 className="font-headline-md text-lg text-on-surface">Performance Curve</h3>
-                  <div className="flex gap-xs bg-surface-container p-1 rounded-xl">
-                    <button 
-                      onClick={() => setChartTimeRange('weekly')} 
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'weekly' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
-                    >
-                      Weekly
-                    </button>
-                    <button 
-                      onClick={() => setChartTimeRange('monthly')} 
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'monthly' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
-                    >
-                      Monthly
-                    </button>
-                    <button 
-                      onClick={() => setChartTimeRange('annual')} 
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'annual' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
-                    >
-                      Annual
-                    </button>
+                  
+                  <div className="flex flex-col sm:flex-row gap-sm">
+                    {/* Metric Toggle */}
+                    <div className="flex gap-xs bg-surface-container p-1 rounded-xl">
+                      <button 
+                        onClick={() => setChartMetric('body')} 
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartMetric === 'body' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                      >
+                        Body Metrics
+                      </button>
+                      <button 
+                        onClick={() => setChartMetric('performance')} 
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartMetric === 'performance' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                      >
+                        Performance
+                      </button>
+                    </div>
+
+                    {/* Time Range Toggle */}
+                    <div className="flex gap-xs bg-surface-container p-1 rounded-xl">
+                      <button 
+                        onClick={() => setChartTimeRange('weekly')} 
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'weekly' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                      >
+                        Weekly
+                      </button>
+                      <button 
+                        onClick={() => setChartTimeRange('monthly')} 
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'monthly' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                      >
+                        Monthly
+                      </button>
+                      <button 
+                        onClick={() => setChartTimeRange('annual')} 
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'annual' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                      >
+                        Annual
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -1717,11 +1600,26 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                           return checkinHistory
                             .filter(log => new Date(log.log_date) >= cutoff)
                             .sort((a, b) => new Date(a.log_date) - new Date(b.log_date))
-                            .map(log => ({
-                              date: new Date(log.log_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-                              Weight: log.weight,
-                              Calories: log.calories_logged || null
-                            }));
+                            .map(log => {
+                              const base = {
+                                date: new Date(log.log_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                              };
+                              if (chartMetric === 'body') {
+                                return {
+                                  ...base,
+                                  Weight: log.weight,
+                                  Calories: log.calories_logged || null
+                                };
+                              } else {
+                                // Mock volume calculation consistent with ProfilePage until DB schema is updated
+                                const mockVolume = (log.energy_score || 7) * (log.weight || 70) * 15; 
+                                return {
+                                  ...base,
+                                  Volume: mockVolume,
+                                  'Workouts Done': log.workouts_completed || (log.workout_completed ? 1 : 0)
+                                };
+                              }
+                            });
                         })()}
                         margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
                       >
@@ -1734,8 +1632,17 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                           cursor={{ stroke: '#CBD5E1', strokeWidth: 1, strokeDasharray: '4 4' }}
                         />
                         <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                        <Line yAxisId="left" type="monotone" dataKey="Weight" stroke="#00B88C" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                        <Line yAxisId="right" type="monotone" dataKey="Calories" stroke="#8B5CF6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} connectNulls />
+                        {chartMetric === 'body' ? (
+                          <>
+                            <Line yAxisId="left" type="monotone" dataKey="Weight" stroke="#00B88C" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                            <Line yAxisId="right" type="monotone" dataKey="Calories" stroke="#8B5CF6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} connectNulls />
+                          </>
+                        ) : (
+                          <>
+                            <Line yAxisId="left" type="monotone" dataKey="Volume" stroke="#F59E0B" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                            <Line yAxisId="right" type="monotone" dataKey="Workouts Done" stroke="#3B82F6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                          </>
+                        )}
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -1785,8 +1692,27 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
             </div>
           )}
 
+          {/* TAB: BLOODWORK */}
+          {activeTab === 'bloodwork' && (
+            <BloodworkPage user={user} />
+          )}
+
+
         </div>
       </main>
+
+      {/* Exercise Video Preview Modal */}
+      {previewExercise && (
+        <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-md animate-in fade-in duration-200" onClick={() => setPreviewExercise(null)}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-lg max-w-md w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setPreviewExercise(null)} className="absolute top-md right-md text-slate-400 hover:text-white transition-colors bg-slate-800/50 rounded-full w-8 h-8 flex items-center justify-center">
+              <span className="material-symbols-outlined text-sm">close</span>
+            </button>
+            <h3 className="text-lg font-bold text-white mb-md pr-8">{previewExercise} Preview</h3>
+            <WgerAnimation exerciseName={previewExercise} mediaType="video" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

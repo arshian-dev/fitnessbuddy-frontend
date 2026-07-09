@@ -1,5 +1,5 @@
 import { ArrowRight, Flame, HeartPulse, Activity, Sparkles, Users, Dumbbell } from 'lucide-react';
-
+import { TextEffect } from '../../components/motion-primitives/text-effect';
 export default function LandingPage({
   email,
   setEmail,
@@ -35,7 +35,7 @@ export default function LandingPage({
       <header className="sticky top-0 z-50 flex justify-between items-center w-full px-container-margin py-base md:px-lg max-w-7xl mx-auto bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm transition-all duration-300">
         <div className="flex items-center gap-base">
           <span className="material-symbols-outlined text-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>fitness_center</span>
-          <span className="font-headline-md text-headline-md text-primary tracking-tight">Noroze Sikandar's AI Coach</span>
+          <span className="font-headline-md text-headline-md text-primary tracking-tight">Fitness Buddy</span>
         </div>
         <nav className="hidden md:flex flex-wrap items-center gap-md lg:gap-xl">
           <button onClick={() => scrollToSection('services')} className="text-secondary font-medium hover:text-primary transition-colors font-body-md text-body-md">Programs</button>
@@ -63,12 +63,12 @@ export default function LandingPage({
                 <span className="font-label-md text-label-md text-primary uppercase tracking-widest">System Active: Beta 2.0</span>
               </div>
               <h1 className="font-headline-xl text-[44px] md:text-headline-xl leading-tight text-on-surface">
-                Train Directly With <br />
-                <span className="text-primary">Noroze Sikandar</span> <br />
-                Powered by AI
+                <TextEffect as="span" per="word" preset="slide">Train Directly With</TextEffect> <br />
+                <span className="text-primary"><TextEffect as="span" per="word" preset="slide" delay={0.3}>Fitness Buddy</TextEffect></span> <br />
+                <TextEffect as="span" per="word" preset="slide" delay={0.6}>Powered by AI</TextEffect>
               </h1>
               <p className="font-body-lg text-body-lg text-secondary max-w-xl mx-auto md:mx-0">
-                Get hyper-personalized workout and nutrition advice trained directly on my coaching philosophies, methodologies, and YouTube knowledge base. I'm available 24/7.
+                Get hyper-personalized workout and nutrition advice trained directly on expert coaching philosophies, methodologies, and a verified knowledge base. Available 24/7.
               </p>
               <div className="flex flex-col sm:flex-row flex-wrap gap-md justify-center md:justify-start pt-md w-full">
                 <button onClick={() => scrollToSection('auth')} className="w-full sm:w-auto bg-primary text-on-primary px-xl py-md rounded-xl font-bold text-lg hover:shadow-lg hover:shadow-primary/20 transition-all text-center">Start Free Assessment</button>
@@ -139,7 +139,7 @@ export default function LandingPage({
                 <div>
                   <span className="material-symbols-outlined text-4xl mb-md">auto_awesome</span>
                   <h3 className="font-headline-md text-headline-md mb-xs">My AI Clone</h3>
-                  <p className="font-body-md text-body-md opacity-80">24/7 chat support trained on all my YouTube videos and coaching experience for adjustments.</p>
+                  <p className="font-body-md text-body-md opacity-80">24/7 chat support trained on verified knowledge bases and professional coaching experience for adjustments.</p>
                 </div>
                 <div className="mt-xl flex items-center justify-between">
                   <span className="font-label-md text-label-md uppercase tracking-widest">Always Online</span>
@@ -341,14 +341,16 @@ export default function LandingPage({
 
                     <div className="flex flex-col sm:flex-row gap-md">
                       <button
+                        type="button"
                         className="w-full sm:flex-1 border border-outline-variant rounded-xl py-sm flex items-center justify-center gap-base hover:bg-surface-container-high transition-all"
                         onClick={() => handleQuickLogin('pro@test.com')}
                       >
                         <span className="font-bold text-primary text-xs">Test Client</span>
                       </button>
                       <button
+                        type="button"
                         className="w-full sm:flex-1 border border-outline-variant rounded-xl py-sm flex items-center justify-center gap-base hover:bg-surface-container-high transition-all"
-                        onClick={() => handleQuickLogin('noroze@test.com')}
+                        onClick={() => handleQuickLogin('coach@test.com')}
                       >
                         <span className="font-bold text-primary text-xs">Coach Portal</span>
                       </button>
@@ -433,9 +435,9 @@ export default function LandingPage({
         <div>
           <div className="flex items-center gap-base mb-md">
             <span className="material-symbols-outlined text-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>fitness_center</span>
-            <span className="font-headline-md text-headline-md text-primary tracking-tight">Noroze Sikandar AI</span>
+            <span className="font-headline-md text-headline-md text-primary tracking-tight">Fitness Buddy</span>
           </div>
-          <p className="font-body-md text-body-md text-on-surface-variant mb-xl max-w-sm">© 2026 Noroze Sikandar. Personalized AI Coaching.</p>
+          <p className="font-body-md text-body-md text-on-surface-variant mb-xl max-w-sm">© 2026 Fitness Buddy. Personalized AI Coaching.</p>
         </div>
         <div className="grid grid-cols-2 gap-md">
           <div className="flex flex-col gap-sm">
