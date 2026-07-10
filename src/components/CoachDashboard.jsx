@@ -30,6 +30,7 @@ import {
 import { TextEffect } from '../../components/motion-primitives/text-effect';
 import ThemeToggle from './ThemeToggle';
 import CommunityPage from './CommunityPage';
+import ProfilePage from './ProfilePage';
 
 export default function CoachDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, registry, library, chat, intelligence
@@ -377,6 +378,13 @@ export default function CoachDashboard({ user, onLogout }) {
             <span className="material-symbols-outlined">psychology</span>
             <span className="font-label-md text-label-md">Intelligence Base</span>
           </button>
+          <button 
+            onClick={() => setActiveTab('profile')}
+            className={`w-full flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'profile' ? 'bg-primary-container text-on-primary-container font-bold scale-[0.99]' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
+          >
+            <User size={20} className="text-current" />
+            <span className="font-label-md text-label-md">Profile</span>
+          </button>
         </nav>
         <div className="mt-auto pt-lg border-t border-outline-variant/20 space-y-2">
           <div className="px-md py-sm mb-md flex items-center gap-md">
@@ -402,13 +410,14 @@ export default function CoachDashboard({ user, onLogout }) {
           <button onClick={() => setActiveTab('feed')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'feed' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Feed</button>
           <button onClick={() => setActiveTab('library')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'library' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Library</button>
           <button onClick={() => setActiveTab('chat')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'chat' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>AI Assist</button>
+          <button onClick={() => setActiveTab('profile')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'profile' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Profile</button>
         </div>
         
         <header className="flex flex-col md:flex-row md:items-center justify-between mb-xl gap-md">
           <div>
             <div className="flex items-center gap-md">
               <h2 className="font-headline-lg text-headline-lg text-on-background tracking-tight">
-                {activeTab === 'dashboard' ? 'Coach Overview' : activeTab === 'registry' ? 'Client Management' : activeTab === 'chat' ? 'AI Assistant' : activeTab === 'intelligence' ? 'Intelligence Base' : activeTab === 'feed' ? 'Community Feed' : 'Asset Library'}
+                {activeTab === 'dashboard' ? 'Coach Overview' : activeTab === 'registry' ? 'Client Management' : activeTab === 'chat' ? 'AI Assistant' : activeTab === 'intelligence' ? 'Intelligence Base' : activeTab === 'feed' ? 'Community Feed' : activeTab === 'profile' ? 'Coach Profile' : 'Asset Library'}
               </h2>
               {user.coach_code && (
                 <div className="bg-primary/10 border border-primary/20 px-sm py-1 rounded-md flex items-center gap-xs">
@@ -439,6 +448,13 @@ export default function CoachDashboard({ user, onLogout }) {
             </div>
           </div>
         </header>
+
+        {/* Profile Tab */}
+        {activeTab === 'profile' && (
+          <div className="w-full">
+            <ProfilePage user={user} checkinHistory={[]} />
+          </div>
+        )}
 
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (

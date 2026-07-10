@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { calculateTotalVolume } from '../utils/calculations';
 
-export default function PostItem({ post, currentUser, onUpdate }) {
+export default function PostItem({ post, currentUser, onUpdate, onViewProfile }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
@@ -180,16 +180,16 @@ export default function PostItem({ post, currentUser, onUpdate }) {
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden flex justify-center items-center">
+            <button onClick={() => onViewProfile && onViewProfile(post.user_id)} className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden flex justify-center items-center hover:ring-2 hover:ring-primary transition-all shrink-0">
               {post.author_avatar ? (
                 <img className="w-full h-full object-cover" src={post.author_avatar} alt="Author" />
               ) : (
                 <span className="material-symbols-outlined text-on-surface-variant">person</span>
               )}
-            </div>
+            </button>
             <div>
               <div className="flex items-center gap-1">
-                <h4 className="font-bold text-on-surface">{post.author_name}</h4>
+                <button onClick={() => onViewProfile && onViewProfile(post.user_id)} className="font-bold text-on-surface hover:underline hover:text-primary transition-colors text-left text-base">{post.author_name}</button>
                 {post.author_role === 'COACH' && (
                   <span className="material-symbols-outlined text-[14px] text-primary" title="Certified Coach">verified</span>
                 )}

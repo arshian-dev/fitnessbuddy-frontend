@@ -150,6 +150,8 @@
 html, body {
   -ms-overflow-style: none;
   scrollbar-width: none;
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-on-background));
 }
 .timer-glow {
   text-shadow: 0 0 15px rgba(0, 245, 212, 0.5);

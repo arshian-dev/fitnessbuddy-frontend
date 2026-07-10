@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { api } from '../services/api';
 
-export default function ProfilePage({ user, checkinHistory = [], onUserUpdate }) {
+export default function ProfilePage({ user, checkinHistory = [], onUserUpdate, isReadOnly = false, onBack }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [feed, setFeed] = useState([]);
   const [friends, setFriends] = useState([]);
@@ -145,24 +145,33 @@ export default function ProfilePage({ user, checkinHistory = [], onUserUpdate })
     <div className="max-w-container-max mx-auto px-4 md:px-margin-edge py-8 animate-in fade-in space-y-8 min-h-screen text-on-surface">
       
       <header className="flex justify-between items-end mb-8">
-        <div>
-          <h2 className="font-text-headline-lg text-on-surface">Account Profile</h2>
-          <p className="text-on-surface-variant font-text-body-sm mt-1">Manage your identity and personalized fitness ecosystem.</p>
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <button onClick={onBack} className="w-10 h-10 shrink-0 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-bright transition-colors text-on-surface shadow-sm">
+              <ChevronLeft size={24} />
+            </button>
+          )}
+          <div>
+            <h2 className="font-text-headline-lg text-on-surface">{isReadOnly ? `${user?.name || 'Athlete'}'s Profile` : 'Account Profile'}</h2>
+            <p className="text-on-surface-variant font-text-body-sm mt-1">{isReadOnly ? 'Viewing community profile.' : 'Manage your identity and personalized fitness ecosystem.'}</p>
+          </div>
         </div>
-        <div className="hidden md:block">
-          <button 
-            onClick={handleSaveProfile}
-            disabled={isSavingProfile || !editName.trim()}
-            className="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all flex items-center shadow-lg shadow-primary-container/20 disabled:opacity-50"
-          >
-            {isSavingProfile ? (
-              <Loader2 size={20} className="animate-spin mr-2" />
-            ) : (
-              <span className="material-symbols-outlined mr-2 text-[20px]">save</span>
-            )}
-            Save Changes
-          </button>
-        </div>
+        {!isReadOnly && (
+          <div className="hidden md:block">
+            <button 
+              onClick={handleSaveProfile}
+              disabled={isSavingProfile || !editName.trim()}
+              className="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all flex items-center shadow-lg shadow-primary-container/20 disabled:opacity-50"
+            >
+              {isSavingProfile ? (
+                <Loader2 size={20} className="animate-spin mr-2" />
+              ) : (
+                <span className="material-symbols-outlined mr-2 text-[20px]">save</span>
+              )}
+              Save Changes
+            </button>
+          </div>
+        )}
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -171,7 +180,7 @@ export default function ProfilePage({ user, checkinHistory = [], onUserUpdate })
         <section className="lg:col-span-4 space-y-8">
           
           <div className="glass-card rounded-[2rem] p-10 flex flex-col items-center text-center animate-float">
-            <div className="relative group cursor-pointer">
+            <div className={`relative group ${isReadOnly ? '' : 'cursor-pointer'}`}>
               <div className={`w-48 h-48 rounded-full overflow-hidden border-4 ${user?.role === 'COACH' ? 'border-primary' : 'border-primary-container'} p-1 bg-surface-container-low shadow-2xl`}>
                 {editAvatarBase64 ? (
                   <img className="w-full h-full object-cover rounded-full" src={editAvatarBase64} alt="Profile Avatar" />
@@ -181,12 +190,14 @@ export default function ProfilePage({ user, checkinHistory = [], onUserUpdate })
                   </div>
                 )}
               </div>
-              <label htmlFor="avatar-upload" className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
-                <div className="bg-primary-container text-on-primary-container p-3 rounded-full shadow-lg">
-                  <span className="material-symbols-outlined text-[32px]">photo_camera</span>
-                </div>
-                <input type="file" id="avatar-upload" accept="image/*" className="hidden" onChange={handleImageUpload} />
-              </label>
+              {!isReadOnly && (
+                <label htmlFor="avatar-upload" className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                  <div className="bg-primary-container text-on-primary-container p-3 rounded-full shadow-lg">
+                    <span className="material-symbols-outlined text-[32px]">photo_camera</span>
+                  </div>
+                  <input type="file" id="avatar-upload" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                </label>
+              )}
             </div>
             
             <div className="mt-8">
@@ -269,6 +280,7 @@ export default function ProfilePage({ user, checkinHistory = [], onUserUpdate })
         <section className="lg:col-span-8 space-y-8">
           
           {/* Identity Settings */}
+          {!isReadOnly && (
           <div className="glass-card rounded-[2rem] p-8 md:p-10">
             <div className="flex items-center mb-8 pb-4 border-b border-outline-variant/10">
               <span className="material-symbols-outlined text-primary-container mr-3 text-[28px]">badge</span>
@@ -295,6 +307,7 @@ export default function ProfilePage({ user, checkinHistory = [], onUserUpdate })
               </div>
             </div>
           </div>
+          )}
 
           {/* Stats Chart */}
           <div className="glass-card rounded-[2rem] p-8 md:p-10">
@@ -372,6 +385,7 @@ export default function ProfilePage({ user, checkinHistory = [], onUserUpdate })
       </div>
 
       {/* Footer-style Action (Mobile) */}
+      {!isReadOnly && (
       <div className="md:hidden mt-8 sticky bottom-24 z-40">
         <button 
           onClick={handleSaveProfile}
@@ -386,6 +400,7 @@ export default function ProfilePage({ user, checkinHistory = [], onUserUpdate })
           Save All Changes
         </button>
       </div>
+      )}
 
     </div>
   );

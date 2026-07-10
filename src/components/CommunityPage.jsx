@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import PostItem from './PostItem';
+import ProfilePage from './ProfilePage';
 import { User, Activity, Image as ImageIcon, Video, BarChart2 } from 'lucide-react';
 
 export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
@@ -13,9 +14,39 @@ export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
   const [postType, setPostType] = useState('TEXT');
   const [isPosting, setIsPosting] = useState(false);
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Profile Viewing state
+  const [viewingProfileId, setViewingProfileId] = useState(null);
+  const [viewingProfileUser, setViewingProfileUser] = useState(null);
+  const [viewingProfileCheckins, setViewingProfileCheckins] = useState([]);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+
   useEffect(() => {
     loadData();
   }, [user?.id]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const results = await api.searchUsers(searchQuery, user.id);
+        setSearchResults(results);
+      } catch (err) {
+        console.error('Search failed', err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, user?.id]);
 
   const loadData = async (silent = false) => {
     if (!user?.id) return;
@@ -34,9 +65,34 @@ export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
     }
   };
 
+  const handleViewProfile = async (userId) => {
+    setViewingProfileId(userId);
+    setLoadingProfile(true);
+    try {
+      const profileData = await api.getProfile(userId);
+      const checkins = await api.getCheckins(userId);
+      setViewingProfileUser(profileData.user);
+      setViewingProfileCheckins(checkins);
+    } catch (err) {
+      alert('Failed to load profile');
+      setViewingProfileId(null);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
   const handleSendRequest = async (friendId) => {
     try {
       await api.sendFriendRequest(user.id, friendId);
+      loadData();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleAcceptRequest = async (friendId) => {
+    try {
+      await api.acceptFriendRequest(user.id, friendId);
       loadData();
     } catch (err) {
       alert(err.message);
@@ -74,8 +130,33 @@ export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
   };
 
   const suggestedAthletes = friends
-    .filter(f => f.status !== 'ACCEPTED')
+    .filter(f => f.status !== 'ACCEPTED' && f.request_type !== 'SENT')
     .slice(0, 5);
+
+  const pendingRequests = friends.filter(f => f.status === 'PENDING' && f.request_type === 'RECEIVED');
+
+  if (viewingProfileId) {
+    if (loadingProfile || !viewingProfileUser) {
+      return (
+        <div className="flex justify-center items-center h-screen w-full">
+          <Loader2 className="animate-spin text-primary-container" size={32} />
+        </div>
+      );
+    }
+    return (
+      <div className="w-full relative z-10">
+        <ProfilePage 
+          user={viewingProfileUser} 
+          checkinHistory={viewingProfileCheckins} 
+          isReadOnly={true}
+          onBack={() => {
+            setViewingProfileId(null);
+            setViewingProfileUser(null);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex relative z-10 w-full animate-in fade-in">
@@ -172,7 +253,7 @@ export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
               </div>
             ) : (
               feed.map((post) => (
-                <PostItem key={post.id} post={post} currentUser={user} onUpdate={() => loadData(true)} />
+                <PostItem key={post.id} post={post} currentUser={user} onUpdate={() => loadData(true)} onViewProfile={handleViewProfile} />
               ))
             )}
           </div>
@@ -189,10 +270,83 @@ export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
               className="w-full bg-surface-container text-on-surface border border-outline-variant/20 rounded-full pl-10 py-2 text-sm focus:ring-1 focus:ring-primary-container focus:border-primary-container outline-none" 
               placeholder="Search community..." 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          {/* Trending Topics */}
+          {searchQuery.trim() ? (
+            <div className="glass-card rounded-xl p-5">
+              <h3 className="font-text-title-md text-primary mb-4 flex justify-between items-center">
+                Search Results {isSearching && <Loader2 className="animate-spin text-primary" size={16} />}
+              </h3>
+              {searchResults.length > 0 ? (
+                <div className="space-y-4">
+                  {searchResults.map(result => (
+                    <div key={result.id} className="flex items-center gap-3">
+                      <button onClick={() => handleViewProfile(result.id)} className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-primary transition-all shrink-0">
+                        {result.profilePictureUrl ? (
+                           <img src={result.profilePictureUrl} alt={result.name} className="w-full h-full object-cover" />
+                        ) : (
+                           <User className="text-on-surface-variant" size={20} />
+                        )}
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <button onClick={() => handleViewProfile(result.id)} className="text-sm font-bold text-on-surface leading-tight hover:underline hover:text-primary truncate block text-left w-full">{result.name}</button>
+                        <p className={`text-[10px] font-bold uppercase tracking-wider ${result.role === 'COACH' ? 'text-primary' : 'text-on-surface-variant'}`}>
+                          {result.role === 'COACH' ? 'Coach' : 'Athlete'}
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => handleSendRequest(result.id)}
+                        className="text-primary font-bold text-xs uppercase tracking-tight hover:underline shrink-0"
+                      >
+                        Follow
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-on-surface-variant">{isSearching ? 'Searching...' : 'No users found.'}</p>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Follow Requests */}
+              {pendingRequests.length > 0 && (
+                <div className="glass-card rounded-xl p-5 border-2 border-primary/20 bg-primary/5">
+                  <h3 className="font-text-title-md text-primary mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined">person_add</span> Follow Requests
+                  </h3>
+                  <div className="space-y-4">
+                    {pendingRequests.map(req => (
+                      <div key={req.id} className="flex items-center gap-3">
+                        <button onClick={() => handleViewProfile(req.id)} className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-primary transition-all shrink-0">
+                          {req.avatar_url ? (
+                             <img src={req.avatar_url} alt={req.name} className="w-full h-full object-cover" />
+                          ) : (
+                             <User className="text-on-surface-variant" size={20} />
+                          )}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <button onClick={() => handleViewProfile(req.id)} className="text-sm font-bold text-on-surface leading-tight hover:underline hover:text-primary truncate block text-left w-full">{req.name}</button>
+                          <p className={`text-[10px] font-bold uppercase tracking-wider ${req.role === 'COACH' ? 'text-primary' : 'text-on-surface-variant'}`}>
+                            {req.role === 'COACH' ? 'Coach' : 'Athlete'}
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => handleAcceptRequest(req.id)}
+                          className="bg-primary text-on-primary font-bold text-xs px-3 py-1.5 rounded-md hover:brightness-110 active:scale-95 transition-all shrink-0 shadow-sm"
+                        >
+                          Accept
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Trending Topics */}
           <div className="glass-card rounded-xl p-5">
             <h3 className="font-text-title-md text-primary mb-4">Trending Tags</h3>
             <div className="flex flex-wrap gap-2">
@@ -236,6 +390,8 @@ export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
               <p className="text-xs text-on-surface-variant">No suggestions right now.</p>
             )}
           </div>
+            </>
+          )}
         </div>
       </aside>
     </div>
