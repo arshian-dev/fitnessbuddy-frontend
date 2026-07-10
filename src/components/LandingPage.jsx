@@ -1,5 +1,6 @@
 import { ArrowRight, Flame, HeartPulse, Activity, Sparkles, Users, Dumbbell } from 'lucide-react';
 import { TextEffect } from '../../components/motion-primitives/text-effect';
+import ThemeToggle from './ThemeToggle';
 export default function LandingPage({
   email,
   setEmail,
@@ -43,6 +44,7 @@ export default function LandingPage({
           <button onClick={() => scrollToSection('auth')} className="text-secondary font-medium hover:text-primary transition-colors font-body-md text-body-md">Portal Access</button>
         </nav>
         <div className="flex items-center gap-md">
+          <ThemeToggle />
           <button onClick={() => scrollToSection('auth')} className="bg-primary text-on-primary px-lg py-sm rounded-xl font-bold hover:opacity-90 active:scale-95 transition-all text-body-md">Sign In</button>
         </div>
       </header>
@@ -138,7 +140,7 @@ export default function LandingPage({
                 <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary-container/20 rounded-full"></div>
                 <div>
                   <span className="material-symbols-outlined text-4xl mb-md">auto_awesome</span>
-                  <h3 className="font-headline-md text-headline-md mb-xs">My AI Clone</h3>
+                  <h3 className="font-headline-md text-headline-md mb-xs">AI Coach</h3>
                   <p className="font-body-md text-body-md opacity-80">24/7 chat support trained on verified knowledge bases and professional coaching experience for adjustments.</p>
                 </div>
                 <div className="mt-xl flex items-center justify-between">
@@ -163,7 +165,7 @@ export default function LandingPage({
 
               {/* Knee/Joint Rehab */}
               <div className="md:col-span-4 bg-surface rounded-[24px] p-xl border border-outline-variant/30 flex flex-col justify-between hover:border-primary/40 transition-colors group">
-                <span className="material-symbols-outlined text-primary text-4xl mb-md">stabilization</span>
+                <span className="material-symbols-outlined text-primary text-4xl mb-md">accessibility_new</span>
                 <div>
                   <h3 className="font-headline-md text-headline-md mb-xs">Joint Longevity</h3>
                   <p className="font-body-md text-body-md text-secondary">Corrective routines for traditional South Asian households and long commute recovery.</p>
@@ -254,32 +256,32 @@ export default function LandingPage({
         </section>
 
         {/* Auth Portal Section */}
-        <section className="py-xl bg-on-background relative overflow-hidden text-white" id="auth">
+        <section className="py-xl bg-on-background relative overflow-hidden text-background" id="auth">
           <div className="absolute top-0 right-0 w-1/3 h-full opacity-10 pointer-events-none">
             <div className="w-full h-full bg-gradient-to-l from-primary to-transparent"></div>
           </div>
           <div className="container mx-auto px-container-margin max-w-7xl relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
-              <div className="text-on-primary-container text-slate-300">
-                <h2 className="font-headline-xl text-[36px] md:text-headline-xl mb-md text-white leading-tight">Join the Movement</h2>
-                <p className="font-body-lg text-body-lg mb-xl opacity-80">Access your personalized health dashboard and sync with the South Asian fitness community. Disciplined health starts here.</p>
+              <div>
+                <h2 className="font-headline-xl text-[36px] md:text-headline-xl mb-md leading-tight text-background">Join the Movement</h2>
+                <p className="font-body-lg text-body-lg mb-xl opacity-80 text-background">Access your personalized health dashboard and sync with the South Asian fitness community. Disciplined health starts here.</p>
                 <div className="space-y-md">
                   <div className="flex gap-md">
-                    <div className="w-12 h-12 rounded-xl bg-primary-fixed/20 flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-primary-fixed">sync</span>
+                    <div className="w-12 h-12 rounded-xl bg-primary-fixed/40 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary-fixed-dim">sync</span>
                     </div>
                     <div>
-                      <h4 className="font-bold text-white">Real-time Syncing</h4>
-                      <p className="text-sm opacity-70">Connects with Wearables &amp; Nutrition Logs.</p>
+                      <h4 className="font-bold text-background">Real-time Syncing</h4>
+                      <p className="text-sm opacity-80 text-background">Connects with Wearables &amp; Nutrition Logs.</p>
                     </div>
                   </div>
                   <div className="flex gap-md">
-                    <div className="w-12 h-12 rounded-xl bg-primary-fixed/20 flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-primary-fixed">shield</span>
+                    <div className="w-12 h-12 rounded-xl bg-primary-fixed/40 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary-fixed-dim">shield</span>
                     </div>
                     <div>
-                      <h4 className="font-bold text-white">HIPAA Compliant</h4>
-                      <p className="text-sm opacity-70">Your medical-lite data is secure.</p>
+                      <h4 className="font-bold text-background">HIPAA Compliant</h4>
+                      <p className="text-sm opacity-80 text-background">Your medical-lite data is secure.</p>
                     </div>
                   </div>
                 </div>
@@ -431,7 +433,8 @@ export default function LandingPage({
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-xl px-container-margin grid grid-cols-1 md:grid-cols-2 gap-lg max-w-7xl mx-auto border-t border-outline-variant/50 bg-surface-container-highest">
+      <footer className="w-full bg-surface-container-highest border-t border-outline-variant/50 mt-24">
+        <div className="w-full py-xl px-container-margin grid grid-cols-1 md:grid-cols-2 gap-lg max-w-7xl mx-auto">
         <div>
           <div className="flex items-center gap-base mb-md">
             <span className="material-symbols-outlined text-primary text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>fitness_center</span>
@@ -449,6 +452,7 @@ export default function LandingPage({
             <a className="text-on-surface-variant hover:text-primary transition-colors font-label-md" href="#">Health Articles</a>
           </div>
         </div>
+      </div>
       </footer>
     </div>
   );

@@ -239,7 +239,7 @@ export default function OnboardingWizard({ user, onComplete }) {
       )}
 
       {/* Form Container */}
-      <div className="glass-card rounded-2xl p-6 md:p-10 shadow-xl shadow-primary/5 border border-white/60 relative overflow-hidden bg-white/95 backdrop-blur-xl">
+      <div className="glass-card rounded-2xl p-6 md:p-10 shadow-xl shadow-primary/5 border border-white/10 relative overflow-hidden bg-surface-container/80 backdrop-blur-xl">
         {/* STEP 1: Basic Bio Metrics */}
         {step === 1 && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards">
@@ -374,7 +374,7 @@ export default function OnboardingWizard({ user, onComplete }) {
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards">
             <div className="space-y-2 border-b border-outline-variant/30 pb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-secondary/10 rounded-xl text-secondary shadow-sm">
+                <div className="p-2 bg-secondary/10 rounded-xl text-on-secondary shadow-sm">
                   <span className="material-symbols-outlined text-2xl">restaurant_menu</span>
                 </div>
                 <h2 className="text-2xl font-bold text-on-surface">Dietary Habits & Staples</h2>

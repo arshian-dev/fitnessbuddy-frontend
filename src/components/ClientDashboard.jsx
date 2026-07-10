@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import ReactMarkdown from 'react-markdown';
 import { api } from '../services/api';
-import WgerAnimation from './WgerAnimation';
 import WorkoutPlayer from './WorkoutPlayer';
 import BloodworkPage from './BloodworkPage';
 import CommunityPage from './CommunityPage';
 import ExercisesPage from './ExercisesPage';
 import ProfilePage from './ProfilePage';
+import ThemeToggle from './ThemeToggle';
 import { TextEffect } from '../../components/motion-primitives/text-effect';
 import { 
   Dumbbell, 
@@ -554,8 +554,12 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
 
         <div className="mt-auto border-t border-outline-variant/20 pt-lg space-y-base">
           <div className="flex items-center gap-md px-md mb-lg">
-            <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-primary text-lg">
-              {user.name ? user.name[0].toUpperCase() : 'A'}
+            <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-primary text-lg overflow-hidden border border-outline-variant/30 relative">
+              {user.avatar_url ? (
+                <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                user.name ? user.name[0].toUpperCase() : 'A'
+              )}
             </div>
             <div>
               <p className="font-label-md text-label-md text-on-surface font-semibold">{user.name}</p>
@@ -581,18 +585,24 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
               <span className="material-symbols-outlined text-[14px]">bolt</span>
               {checkinHistory.length}
             </div>
+            <div className="md:hidden ml-2">
+              <ThemeToggle />
+            </div>
           </div>
           <div className="flex items-center gap-md w-full md:w-auto overflow-x-auto custom-scrollbar pb-1 md:pb-0">
+            <div className="hidden md:block mr-2">
+              <ThemeToggle />
+            </div>
             <div className="md:hidden flex bg-surface-container p-1 rounded-lg gap-xs min-w-max">
-              <button onClick={() => setActiveTab('overview')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'overview' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Home</button>
-              <button onClick={() => setActiveTab('workouts')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'workouts' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Split</button>
-              <button onClick={() => setActiveTab('exercises')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'exercises' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Library</button>
-              <button onClick={() => setActiveTab('nutrition')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'nutrition' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Diet</button>
-              <button onClick={() => setActiveTab('chat')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'chat' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>AI</button>
-              <button onClick={() => setActiveTab('progress')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'progress' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Logs</button>
-              <button onClick={() => setActiveTab('bloodwork')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'bloodwork' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Labs</button>
-              <button onClick={() => setActiveTab('community')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'community' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Feed</button>
-              <button onClick={() => setActiveTab('profile')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'profile' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Profile</button>
+              <button onClick={() => setActiveTab('overview')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'overview' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Home</button>
+              <button onClick={() => setActiveTab('workouts')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'workouts' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Split</button>
+              <button onClick={() => setActiveTab('exercises')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'exercises' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Library</button>
+              <button onClick={() => setActiveTab('nutrition')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'nutrition' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Diet</button>
+              <button onClick={() => setActiveTab('chat')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'chat' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>AI</button>
+              <button onClick={() => setActiveTab('progress')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'progress' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Logs</button>
+              <button onClick={() => setActiveTab('bloodwork')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'bloodwork' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Labs</button>
+              <button onClick={() => setActiveTab('community')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'community' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Feed</button>
+              <button onClick={() => setActiveTab('profile')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${activeTab === 'profile' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:bg-surface-container-high'}`}>Profile</button>
             </div>
             <div className="hidden md:flex bg-secondary-container text-on-secondary-container px-sm py-1 rounded-full font-label-md text-xs items-center gap-xs">
               <span className="material-symbols-outlined text-[14px]">bolt</span>
@@ -613,7 +623,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     <div>
                       <h4 className="font-bold text-sm text-on-error-container flex items-center gap-xs">
                         <span>{alert.type} Alert</span>
-                        <span className="text-[10px] bg-error text-white px-2 py-0.5 rounded-full font-extrabold uppercase">{alert.severity}</span>
+                        <span className="text-[10px] bg-error text-on-error px-2 py-0.5 rounded-full font-extrabold uppercase">{alert.severity}</span>
                       </h4>
                       <p className="text-xs text-on-surface-variant mt-0.5">{alert.details}</p>
                     </div>
@@ -631,7 +641,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
                 
                 {/* Daily Energy Circular Progress */}
-                <div className="lg:col-span-4 bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col items-center justify-center text-center">
+                <div className="lg:col-span-4 glass-card rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col items-center justify-center text-center">
                   <TextEffect as="h3" per="word" preset="slide" className="font-headline-md text-lg text-on-surface mb-md self-start">
                     Daily Energy
                   </TextEffect>
@@ -680,8 +690,8 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                         </TextEffect>
                       </div>
                       <div className="space-y-md">
-                        <div className="flex gap-md bg-white p-md rounded-lg border-l-4 border-primary shadow-sm">
-                          <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center flex-shrink-0 text-primary">
+                        <div className="flex gap-md glass-card p-md rounded-lg border-l-4 border-primary shadow-sm">
+                          <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center flex-shrink-0 text-on-secondary-fixed">
                             <span className="material-symbols-outlined">support_agent</span>
                           </div>
                           <div>
@@ -699,7 +709,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   </div>
 
                   {/* Workout Streak Visualizer */}
-                  <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col justify-between">
+                  <div className="glass-card rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col justify-between">
                     <div>
                       <TextEffect as="h3" per="word" preset="slide" className="font-headline-md text-lg text-on-surface mb-md">
                         Active Indicators
@@ -745,7 +755,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     <input 
                       type="text" 
                       placeholder="Enter 6-digit Code" 
-                      className="bg-white border border-primary/30 rounded-lg px-md py-sm focus:ring-2 focus:ring-primary uppercase flex-1 max-w-[200px]"
+                      className="glass-card border border-primary/30 rounded-lg px-md py-sm focus:ring-2 focus:ring-primary uppercase flex-1 max-w-[200px]"
                       value={linkCoachCode}
                       onChange={(e) => setLinkCoachCode(e.target.value.toUpperCase())}
                       maxLength={6}
@@ -753,7 +763,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     />
                     <button 
                       type="submit" 
-                      className="bg-primary text-white font-bold px-lg py-sm rounded-lg hover:bg-primary/90 transition-all shadow-sm"
+                      className="bg-primary text-on-primary font-bold px-lg py-sm rounded-lg hover:bg-primary/90 transition-all shadow-sm"
                       disabled={linkCoachLoading}
                     >
                       {linkCoachLoading ? 'Linking...' : 'Link'}
@@ -766,7 +776,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
               )}
 
               {/* Weekly Analytics & Adherence Card */}
-              <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 mb-lg">
+              <div className="glass-card rounded-xl p-lg shadow-sm border border-outline-variant/20 mb-lg">
                 <div className="flex items-center gap-sm mb-lg">
                   <span className="material-symbols-outlined text-primary">analytics</span>
                   <h3 className="font-headline-md text-lg text-on-surface font-extrabold">Weekly Progress & Adherence Analytics</h3>
@@ -774,13 +784,13 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-lg">
                   {/* Card 1: Workout Adherence */}
-                  <div className="bg-slate-50 p-lg rounded-xl border border-outline-variant/10 flex flex-col justify-between">
+                  <div className="glass-card p-lg rounded-xl border border-outline-variant/10 flex flex-col justify-between">
                     <div>
                       <span className="text-[10px] text-secondary font-bold uppercase tracking-wider block">Workout Adherence</span>
                       <span className="text-2xl font-extrabold text-primary block mt-sm">{analytics.adherenceRate}%</span>
                     </div>
                     <div className="mt-md">
-                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
                         <div className="bg-primary h-full transition-all" style={{ width: `${analytics.adherenceRate}%` }} />
                       </div>
                       <p className="text-[10px] text-secondary mt-2">Target: {workoutPlan?.frequency || 3} workouts/week</p>
@@ -788,10 +798,10 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   </div>
 
                   {/* Card 2: Weight Trend */}
-                  <div className="bg-slate-50 p-lg rounded-xl border border-outline-variant/10 flex flex-col justify-between">
+                  <div className="glass-card p-lg rounded-xl border border-outline-variant/10 flex flex-col justify-between">
                     <div>
                       <span className="text-[10px] text-secondary font-bold uppercase tracking-wider block">Weight Change</span>
-                      <span className="text-2xl font-extrabold text-slate-800 block mt-sm">
+                      <span className="text-2xl font-extrabold text-on-surface block mt-sm">
                         {analytics.currentWeight ? `${analytics.currentWeight.toFixed(1)} kg` : '--'}
                       </span>
                     </div>
@@ -811,7 +821,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   </div>
 
                   {/* Card 3: Wellness Indicator */}
-                  <div className="bg-slate-50 p-lg rounded-xl border border-outline-variant/10 flex flex-col justify-between">
+                  <div className="glass-card p-lg rounded-xl border border-outline-variant/10 flex flex-col justify-between">
                     <div>
                       <span className="text-[10px] text-secondary font-bold uppercase tracking-wider block">Wellness Index (Avg)</span>
                       <div className="flex gap-md mt-sm">
@@ -829,13 +839,13 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   </div>
 
                   {/* Card 4: AI Progress Insight */}
-                  <div className="bg-slate-50 p-lg rounded-xl border border-outline-variant/10 md:col-span-1 flex flex-col justify-between">
+                  <div className="glass-card p-lg rounded-xl border border-outline-variant/10 md:col-span-1 flex flex-col justify-between">
                     <div>
                       <span className="text-[10px] text-primary font-bold uppercase tracking-wider flex items-center gap-xs">
                         <Sparkles size={12} />
                         <span>AI Progress Synthesis</span>
                       </span>
-                      <p className="text-[11px] text-slate-600 italic mt-sm leading-relaxed line-clamp-3 hover:line-clamp-none transition-all font-semibold">
+                      <p className="text-[11px] text-on-surface-variant italic mt-sm leading-relaxed line-clamp-3 hover:line-clamp-none transition-all font-semibold">
                         "{analytics.aiInsight}"
                       </p>
                     </div>
@@ -847,7 +857,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
                 
                 {/* Daily Progress / Log Workout CTA */}
-                <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col items-center justify-center text-center hover:border-primary/40 transition-colors duration-300">
+                <div className="glass-card rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col items-center justify-center text-center hover:border-primary/40 transition-colors duration-300">
                   <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-md">
                     <Dumbbell size={32} />
                   </div>
@@ -857,14 +867,14 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   <p className="text-secondary text-sm mb-lg">Complete your session and log your physical progress all in one place.</p>
                   <button 
                     onClick={() => setActiveTab('workouts')}
-                    className="bg-primary text-white font-bold px-xl py-md rounded-xl hover:bg-primary/90 transition-all shadow-md text-sm w-full sm:w-auto"
+                    className="bg-primary text-on-primary font-bold px-xl py-md rounded-xl hover:bg-primary/90 transition-all shadow-md text-sm w-full sm:w-auto"
                   >
                     Start & Log Workout
                   </button>
                 </div>
 
                 {/* Log Meal CTA */}
-                <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col items-center justify-center text-center hover:border-primary/40 transition-colors duration-300">
+                <div className="glass-card rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col items-center justify-center text-center hover:border-primary/40 transition-colors duration-300">
                   <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-md">
                     <span className="material-symbols-outlined text-[32px]">restaurant</span>
                   </div>
@@ -874,7 +884,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   <p className="text-secondary text-sm mb-lg">Track your meals, macros, and water intake to stay on target.</p>
                   <button 
                     onClick={() => setActiveTab('nutrition')}
-                    className="bg-primary text-white font-bold px-xl py-md rounded-xl hover:bg-primary/90 transition-all shadow-md text-sm w-full sm:w-auto"
+                    className="bg-primary text-on-primary font-bold px-xl py-md rounded-xl hover:bg-primary/90 transition-all shadow-md text-sm w-full sm:w-auto"
                   >
                     Log Meal & Macros
                   </button>
@@ -887,7 +897,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
           {/* TAB: AI CHAT (Full Page) */}
           {activeTab === 'chat' && (
             <div className="flex flex-col h-[calc(100vh-120px)]">
-              <div className="bg-white rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col flex-1 overflow-hidden">
+              <div className="glass-card rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col flex-1 overflow-hidden">
                 {/* Chat Header */}
                 <div className="flex items-center gap-sm px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -919,8 +929,8 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                       )}
                       <div className={`p-md rounded-2xl max-w-[75%] text-sm leading-relaxed shadow-sm ${
                         msg.sender === 'user'
-                          ? 'bg-primary text-white rounded-br-sm'
-                          : 'bg-white border border-outline-variant/20 text-on-surface rounded-bl-sm'
+                          ? 'bg-primary text-on-primary rounded-br-sm'
+                          : 'glass-card border border-outline-variant/20 text-on-surface rounded-bl-sm'
                       }`}>
                         {msg.sender === 'assistant' ? (
                           <div className="prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_strong]:text-primary [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_h1]:text-primary [&_h2]:text-primary [&_h3]:text-primary">
@@ -937,7 +947,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <span className="material-symbols-outlined text-primary text-[18px] animate-spin">progress_activity</span>
                       </div>
-                      <div className="bg-white border border-outline-variant/20 text-secondary px-md py-sm rounded-2xl rounded-bl-sm text-sm italic shadow-sm">
+                      <div className="glass-card border border-outline-variant/20 text-secondary px-md py-sm rounded-2xl rounded-bl-sm text-sm italic shadow-sm">
                         Thinking...
                       </div>
                     </div>
@@ -959,7 +969,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                 </div>
 
                 {/* Message Input */}
-                <div className="flex gap-sm px-lg py-md border-t border-outline-variant/20 bg-white">
+                <div className="flex gap-sm px-lg py-md border-t border-outline-variant/20 glass-card">
                   <input
                     type="text"
                     className="flex-grow bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-md py-sm text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-secondary"
@@ -971,7 +981,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   <button
                     onClick={() => handleSendMessage()}
                     disabled={chatLoading || !chatInput.trim()}
-                    className="bg-primary hover:opacity-90 disabled:opacity-50 text-white px-lg py-sm rounded-xl font-bold text-sm transition-all flex items-center gap-xs shadow-sm"
+                    className="bg-primary hover:opacity-90 disabled:opacity-50 text-on-primary px-lg py-sm rounded-xl font-bold text-sm transition-all flex items-center gap-xs shadow-sm"
                   >
                     <span className="material-symbols-outlined text-[18px]">send</span>
                     Send
@@ -1005,6 +1015,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
               <ProfilePage 
                 user={user} 
                 checkinHistory={checkinHistory} 
+                onUserUpdate={onUpdateUser}
               />
             </div>
           )}
@@ -1078,7 +1089,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                           const idxB = weekOrder.indexOf(dayB);
                           return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
                         }).map(([dayName, dayExercises]) => (
-                          <div key={dayName} className="space-y-sm bg-white p-lg rounded-xl border border-outline-variant/15 shadow-sm">
+                          <div key={dayName} className="space-y-sm glass-card p-lg rounded-xl border border-outline-variant/15 shadow-sm">
                             <div className="flex justify-between items-center border-b border-outline-variant/15 pb-xs mb-sm">
                               <div>
                                 <h4 className="font-bold text-xs text-primary uppercase tracking-widest">{dayName}</h4>
@@ -1123,11 +1134,11 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                                 const isCompleted = !!completedExercises[originalIdx];
                                 const hasKneeAlert = ex.name.toLowerCase().includes('deadlift') || ex.name.toLowerCase().includes('squat');
                                 return (
-                                  <div key={originalIdx} className="bg-slate-50 p-md rounded-xl border border-outline-variant/10 hover:border-primary/20 transition-all flex items-start gap-md">
+                                  <div key={originalIdx} className="glass-card p-md rounded-xl border border-outline-variant/10 hover:border-primary/20 transition-all flex items-start gap-md">
                                     <button
                                       type="button"
                                       onClick={() => toggleExercise(originalIdx)}
-                                      className={`w-6 h-6 rounded border flex items-center justify-center flex-shrink-0 transition-colors mt-0.5 ${isCompleted ? 'bg-primary border-primary text-white' : 'border-outline text-transparent'}`}
+                                      className={`w-6 h-6 rounded border flex items-center justify-center flex-shrink-0 transition-colors mt-0.5 ${isCompleted ? 'bg-primary border-primary text-on-primary' : 'border-outline text-transparent'}`}
                                     >
                                       <Check size={14} />
                                     </button>
@@ -1151,16 +1162,22 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                                           className="flex-shrink-0 cursor-pointer hover:scale-105 transition-transform"
                                           onClick={() => setPreviewExercise(ex.name)}
                                         >
-                                          <WgerAnimation 
-                                            exerciseName={ex.name} 
-                                            mediaType="image" 
-                                            containerClassName="w-16 h-16 rounded-lg bg-surface-container border border-outline-variant/30 flex items-center justify-center overflow-hidden pointer-events-none"
-                                            className="w-full h-full object-cover"
-                                          />
+                                          <div className="w-16 h-16 rounded-lg bg-surface-container border border-outline-variant/30 flex items-center justify-center overflow-hidden pointer-events-none">
+                                            <img 
+                                              src={`/images/exercises/${ex.name}.png`} 
+                                              alt={ex.name}
+                                              className="w-full h-full object-cover opacity-90"
+                                              onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextElementSibling.style.display = 'block';
+                                              }}
+                                            />
+                                            <span className="material-symbols-outlined text-outline" style={{display: 'none'}}>fitness_center</span>
+                                          </div>
                                         </div>
                                       </div>
                                       {ex.notes && (
-                                        <p className="text-xs text-on-surface-variant bg-white p-sm rounded-lg border-l-2 border-primary/40 italic shadow-sm">
+                                        <p className="text-xs text-on-surface-variant glass-card p-sm rounded-lg border-l-2 border-primary/40 italic shadow-sm">
                                           "{ex.notes}"
                                         </p>
                                       )}
@@ -1179,7 +1196,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
 
                   {/* Right Column: Overload strategy */}
                   <div className="lg:col-span-4 space-y-lg">
-                    <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20">
+                    <div className="glass-card rounded-xl p-lg shadow-sm border border-outline-variant/20">
                       <h3 className="font-headline-md text-sm text-on-surface mb-md font-bold uppercase tracking-wider">Overload Strategy</h3>
                       <div className="bg-surface-container p-md rounded-lg space-y-sm">
                         <span className="text-[10px] text-secondary font-bold block uppercase">Progression Scheme</span>
@@ -1213,7 +1230,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     onClick={() => setActiveTab('assistant')}
                     className="flex items-center gap-sm bg-surface-container-high p-xs pr-md rounded-full shadow-sm cursor-pointer hover:bg-surface-container transition-colors"
                   >
-                    <div className="bg-primary p-xs rounded-full text-white flex items-center justify-center">
+                    <div className="bg-primary p-xs rounded-full text-on-primary flex items-center justify-center">
                       <span className="material-symbols-outlined text-[20px]">psychology</span>
                     </div>
                     <span className="font-label-md text-xs font-bold text-primary">Need macro advice? Ask AI in chat →</span>
@@ -1262,7 +1279,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   <div className="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant/30 bento-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col justify-center">
                     <div className="flex justify-between items-start mb-sm">
                       <span className="font-label-md text-on-surface-variant font-bold text-xs uppercase tracking-wider">Fats</span>
-                      <span className="bg-secondary/10 text-secondary text-[10px] px-2 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.fats || 70}g</span>
+                      <span className="bg-secondary/10 text-on-secondary text-[10px] px-2 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.fats || 70}g</span>
                     </div>
                     <p className="font-headline-md text-on-background mb-md">{loggedFats}g</p>
                     <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
@@ -1281,13 +1298,13 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     <div className="flex gap-xs bg-surface-container p-1 rounded-xl items-center">
                       <button 
                         onClick={() => setDietContext('TRADITIONAL')}
-                        className={`px-sm py-1.5 rounded-lg text-xs font-bold transition-all ${dietContext === 'TRADITIONAL' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                        className={`px-sm py-1.5 rounded-lg text-xs font-bold transition-all ${dietContext === 'TRADITIONAL' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                       >
                         Traditional
                       </button>
                       <button 
                         onClick={() => setDietContext('STANDARD')}
-                        className={`px-sm py-1.5 rounded-lg text-xs font-bold transition-all ${dietContext === 'STANDARD' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                        className={`px-sm py-1.5 rounded-lg text-xs font-bold transition-all ${dietContext === 'STANDARD' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                       >
                         Standard Swaps
                       </button>
@@ -1308,7 +1325,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                             </div>
                             <span className="text-primary font-bold text-xs bg-primary/10 px-3 py-1 rounded-full">{m.target_macro_estimate}</span>
                           </div>
-                          <div className="p-md md:p-lg grid grid-cols-1 md:grid-cols-2 gap-md md:gap-lg bg-white">
+                          <div className="p-md md:p-lg grid grid-cols-1 md:grid-cols-2 gap-md md:gap-lg glass-card">
                             {m.options.map((opt, oIdx) => {
                               const isSelected = selectedMealOptions[idx] === oIdx || (selectedMealOptions[idx] === undefined && oIdx === 0);
                               return (
@@ -1318,7 +1335,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                                   className={`p-md rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-2 border-primary bg-primary/5 hover:bg-primary/10' : 'border border-outline-variant/50 hover:border-primary/30 bg-surface-bright'}`}
                                 >
                                   <div className="flex justify-between items-start mb-sm">
-                                    <span className={`${isSelected ? 'bg-primary text-white' : 'bg-secondary/20 text-secondary'} text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider`}>Option {String.fromCharCode(65 + oIdx)}</span>
+                                    <span className={`${isSelected ? 'bg-primary text-on-primary' : 'bg-secondary/20 text-secondary'} text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider`}>Option {String.fromCharCode(65 + oIdx)}</span>
                                     {isSelected && <span className="material-symbols-outlined text-primary text-[18px]">check_circle</span>}
                                   </div>
                                   <h4 className="font-bold text-on-surface mb-xs text-sm leading-tight">{translateOption(opt)}</h4>
@@ -1349,7 +1366,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                                   }
                                }}
                                disabled={loggedMeals[idx]}
-                               className={`px-md py-xs rounded-lg font-bold text-xs flex items-center gap-xs transition-colors ${loggedMeals[idx] ? 'bg-teal-50 text-teal-700' : 'bg-primary text-white hover:bg-primary/90'}`}
+                               className={`px-md py-xs rounded-lg font-bold text-xs flex items-center gap-xs transition-colors ${loggedMeals[idx] ? 'bg-primary/10 text-primary' : 'bg-primary text-on-primary hover:bg-primary/90'}`}
                              >
                                <span className="material-symbols-outlined text-[14px]">
                                  {loggedMeals[idx] ? 'check' : 'add'}
@@ -1367,7 +1384,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   )}
 
                   {/* Cultural Swaps Widget */}
-                  <div className="bg-primary p-lg rounded-2xl text-white relative overflow-hidden shadow-md mt-xl">
+                  <div className="bg-primary p-lg rounded-2xl text-on-primary relative overflow-hidden shadow-md mt-xl">
                     <div className="relative z-10">
                       <div className="flex items-center gap-sm mb-md">
                         <span className="material-symbols-outlined text-[24px]">swap_horiz</span>
@@ -1375,7 +1392,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                       </div>
                       <p className="font-body-md mb-lg text-sm opacity-90 max-w-md">Maintain your heritage without compromising your health. Swap these common ingredients today.</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                        <div className="bg-white/10 backdrop-blur-md p-md rounded-xl flex items-center justify-between border border-white/20">
+                        <div className="glass-card/10 backdrop-blur-md p-md rounded-xl flex items-center justify-between border border-white/20">
                           <div className="flex flex-col">
                             <span className="text-[10px] uppercase font-bold text-primary-fixed opacity-90 tracking-wider">Instead of</span>
                             <span className="font-bold text-sm mt-0.5">White Basmati Rice</span>
@@ -1386,7 +1403,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                             <span className="font-bold text-sm mt-0.5">Cauliflower Rice</span>
                           </div>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md p-md rounded-xl flex items-center justify-between border border-white/20">
+                        <div className="glass-card/10 backdrop-blur-md p-md rounded-xl flex items-center justify-between border border-white/20">
                           <div className="flex flex-col">
                             <span className="text-[10px] uppercase font-bold text-primary-fixed opacity-90 tracking-wider">Instead of</span>
                             <span className="font-bold text-sm mt-0.5">Full Fat Buffalo Milk</span>
@@ -1399,7 +1416,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                         </div>
                       </div>
                     </div>
-                    <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
+                    <div className="absolute -right-12 -bottom-12 w-48 h-48 glass-card/20 rounded-full blur-3xl"></div>
                   </div>
                 </div>
 
@@ -1407,8 +1424,8 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                 <div className="space-y-lg">
                   {/* AI Interaction */}
                   <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                    <div className="bg-on-background p-md flex items-center gap-sm text-white">
-                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                    <div className="bg-surface-container-high p-md flex items-center gap-sm text-on-surface">
+                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-on-primary">
                         <span className="material-symbols-outlined text-[18px]">bolt</span>
                       </div>
                       <span className="font-bold text-sm tracking-wide">Ask Nutrition AI</span>
@@ -1437,33 +1454,33 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                       {calcResult && (
                         <div className="bg-surface-bright border border-outline-variant/20 rounded-xl p-md space-y-md text-xs mt-md shadow-sm">
                           <div className="grid grid-cols-4 gap-xs text-center">
-                            <div className="bg-white py-sm px-1 rounded-lg border border-outline-variant/10 shadow-sm">
+                            <div className="glass-card py-sm px-1 rounded-lg border border-outline-variant/10 shadow-sm">
                               <span className="text-[9px] text-secondary block font-bold tracking-wider mb-1">CAL</span>
                               <span className="font-extrabold text-primary text-sm">{calcResult.calories}</span>
                             </div>
-                            <div className="bg-white py-sm px-1 rounded-lg border border-outline-variant/10 shadow-sm">
+                            <div className="glass-card py-sm px-1 rounded-lg border border-outline-variant/10 shadow-sm">
                               <span className="text-[9px] text-secondary block font-bold tracking-wider mb-1">PRO</span>
                               <span className="font-extrabold text-primary text-sm">{calcResult.protein}g</span>
                             </div>
-                            <div className="bg-white py-sm px-1 rounded-lg border border-outline-variant/10 shadow-sm">
+                            <div className="glass-card py-sm px-1 rounded-lg border border-outline-variant/10 shadow-sm">
                               <span className="text-[9px] text-secondary block font-bold tracking-wider mb-1">CARB</span>
                               <span className="font-extrabold text-primary text-sm">{calcResult.carbs}g</span>
                             </div>
-                            <div className="bg-white py-sm px-1 rounded-lg border border-outline-variant/10 shadow-sm">
+                            <div className="glass-card py-sm px-1 rounded-lg border border-outline-variant/10 shadow-sm">
                               <span className="text-[9px] text-secondary block font-bold tracking-wider mb-1">FAT</span>
                               <span className="font-extrabold text-primary text-sm">{calcResult.fats}g</span>
                             </div>
                           </div>
                           
                           {calcResult.breakdown && (
-                            <div className="bg-white p-sm rounded-lg border border-outline-variant/10 text-[10px] leading-relaxed text-secondary italic shadow-sm">
+                            <div className="glass-card p-sm rounded-lg border border-outline-variant/10 text-[10px] leading-relaxed text-secondary italic shadow-sm">
                               <strong>AI Breakdown:</strong> {calcResult.breakdown}
                             </div>
                           )}
 
                           <button
                             onClick={handleLogCalcCalories}
-                            className="w-full bg-primary text-white py-sm rounded-lg font-bold text-xs hover:opacity-90 transition-opacity flex items-center justify-center gap-xs shadow-md"
+                            className="w-full bg-primary text-on-primary py-sm rounded-lg font-bold text-xs hover:opacity-90 transition-opacity flex items-center justify-center gap-xs shadow-md"
                           >
                             <span className="material-symbols-outlined text-[16px]">add_circle</span>
                             Log {calcResult.calories} kcal
@@ -1482,20 +1499,20 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     <p className="text-xs text-on-tertiary-fixed-variant mb-md font-medium">Attending a wedding tonight? Here's how to manage:</p>
                     <ul className="space-y-sm">
                       <li className="flex items-start gap-sm">
-                        <div className="w-5 h-5 rounded-full bg-tertiary/20 flex items-center justify-center mt-0.5 flex-shrink-0">
-                          <span className="material-symbols-outlined text-[12px] text-tertiary" style={{ fontVariationSettings: "'FILL' 1" }}>priority_high</span>
+                        <div className="w-5 h-5 rounded-full bg-on-tertiary-fixed/10 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <span className="material-symbols-outlined text-[12px] text-on-tertiary-fixed" style={{ fontVariationSettings: "'FILL' 1" }}>priority_high</span>
                         </div>
                         <p className="text-[11px] text-on-tertiary-fixed-variant leading-relaxed">Pre-load on protein 2 hours before leaving to avoid overeating.</p>
                       </li>
                       <li className="flex items-start gap-sm">
-                        <div className="w-5 h-5 rounded-full bg-tertiary/20 flex items-center justify-center mt-0.5 flex-shrink-0">
-                          <span className="material-symbols-outlined text-[12px] text-tertiary" style={{ fontVariationSettings: "'FILL' 1" }}>priority_high</span>
+                        <div className="w-5 h-5 rounded-full bg-on-tertiary-fixed/10 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <span className="material-symbols-outlined text-[12px] text-on-tertiary-fixed" style={{ fontVariationSettings: "'FILL' 1" }}>priority_high</span>
                         </div>
                         <p className="text-[11px] text-on-tertiary-fixed-variant leading-relaxed">Stick to kebabs & dry meats; avoid heavy cream gravies.</p>
                       </li>
                       <li className="flex items-start gap-sm">
-                        <div className="w-5 h-5 rounded-full bg-tertiary/20 flex items-center justify-center mt-0.5 flex-shrink-0">
-                          <span className="material-symbols-outlined text-[12px] text-tertiary" style={{ fontVariationSettings: "'FILL' 1" }}>priority_high</span>
+                        <div className="w-5 h-5 rounded-full bg-on-tertiary-fixed/10 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <span className="material-symbols-outlined text-[12px] text-on-tertiary-fixed" style={{ fontVariationSettings: "'FILL' 1" }}>priority_high</span>
                         </div>
                         <p className="text-[11px] text-on-tertiary-fixed-variant leading-relaxed">Limit desserts to exactly 2 small bites.</p>
                       </li>
@@ -1541,7 +1558,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
             <div className="space-y-lg">
               
               {/* Performance Curve Chart */}
-              <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20">
+              <div className="glass-card rounded-xl p-lg shadow-sm border border-outline-variant/20">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-lg gap-md">
                   <h3 className="font-headline-md text-lg text-on-surface">Performance Curve</h3>
                   
@@ -1550,13 +1567,13 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     <div className="flex gap-xs bg-surface-container p-1 rounded-xl">
                       <button 
                         onClick={() => setChartMetric('body')} 
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartMetric === 'body' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartMetric === 'body' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                       >
                         Body Metrics
                       </button>
                       <button 
                         onClick={() => setChartMetric('performance')} 
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartMetric === 'performance' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartMetric === 'performance' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                       >
                         Performance
                       </button>
@@ -1566,19 +1583,19 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     <div className="flex gap-xs bg-surface-container p-1 rounded-xl">
                       <button 
                         onClick={() => setChartTimeRange('weekly')} 
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'weekly' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'weekly' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                       >
                         Weekly
                       </button>
                       <button 
                         onClick={() => setChartTimeRange('monthly')} 
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'monthly' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'monthly' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                       >
                         Monthly
                       </button>
                       <button 
                         onClick={() => setChartTimeRange('annual')} 
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'annual' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-primary'}`}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${chartTimeRange === 'annual' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                       >
                         Annual
                       </button>
@@ -1647,19 +1664,19 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     </ResponsiveContainer>
                   </div>
                 ) : (
-                  <p className="text-secondary text-sm text-center py-md bg-slate-50 rounded-xl border border-outline-variant/10">No progress entries logged yet. Track your weight or calories on the overview tab to see your curve!</p>
+                  <p className="text-secondary text-sm text-center py-md glass-card rounded-xl border border-outline-variant/10">No progress entries logged yet. Track your weight or calories on the overview tab to see your curve!</p>
                 )}
               </div>
 
               {/* Historical logs table */}
-              <div className="bg-white rounded-xl p-lg shadow-sm border border-outline-variant/20">
+              <div className="glass-card rounded-xl p-lg shadow-sm border border-outline-variant/20">
                 <h3 className="font-headline-md text-lg text-on-surface mb-md">Historical Check-in Logs</h3>
                 {checkinHistory.length > 0 ? (
                   <div className="space-y-sm">
                     {checkinHistory.map((log) => (
-                      <div key={log.id} className="p-md rounded-xl bg-slate-50 border border-outline-variant/20 text-xs">
-                        <div className="flex justify-between border-b border-slate-200 pb-sm mb-sm flex-wrap gap-xs">
-                          <span className="font-bold text-slate-800">
+                      <div key={log.id} className="p-md rounded-xl glass-card border border-outline-variant/20 text-xs">
+                        <div className="flex justify-between border-b border-outline-variant/20 pb-sm mb-sm flex-wrap gap-xs">
+                          <span className="font-bold text-on-surface">
                             {new Date(log.log_date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })}
                           </span>
                           <span>
@@ -1667,7 +1684,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                             {log.waist_cm && <span> | Waist: <strong className="text-primary">{log.waist_cm} cm</strong></span>}
                           </span>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-sm text-[10px] text-slate-500 font-bold mb-sm">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-sm text-[10px] text-on-surface-variant font-bold mb-sm">
                           <span className="flex items-center gap-1">
                             {log.workout_completed ? <Check size={12} className="text-primary" /> : <span className="w-3" />}
                             Workout: {log.workout_completed ? 'Yes' : 'No'}
@@ -1677,7 +1694,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                           <span>Mood: {log.mood_score}/10</span>
                         </div>
                         {log.ai_insight && (
-                          <div className="bg-teal-50 border-l-2 border-primary p-sm rounded text-slate-700 italic">
+                          <div className="bg-primary/10 border-l-2 border-primary p-sm rounded text-primary italic">
                             <strong>AI Biometric Feedback:</strong> "{log.ai_insight}"
                           </div>
                         )}
@@ -1704,12 +1721,23 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
       {/* Exercise Video Preview Modal */}
       {previewExercise && (
         <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-md animate-in fade-in duration-200" onClick={() => setPreviewExercise(null)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-lg max-w-md w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setPreviewExercise(null)} className="absolute top-md right-md text-slate-400 hover:text-white transition-colors bg-slate-800/50 rounded-full w-8 h-8 flex items-center justify-center">
+          <div className="glass-card rounded-2xl p-lg max-w-md w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setPreviewExercise(null)} className="absolute top-md right-md text-on-surface-variant hover:text-white transition-colors bg-surface-container-high rounded-full w-8 h-8 flex items-center justify-center">
               <span className="material-symbols-outlined text-sm">close</span>
             </button>
             <h3 className="text-lg font-bold text-white mb-md pr-8">{previewExercise} Preview</h3>
-            <WgerAnimation exerciseName={previewExercise} mediaType="video" />
+            <div className="w-full h-64 bg-surface-container-lowest rounded-xl flex items-center justify-center relative border border-outline-variant/20 overflow-hidden">
+              <img 
+                src={`/images/exercises/${previewExercise}.png`} 
+                alt={previewExercise}
+                className="w-full h-full object-contain dark:mix-blend-screen dark:invert-0 invert mix-blend-multiply opacity-90"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextElementSibling.style.display = 'block';
+                }}
+              />
+              <span className="material-symbols-outlined text-[64px] text-outline" style={{display: 'none'}}>fitness_center</span>
+            </div>
           </div>
         </div>
       )}

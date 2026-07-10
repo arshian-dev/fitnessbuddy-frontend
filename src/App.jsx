@@ -165,7 +165,7 @@ export default function App() {
           <div className="flex gap-xs w-full sm:w-auto justify-center sm:justify-start">
             <button 
               onClick={() => setCurrentRole('COACH')}
-              className={`px-sm py-1 rounded transition-all ${currentRole === 'COACH' ? 'bg-primary text-white shadow-sm' : 'hover:bg-primary-container/20 text-on-primary-container'}`}
+              className={`px-sm py-1 rounded transition-all ${currentRole === 'COACH' ? 'bg-primary text-on-primary shadow-sm' : 'hover:bg-primary-container/20 text-on-primary-container'}`}
             >
               Coach View
             </button>
@@ -177,7 +177,7 @@ export default function App() {
                   checkProfileStatus(currentUser);
                 }
               }}
-              className={`px-sm py-1 rounded transition-all ${currentRole === 'CLIENT' ? 'bg-primary text-white shadow-sm' : 'hover:bg-primary-container/20 text-on-primary-container'}`}
+              className={`px-sm py-1 rounded transition-all ${currentRole === 'CLIENT' ? 'bg-primary text-on-primary shadow-sm' : 'hover:bg-primary-container/20 text-on-primary-container'}`}
             >
               Client View
             </button>

@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { api } from '../services/api';
-import { TextEffect } from '../../components/motion-primitives/text-effect';
-import { Upload, FileText, AlertCircle, CheckCircle, Activity, Loader2, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function BloodworkPage({ user }) {
   const [bloodworkLogs, setBloodworkLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [file, setFile] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [selectedLog, setSelectedLog] = useState(null);
+  
+  const fileInputRef = useRef(null);
+  const [isDragActive, setIsDragActive] = useState(false);
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -34,20 +35,8 @@ export default function BloodworkPage({ user }) {
     fetchLogs();
   }, [user.id]);
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-      setError('');
-      setSuccess('');
-    }
-  };
-
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!file) {
-      setError('Please select a file to upload.');
-      return;
-    }
+  const processFile = async (file) => {
+    if (!file) return;
 
     setUploading(true);
     setError('');
@@ -56,14 +45,11 @@ export default function BloodworkPage({ user }) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('userId', user.id);
-    // Include logDate if needed, defaults to today in backend
 
     try {
-      const response = await api.uploadBloodwork(formData);
+      await api.uploadBloodwork(formData);
       setSuccess('Bloodwork uploaded and analyzed successfully!');
-      setFile(null);
       
-      // Refresh list and select the new log
       const logs = await api.getBloodworkLogs(user.id);
       setBloodworkLogs(logs);
       if (logs.length > 0) {
@@ -76,133 +62,134 @@ export default function BloodworkPage({ user }) {
     }
   };
 
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processFile(e.target.files[0]);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
+
   return (
-    <div className="space-y-lg">
-      <div className="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
-        <div className="bg-primary/5 p-lg border-b border-outline-variant/30 flex flex-col md:flex-row items-center justify-between gap-md">
-          <div>
-            <h2 className="text-xl font-headline-md text-primary font-bold flex items-center gap-sm">
-              <Activity size={24} />
-              AI Bloodwork Analysis
-            </h2>
-            <p className="text-sm text-on-surface-variant mt-1">
-              Upload your lab results (PDF, DOCX, or TXT) and our AI will analyze your biomarkers for deficiencies and fitness impact.
-            </p>
-          </div>
-        </div>
-
-        <div className="p-lg">
-          <form onSubmit={handleUpload} className="flex flex-col md:flex-row items-end gap-md mb-md">
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-semibold text-on-surface mb-2">Upload Lab Report</label>
-              <div className="relative">
-                <input 
-                  type="file" 
-                  accept=".pdf,.docx,.txt"
-                  onChange={handleFileChange}
-                  className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all border border-outline-variant/50 rounded-full cursor-pointer focus:outline-none"
-                  disabled={uploading}
-                />
-              </div>
-              <p className="text-xs text-secondary mt-2 flex items-center gap-1">
-                <AlertCircle size={12} /> Supported formats: PDF, DOCX, TXT. Max 10MB.
-              </p>
-            </div>
-            <button
-              type="submit"
-              disabled={!file || uploading}
-              className="bg-primary text-white font-bold px-lg py-sm rounded-full shadow-sm hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-sm w-full md:w-auto justify-center h-[42px]"
-            >
-              {uploading ? (
-                <>
-                  <Loader2 className="animate-spin" size={18} /> Analyzing...
-                </>
-              ) : (
-                <>
-                  <Upload size={18} /> Upload & Analyze
-                </>
-              )}
-            </button>
-          </form>
-
-          {error && (
-            <div className="bg-error/10 text-error px-md py-sm rounded-lg text-sm mb-md flex items-center gap-sm font-semibold">
-              <AlertCircle size={16} /> {error}
-            </div>
-          )}
-          {success && (
-            <div className="bg-teal-50 text-teal-700 px-md py-sm rounded-lg text-sm mb-md flex items-center gap-sm font-semibold">
-              <CheckCircle size={16} /> {success}
-            </div>
-          )}
+    <div className="w-full text-on-surface">
+      <div className="flex justify-between items-end mb-12">
+        <div>
+          <h2 className="font-text-headline-lg text-primary-fixed mb-2">Bloodwork Analysis</h2>
+          <p className="text-on-surface-variant max-w-md">Optimize your health with deep clinical insights. Upload your latest results for AI-powered biological markers analysis.</p>
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center p-xl">
-          <Loader2 className="animate-spin text-primary" size={32} />
-        </div>
-      ) : bloodworkLogs.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-xl text-center">
-          <div className="w-16 h-16 bg-surface-container-high rounded-full flex items-center justify-center mx-auto mb-md text-secondary">
-            <FileText size={32} />
-          </div>
-          <h3 className="text-lg font-bold text-on-surface mb-sm">No Bloodwork Logs Found</h3>
-          <p className="text-secondary text-sm max-w-md mx-auto">
-            Upload your first lab report above to get started. Our AI will break down your key biomarkers and provide actionable fitness insights.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-lg items-start">
-          {/* History Sidebar */}
-          <div className="md:col-span-1 bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
-            <div className="bg-surface-container-low px-md py-sm border-b border-outline-variant/30 flex justify-between items-center">
-              <h3 className="font-bold text-on-surface text-sm">Past Uploads</h3>
-              <button onClick={fetchLogs} className="text-secondary hover:text-primary transition-colors" title="Refresh list">
-                <RefreshCw size={14} />
-              </button>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md">
+        {/* Left: Upload & AI Insights */}
+        <div className="lg:col-span-4 space-y-gutter-md">
+          {/* Upload Zone */}
+          <section className="glass-card p-8 flex flex-col items-center text-center relative overflow-hidden">
+            <div 
+              className={`upload-zone w-full py-12 rounded-2xl cursor-pointer flex flex-col items-center group transition-colors border-2 border-dashed ${isDragActive ? 'border-primary bg-primary/10' : 'border-primary-container/30 hover:border-primary-container hover:bg-primary-container/5'}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => !uploading && fileInputRef.current.click()}
+            >
+              <div className="w-16 h-16 bg-primary-container/10 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                {uploading ? (
+                  <Loader2 className="animate-spin text-primary-container" size={32} />
+                ) : (
+                  <span className="material-symbols-outlined text-primary-container text-4xl">cloud_upload</span>
+                )}
+              </div>
+              <h3 className="font-text-title-md text-on-surface mb-2">{uploading ? 'Analyzing...' : 'Upload Results'}</h3>
+              <p className="font-text-body-sm text-on-surface-variant px-6">Drag and drop your PDF or TXT lab reports here to begin analysis</p>
+              <input 
+                className="hidden" 
+                id="fileUpload" 
+                type="file" 
+                accept=".pdf,.docx,.txt"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
             </div>
-            <div className="divide-y divide-outline-variant/20 max-h-[500px] overflow-y-auto">
-              {bloodworkLogs.map(log => (
-                <button 
-                  key={log.id}
-                  onClick={() => setSelectedLog(log)}
-                  className={`w-full text-left p-md transition-colors hover:bg-primary/5 ${selectedLog?.id === log.id ? 'bg-primary/10 border-l-4 border-primary' : 'border-l-4 border-transparent'}`}
-                >
-                  <p className="font-bold text-sm text-on-surface truncate pr-2">{log.file_name}</p>
-                  <p className="text-xs text-secondary mt-1 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[12px]">calendar_today</span>
-                    {new Date(log.created_at).toLocaleDateString()}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
+            
+            {error && <p className="mt-4 text-error text-sm font-semibold">{error}</p>}
+            {success && <p className="mt-4 text-primary-container text-sm font-semibold">{success}</p>}
+          </section>
 
-          {/* Analysis View */}
-          <div className="md:col-span-2 bg-white rounded-xl shadow-sm border border-outline-variant/30 p-lg min-h-[400px]">
-            {selectedLog ? (
-              <div>
-                <div className="flex items-center gap-sm mb-lg pb-md border-b border-outline-variant/20">
-                  <Activity className="text-primary" size={24} />
-                  <div>
-                    <h3 className="font-headline-md text-lg text-on-surface font-extrabold">{selectedLog.file_name}</h3>
-                    <p className="text-xs text-secondary mt-0.5">Analyzed on {new Date(selectedLog.created_at).toLocaleString()}</p>
-                  </div>
+          {/* AI Insights Callout */}
+          {selectedLog && (
+            <section className="glass-card overflow-hidden animate-float relative">
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary-container/10 blur-3xl rounded-full pointer-events-none"></div>
+              <div className="p-6 relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="material-symbols-outlined text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                  <h3 className="font-text-title-md text-primary-container">Quick Analysis</h3>
                 </div>
-                
-                <div className="prose prose-sm md:prose-base prose-slate max-w-none prose-headings:text-primary prose-a:text-primary hover:prose-a:underline">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{selectedLog.ai_analysis_summary}</ReactMarkdown>
+                <p className="text-on-surface-variant leading-relaxed mb-6 text-sm line-clamp-4">
+                  {selectedLog.ai_analysis_summary.substring(0, 150)}...
+                </p>
+                <div className="w-full py-3 bg-surface-container-highest text-center text-primary-container font-semibold rounded-lg border border-primary-container/20 text-sm">
+                  Analyzed {new Date(selectedLog.created_at).toLocaleDateString()}
                 </div>
               </div>
+            </section>
+          )}
+        </div>
+
+        {/* Right: Detailed Results List */}
+        <div className="lg:col-span-8 space-y-gutter-md">
+          <div className="glass-card p-6 min-h-[400px]">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <h3 className="font-text-title-md text-on-surface">Detailed Biological Markers</h3>
+              <div className="flex items-center gap-2 bg-surface-container-lowest p-1 rounded-lg border border-outline-variant/20">
+                <select 
+                  className="bg-transparent border-none text-on-surface-variant text-sm focus:ring-0 cursor-pointer"
+                  onChange={(e) => {
+                    const log = bloodworkLogs.find(l => l.id === parseInt(e.target.value));
+                    if (log) setSelectedLog(log);
+                  }}
+                  value={selectedLog?.id || ''}
+                >
+                  <option value="" disabled>Select a report...</option>
+                  {bloodworkLogs.map(log => (
+                    <option key={log.id} value={log.id}>{log.file_name} ({new Date(log.created_at).toLocaleDateString()})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center items-center h-48">
+                <Loader2 className="animate-spin text-primary-container" size={32} />
+              </div>
+            ) : selectedLog ? (
+              <div className="prose prose-invert max-w-none prose-headings:text-primary-container prose-a:text-primary-container hover:prose-a:underline">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{selectedLog.ai_analysis_summary}</ReactMarkdown>
+              </div>
             ) : (
-              <div className="flex items-center justify-center h-full text-secondary">
-                Select a log to view the analysis.
+              <div className="flex flex-col items-center justify-center h-48 text-on-surface-variant opacity-70">
+                <span className="material-symbols-outlined text-4xl mb-2">science</span>
+                <p>No analysis selected or available.</p>
               </div>
             )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

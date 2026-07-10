@@ -7,96 +7,103 @@
     <title>Fitness Buddy - South Asian Fitness Intelligence</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      // Theme initialization script to prevent flash of wrong theme
+      (function() {
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
     <script>
       tailwind.config = {
         darkMode: "class",
         theme: {
           extend: {
-            colors: {
-              "primary": "#00685f",
-              "on-primary-container": "#f4fffc",
-              "on-primary-fixed": "#00201d",
-              "primary-fixed": "#89f5e7",
-              "background": "#f8f9ff",
-              "surface-tint": "#006a61",
-              "outline": "#6d7a77",
-              "tertiary": "#994100",
-              "tertiary-fixed-dim": "#ffb690",
-              "on-tertiary-fixed-variant": "#783200",
-              "inverse-on-surface": "#eaf1ff",
-              "secondary-fixed-dim": "#bcc7de",
-              "secondary": "#545f73",
-              "surface-dim": "#cbdbf5",
-              "on-tertiary-fixed": "#341100",
-              "error-container": "#ffdad6",
-              "surface-container": "#e5eeff",
-              "surface-container-high": "#dce9ff",
-              "secondary-container": "#d5e0f8",
-              "error": "#ba1a1a",
-              "on-background": "#0b1c30",
-              "on-surface-variant": "#3d4947",
-              "on-error-container": "#93000a",
-              "surface-container-low": "#eff4ff",
-              "surface-bright": "#f8f9ff",
-              "secondary-fixed": "#d8e3fb",
-              "tertiary-fixed": "#ffdbca",
-              "on-primary": "#ffffff",
-              "outline-variant": "#bcc9c6",
-              "on-secondary-container": "#586377",
-              "on-primary-fixed-variant": "#005049",
-              "on-secondary-fixed": "#111c2d",
-              "surface-container-highest": "#d3e4fe",
-              "inverse-surface": "#213145",
-              "on-surface": "#0b1c30",
-              "on-tertiary": "#ffffff",
-              "primary-container": "#008378",
-              "inverse-primary": "#6bd8cb",
-              "on-secondary-fixed-variant": "#3c475a",
-              "surface": "#f8f9ff",
-              "surface-container-lowest": "#ffffff",
-              "surface-variant": "#d3e4fe",
-              "tertiary-container": "#c05400",
-              "on-tertiary-container": "#fffbff",
-              "on-secondary": "#ffffff",
-              "primary-fixed-dim": "#6bd8cb",
-              "on-error": "#ffffff"
+            "colors": {
+          "primary": "rgb(var(--color-primary) / <alpha-value>)",
+          "on-primary": "rgb(var(--color-on-primary) / <alpha-value>)",
+          "primary-container": "rgb(var(--color-primary-container) / <alpha-value>)",
+          "on-primary-container": "rgb(var(--color-on-primary-container) / <alpha-value>)",
+          "primary-fixed": "rgb(var(--color-primary-fixed) / <alpha-value>)",
+          "primary-fixed-dim": "rgb(var(--color-primary-fixed-dim) / <alpha-value>)",
+          "on-primary-fixed": "rgb(var(--color-on-primary-fixed) / <alpha-value>)",
+          "on-primary-fixed-variant": "rgb(var(--color-on-primary-fixed-variant) / <alpha-value>)",
+          "inverse-primary": "rgb(var(--color-inverse-primary) / <alpha-value>)",
+          "background": "rgb(var(--color-background) / <alpha-value>)",
+          "on-background": "rgb(var(--color-on-background) / <alpha-value>)",
+          "surface": "rgb(var(--color-surface) / <alpha-value>)",
+          "surface-dim": "rgb(var(--color-surface-dim) / <alpha-value>)",
+          "surface-bright": "rgb(var(--color-surface-bright) / <alpha-value>)",
+          "surface-container-lowest": "rgb(var(--color-surface-container-lowest) / <alpha-value>)",
+          "surface-container-low": "rgb(var(--color-surface-container-low) / <alpha-value>)",
+          "surface-container": "rgb(var(--color-surface-container) / <alpha-value>)",
+          "surface-container-high": "rgb(var(--color-surface-container-high) / <alpha-value>)",
+          "surface-container-highest": "rgb(var(--color-surface-container-highest) / <alpha-value>)",
+          "surface-variant": "rgb(var(--color-surface-variant) / <alpha-value>)",
+          "on-surface": "rgb(var(--color-on-surface) / <alpha-value>)",
+          "on-surface-variant": "rgb(var(--color-on-surface-variant) / <alpha-value>)",
+          "inverse-surface": "rgb(var(--color-inverse-surface) / <alpha-value>)",
+          "inverse-on-surface": "rgb(var(--color-inverse-on-surface) / <alpha-value>)",
+          "outline": "rgb(var(--color-outline) / <alpha-value>)",
+          "outline-variant": "rgb(var(--color-outline-variant) / <alpha-value>)",
+          "surface-tint": "rgb(var(--color-surface-tint) / <alpha-value>)",
+          "secondary": "rgb(var(--color-secondary) / <alpha-value>)",
+          "on-secondary": "rgb(var(--color-on-secondary) / <alpha-value>)",
+          "secondary-container": "rgb(var(--color-secondary-container) / <alpha-value>)",
+          "on-secondary-container": "rgb(var(--color-on-secondary-container) / <alpha-value>)",
+          "secondary-fixed": "rgb(var(--color-secondary-fixed) / <alpha-value>)",
+          "secondary-fixed-dim": "rgb(var(--color-secondary-fixed-dim) / <alpha-value>)",
+          "on-secondary-fixed": "rgb(var(--color-on-secondary-fixed) / <alpha-value>)",
+          "on-secondary-fixed-variant": "rgb(var(--color-on-secondary-fixed-variant) / <alpha-value>)",
+          "tertiary": "rgb(var(--color-tertiary) / <alpha-value>)",
+          "on-tertiary": "rgb(var(--color-on-tertiary) / <alpha-value>)",
+          "tertiary-container": "rgb(var(--color-tertiary-container) / <alpha-value>)",
+          "on-tertiary-container": "rgb(var(--color-on-tertiary-container) / <alpha-value>)",
+          "tertiary-fixed": "rgb(var(--color-tertiary-fixed) / <alpha-value>)",
+          "tertiary-fixed-dim": "rgb(var(--color-tertiary-fixed-dim) / <alpha-value>)",
+          "on-tertiary-fixed": "rgb(var(--color-on-tertiary-fixed) / <alpha-value>)",
+          "on-tertiary-fixed-variant": "rgb(var(--color-on-tertiary-fixed-variant) / <alpha-value>)",
+          "error": "rgb(var(--color-error) / <alpha-value>)",
+          "on-error": "rgb(var(--color-on-error) / <alpha-value>)",
+          "error-container": "rgb(var(--color-error-container) / <alpha-value>)",
+          "on-error-container": "rgb(var(--color-on-error-container) / <alpha-value>)",
+          "scrim": "rgb(var(--color-scrim) / <alpha-value>)",
+          "shadow": "rgb(var(--color-shadow) / <alpha-value>)"
             },
-            borderRadius: {
+            "borderRadius": {
               "DEFAULT": "0.25rem",
               "lg": "0.5rem",
               "xl": "0.75rem",
               "full": "9999px"
             },
-            spacing: {
+            "spacing": {
+              "container-max": "1280px",
+              "gutter-md": "24px",
+              "unit": "4px",
+              "margin-edge": "32px",
               "md": "16px",
               "lg": "24px",
               "xl": "32px",
               "sm": "12px",
-              "container-margin": "20px",
-              "gutter": "16px",
-              "xs": "4px",
-              "base": "8px"
+              "xs": "4px"
             },
-            fontFamily: {
-              "headline-lg": ["Plus Jakarta Sans"],
-              "label-md": ["Inter"],
-              "body-md": ["Inter"],
-              "stat-display": ["Plus Jakarta Sans"],
-              "body-lg": ["Inter"],
-              "headline-xl": ["Plus Jakarta Sans"],
-              "headline-md": ["Plus Jakarta Sans"]
+            "fontFamily": {
+              "text-body-sm": ["Inter"],
+              "text-headline-lg": ["Manrope"],
+              "text-title-md": ["Manrope"],
+              "text-headline-lg-mobile": ["Manrope"]
             },
-            fontSize: {
-              "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
-              "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-              "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-              "stat-display": ["48px", {"lineHeight": "48px", "letterSpacing": "-0.04em", "fontWeight": "800"}],
-              "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-              "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
-              "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            "fontSize": {
+              "text-body-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0px", "fontWeight": "400"}],
+              "text-headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+              "text-title-md": ["18px", {"lineHeight": "24px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+              "text-headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
             }
           }
         }

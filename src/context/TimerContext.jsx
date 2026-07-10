@@ -44,7 +44,7 @@ export function TimerProvider({ children }) {
       {children}
       {/* Global Timer UI */}
       {isActive && (
-        <div className="fixed bottom-0 left-0 right-0 bg-primary text-white p-sm text-center shadow-lg flex justify-center items-center gap-md z-50 animate-in slide-in-from-bottom">
+        <div className="fixed bottom-0 left-0 right-0 bg-primary text-on-primary p-sm text-center shadow-lg flex justify-center items-center gap-md z-50 animate-in slide-in-from-bottom">
           <span className="font-bold">Rest Timer: {Math.floor(secondsLeft / 60)}:{(secondsLeft % 60).toString().padStart(2, '0')}</span>
           <button onClick={() => subtractTime(15)} className="px-xs py-1 bg-white/20 hover:bg-white/30 rounded text-xs">-15s</button>
           <button onClick={() => addTime(15)} className="px-xs py-1 bg-white/20 hover:bg-white/30 rounded text-xs">+15s</button>

@@ -24,8 +24,12 @@ import {
   Edit2,
   RefreshCw,
   BrainCircuit,
-  Database
+  Database,
+  Users
 } from 'lucide-react';
+import { TextEffect } from '../../components/motion-primitives/text-effect';
+import ThemeToggle from './ThemeToggle';
+import CommunityPage from './CommunityPage';
 
 export default function CoachDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, registry, library, chat, intelligence
@@ -346,6 +350,13 @@ export default function CoachDashboard({ user, onLogout }) {
             <span className="font-label-md text-label-md">Registry</span>
           </button>
           <button 
+            onClick={() => setActiveTab('feed')}
+            className={`w-full flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'feed' ? 'bg-primary-container text-on-primary-container font-bold scale-[0.99]' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
+          >
+            <Users size={20} className="text-current" />
+            <span className="font-label-md text-label-md">Community Feed</span>
+          </button>
+          <button 
             onClick={() => setActiveTab('library')}
             className={`w-full flex items-center gap-md rounded-xl px-md py-sm transition-all text-left ${activeTab === 'library' ? 'bg-primary-container text-on-primary-container font-bold scale-[0.99]' : 'text-on-surface-variant hover:bg-secondary-container/40'}`}
           >
@@ -369,7 +380,7 @@ export default function CoachDashboard({ user, onLogout }) {
         </nav>
         <div className="mt-auto pt-lg border-t border-outline-variant/20 space-y-2">
           <div className="px-md py-sm mb-md flex items-center gap-md">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">AK</div>
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">AK</div>
             <div>
               <p className="font-label-md text-label-md font-semibold">{user.name}</p>
               <p className="text-[12px] text-on-surface-variant">Coach Lead</p>
@@ -386,17 +397,18 @@ export default function CoachDashboard({ user, onLogout }) {
       <main className="md:ml-64 min-h-screen p-container-margin md:p-xl">
         {/* Mobile Header Nav & Search */}
         <div className="md:hidden flex overflow-x-auto custom-scrollbar gap-xs mb-md pb-1">
-          <button onClick={() => setActiveTab('dashboard')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'dashboard' ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Overview</button>
-          <button onClick={() => setActiveTab('registry')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'registry' ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Registry</button>
-          <button onClick={() => setActiveTab('library')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'library' ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Library</button>
-          <button onClick={() => setActiveTab('chat')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'chat' ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>AI Assist</button>
+          <button onClick={() => setActiveTab('dashboard')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'dashboard' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Overview</button>
+          <button onClick={() => setActiveTab('registry')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'registry' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Registry</button>
+          <button onClick={() => setActiveTab('feed')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'feed' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Feed</button>
+          <button onClick={() => setActiveTab('library')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'library' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>Library</button>
+          <button onClick={() => setActiveTab('chat')} className={`px-3 py-1.5 rounded-md text-xs font-bold whitespace-nowrap transition-all ${activeTab === 'chat' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-secondary hover:bg-surface-container-high'}`}>AI Assist</button>
         </div>
         
         <header className="flex flex-col md:flex-row md:items-center justify-between mb-xl gap-md">
           <div>
             <div className="flex items-center gap-md">
               <h2 className="font-headline-lg text-headline-lg text-on-background tracking-tight">
-                {activeTab === 'dashboard' ? 'Coach Overview' : activeTab === 'registry' ? 'Client Management' : activeTab === 'chat' ? 'AI Assistant' : activeTab === 'intelligence' ? 'Intelligence Base' : 'Asset Library'}
+                {activeTab === 'dashboard' ? 'Coach Overview' : activeTab === 'registry' ? 'Client Management' : activeTab === 'chat' ? 'AI Assistant' : activeTab === 'intelligence' ? 'Intelligence Base' : activeTab === 'feed' ? 'Community Feed' : 'Asset Library'}
               </h2>
               {user.coach_code && (
                 <div className="bg-primary/10 border border-primary/20 px-sm py-1 rounded-md flex items-center gap-xs">
@@ -409,10 +421,12 @@ export default function CoachDashboard({ user, onLogout }) {
               {activeTab === 'dashboard' ? `You have ${clients.length} active clients. ${escalations.length > 0 ? `${escalations.length} require immediate attention.` : 'All good today!'}` : 
                activeTab === 'chat' ? 'Brainstorm splits, manage plateaus, and plan diets.' : 
                activeTab === 'intelligence' ? 'Manage your unique coaching data embedded into the AI brain.' :
+               activeTab === 'feed' ? 'See what your clients are up to and interact with their shared posts.' :
                'Manage clients, design target meal plans, and override workouts.'}
             </p>
           </div>
           <div className="flex items-center gap-md">
+            <ThemeToggle />
             <div className="relative">
               <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">search</span>
               <input 
@@ -431,7 +445,7 @@ export default function CoachDashboard({ user, onLogout }) {
           <div className="space-y-xl animate-in fade-in duration-500">
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
-              <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+              <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30 flex flex-col justify-between">
                 <div className="flex justify-between items-start mb-md">
                   <div className="p-sm bg-primary/10 rounded-xl text-primary flex items-center justify-center">
                     <span className="material-symbols-outlined">group</span>
@@ -444,7 +458,7 @@ export default function CoachDashboard({ user, onLogout }) {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+              <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30 flex flex-col justify-between">
                 <div className="flex justify-between items-start mb-md">
                   <div className="p-sm bg-error/10 rounded-xl text-error flex items-center justify-center">
                     <span className="material-symbols-outlined">report</span>
@@ -457,7 +471,7 @@ export default function CoachDashboard({ user, onLogout }) {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+              <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30 flex flex-col justify-between">
                 <div className="flex justify-between items-start mb-md">
                   <div className="p-sm bg-tertiary/10 rounded-xl text-tertiary flex items-center justify-center">
                     <span className="material-symbols-outlined">fact_check</span>
@@ -471,7 +485,7 @@ export default function CoachDashboard({ user, onLogout }) {
             </div>
 
             {/* Client Flags Distribution */}
-            <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+            <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30">
               <h3 className="font-headline-md text-[18px] text-on-surface mb-md">Client Escalations Distribution</h3>
               {escalations.length > 0 ? (
                 <div className="space-y-md">
@@ -512,7 +526,7 @@ export default function CoachDashboard({ user, onLogout }) {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
                   {escalations.slice(0, 3).map((esc) => (
-                    <div key={esc.id} className="bg-white border border-error/20 rounded-xl p-md shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div key={esc.id} className="glass-card border border-error/20 rounded-xl p-md shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
                       <div className="flex items-start justify-between mb-sm">
                         <span className="px-sm py-xs bg-error-container text-on-error-container text-[10px] font-bold rounded-full uppercase tracking-widest">{esc.type}</span>
                         <span className="text-[10px] text-secondary font-bold uppercase">{esc.severity}</span>
@@ -524,7 +538,7 @@ export default function CoachDashboard({ user, onLogout }) {
                           setActiveTab('registry');
                           handleSelectClient(esc.client);
                         }}
-                        className="w-full py-sm bg-surface-container-high rounded-lg font-label-md text-primary font-bold hover:bg-primary hover:text-white transition-all text-xs"
+                        className="w-full py-sm bg-surface-container-high rounded-lg font-label-md text-primary font-bold hover:bg-primary hover:text-on-primary transition-all text-xs"
                       >
                         Inspect Plan overrides
                       </button>
@@ -540,7 +554,7 @@ export default function CoachDashboard({ user, onLogout }) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
             
             {/* Client Registry List */}
-            <section className="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col h-[400px] lg:h-[750px]">
+            <section className="lg:col-span-4 glass-card rounded-2xl shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col h-[400px] lg:h-[750px]">
               <div className="p-md border-b border-outline-variant/20 flex justify-between items-center">
                 <h3 className="font-headline-md text-[20px] font-extrabold text-on-surface">Client Registry</h3>
                 <span className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full font-bold">{filteredClients.length} Active</span>
@@ -583,7 +597,7 @@ export default function CoachDashboard({ user, onLogout }) {
                 <div className="space-y-lg">
                   
                   {/* Selected Client Overview */}
-                  <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+                  <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30">
                     <div className="flex justify-between items-center mb-xl border-b border-outline-variant/20 pb-md">
                       <div>
                         <h3 className="font-headline-md text-[22px] font-extrabold text-on-surface">{selectedClient.name}</h3>
@@ -632,7 +646,7 @@ export default function CoachDashboard({ user, onLogout }) {
                             </div>
                             <div className="border-t border-outline-variant/20 pt-sm">
                               <span className="text-[10px] text-secondary font-bold uppercase">End Goal Vision</span>
-                              <p className="font-semibold text-slate-800 mt-1">{selectedClient.profile.end_goal_description}</p>
+                              <p className="font-semibold text-on-surface mt-1">{selectedClient.profile.end_goal_description}</p>
                             </div>
                           </div>
                         )}
@@ -690,7 +704,7 @@ export default function CoachDashboard({ user, onLogout }) {
                         <span>Active Resolution Required</span>
                       </h4>
                       {selectedClient.activeAlerts.map((alert) => (
-                        <div key={alert.id} className="flex justify-between items-center text-xs bg-white p-sm rounded border border-red-100">
+                        <div key={alert.id} className="flex justify-between items-center text-xs glass-card p-sm rounded border border-red-100">
                           <div>
                             <strong className="uppercase text-red-800">{alert.type}</strong>: {alert.details}
                           </div>
@@ -706,7 +720,7 @@ export default function CoachDashboard({ user, onLogout }) {
                   )}
 
                   {/* PLAN OVERRIDES EDITORS */}
-                  <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+                  <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30">
                     <div className="flex border-b border-outline-variant/20 mb-md gap-md">
                       <button 
                         onClick={() => { setOverrideType('workout'); setOverrideSuccess(''); setOverrideError(''); }}
@@ -790,7 +804,7 @@ export default function CoachDashboard({ user, onLogout }) {
                             <div className="space-y-md">
                               <div className="bg-primary-container/10 border border-primary/20 p-md rounded-xl text-xs text-primary font-semibold flex justify-between items-center">
                                 <span>Step 2 of 2: Schedule Exercises per Day</span>
-                                <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold uppercase">{workoutSplit} ({workoutFreq} Days)</span>
+                                <span className="text-[10px] bg-primary text-on-primary px-2 py-0.5 rounded-full font-bold uppercase">{workoutSplit} ({workoutFreq} Days)</span>
                               </div>
 
                               {/* Days Tabs */}
@@ -803,11 +817,11 @@ export default function CoachDashboard({ user, onLogout }) {
                                       key={day}
                                       type="button"
                                       onClick={() => setActiveDayTab(day)}
-                                      className={`px-md py-sm rounded-lg text-xs font-bold transition-all flex items-center gap-xs ${isSelected ? 'bg-primary text-white shadow-sm' : 'bg-surface-container-low text-secondary hover:bg-surface-container-high'}`}
+                                      className={`px-md py-sm rounded-lg text-xs font-bold transition-all flex items-center gap-xs ${isSelected ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-low text-secondary hover:bg-surface-container-high'}`}
                                     >
                                       <span>{day}</span>
                                       {exercisesCount > 0 && (
-                                        <span className={`text-[10px] px-1.5 py-0.25 rounded-full ${isSelected ? 'bg-white text-primary' : 'bg-secondary-fixed text-primary'} font-extrabold`}>
+                                        <span className={`text-[10px] px-1.5 py-0.25 rounded-full ${isSelected ? 'glass-card text-primary' : 'bg-secondary-fixed text-on-secondary-fixed'} font-extrabold`}>
                                           {exercisesCount}
                                         </span>
                                       )}
@@ -843,7 +857,7 @@ export default function CoachDashboard({ user, onLogout }) {
                                     .map((ex, originalIdx) => ({ ...ex, originalIdx }))
                                     .filter(ex => (ex.day || 'Monday') === activeDayTab)
                                     .map((ex, dayIdx) => (
-                                      <div key={ex.originalIdx} className="flex gap-xs items-center bg-white p-xs rounded-lg border border-outline-variant/10 shadow-sm">
+                                      <div key={ex.originalIdx} className="flex gap-xs items-center glass-card p-xs rounded-lg border border-outline-variant/10 shadow-sm">
                                         <select 
                                           className="bg-surface-container-low border border-outline-variant/30 rounded-lg p-sm text-xs flex-grow focus:outline-none focus:ring-1 focus:ring-primary"
                                           value={ex.name}
@@ -905,7 +919,7 @@ export default function CoachDashboard({ user, onLogout }) {
                                     ))}
 
                                   {workoutExercises.filter(ex => (ex.day || 'Monday') === activeDayTab).length === 0 && (
-                                    <div className="text-center py-md bg-slate-50 rounded-xl border border-dashed border-outline-variant/40 text-secondary text-xs">
+                                    <div className="text-center py-md glass-card rounded-xl border border-dashed border-outline-variant/40 text-secondary text-xs">
                                       No exercises scheduled for {activeDayTab} yet. Click add above!
                                     </div>
                                   )}
@@ -917,7 +931,7 @@ export default function CoachDashboard({ user, onLogout }) {
                                 <button
                                   type="button"
                                   onClick={() => setWorkoutStep(1)}
-                                  className="px-md py-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-xs"
+                                  className="px-md py-sm bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant rounded-xl text-xs font-bold transition-all flex items-center gap-xs"
                                 >
                                   <span className="material-symbols-outlined text-xs">arrow_back</span>
                                   <span>Back to Basics</span>
@@ -992,10 +1006,10 @@ export default function CoachDashboard({ user, onLogout }) {
 
                             <div className="space-y-sm">
                               {mealTemplates.map((template, mIdx) => (
-                                <div key={mIdx} className="bg-slate-50 p-sm rounded-xl border border-outline-variant/20 space-y-sm">
+                                <div key={mIdx} className="glass-card p-sm rounded-xl border border-outline-variant/20 space-y-sm">
                                   <div className="flex justify-between items-center">
                                     <input 
-                                      className="font-bold text-xs bg-transparent border-none text-slate-800"
+                                      className="font-bold text-xs bg-transparent border-none text-on-surface"
                                       value={template.meal}
                                       onChange={(e) => {
                                         const updated = [...mealTemplates];
@@ -1016,7 +1030,7 @@ export default function CoachDashboard({ user, onLogout }) {
                                     {template.options.map((opt, oIdx) => (
                                       <div key={oIdx} className="flex gap-xs items-center">
                                         <input 
-                                          className="bg-white border-outline-variant/30 rounded-lg p-xs text-xs flex-grow"
+                                          className="glass-card border-outline-variant/30 rounded-lg p-xs text-xs flex-grow"
                                           placeholder="Option text (e.g. 2 boiled eggs)"
                                           value={opt}
                                           onChange={(e) => {
@@ -1031,7 +1045,7 @@ export default function CoachDashboard({ user, onLogout }) {
                                             setActiveBuilder({ mealIndex: mIdx, optionIndex: oIdx });
                                             setBuilderFoods([]);
                                           }}
-                                          className="text-[10px] bg-slate-200 px-2 py-1 rounded"
+                                          className="text-[10px] bg-surface-container-highest px-2 py-1 rounded"
                                         >
                                           🍲 Foods
                                         </button>
@@ -1070,7 +1084,7 @@ export default function CoachDashboard({ user, onLogout }) {
 
                 </div>
               ) : (
-                <div className="bg-white border border-outline-variant/20 rounded-2xl p-xl text-center min-h-[300px] flex flex-col justify-center items-center text-secondary">
+                <div className="glass-card border border-outline-variant/20 rounded-2xl p-xl text-center min-h-[300px] flex flex-col justify-center items-center text-secondary">
                   <span className="material-symbols-outlined text-[48px] mb-sm">group</span>
                   <p className="font-bold text-sm">Select a client from the registry to manage protocols.</p>
                 </div>
@@ -1084,28 +1098,28 @@ export default function CoachDashboard({ user, onLogout }) {
           /* ASSET LIBRARY TAB */
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg animate-in fade-in duration-500">
             {/* Exercises Library */}
-            <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30 space-y-md">
+            <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30 space-y-md">
               <div className="flex justify-between items-center border-b pb-sm">
                 <h3 className="font-bold text-md text-on-surface">Exercise Asset Repository</h3>
                 <button 
                   onClick={() => setShowAddExercise(!showAddExercise)}
-                  className="text-xs bg-primary text-white px-2 py-1 rounded font-bold"
+                  className="text-xs bg-primary text-on-primary px-2 py-1 rounded font-bold"
                 >
                   Create Exercise
                 </button>
               </div>
 
               {showAddExercise && (
-                <div className="bg-slate-50 p-md rounded-xl border space-y-sm text-xs">
+                <div className="glass-card p-md rounded-xl border space-y-sm text-xs">
                   <input 
                     placeholder="Name (e.g. Incline DB Bench)" 
-                    className="w-full p-sm rounded border bg-white"
+                    className="w-full p-sm rounded border glass-card"
                     value={newExerciseName}
                     onChange={(e) => setNewExerciseName(e.target.value)}
                   />
                   <input 
                     placeholder="Category (e.g. Chest)" 
-                    className="w-full p-sm rounded border bg-white"
+                    className="w-full p-sm rounded border glass-card"
                     value={newExerciseCategory}
                     onChange={(e) => setNewExerciseCategory(e.target.value)}
                   />
@@ -1117,7 +1131,7 @@ export default function CoachDashboard({ user, onLogout }) {
                       setShowAddExercise(false);
                       loadData();
                     }}
-                    className="w-full bg-primary text-white p-xs rounded font-bold"
+                    className="w-full bg-primary text-on-primary p-xs rounded font-bold"
                   >
                     Save Exercise
                   </button>
@@ -1126,7 +1140,7 @@ export default function CoachDashboard({ user, onLogout }) {
 
               <div className="max-h-[500px] overflow-y-auto space-y-xs text-xs">
                 {exerciseLibrary.map((ex) => (
-                  <div key={ex.id} className="p-sm bg-slate-50 border rounded flex justify-between">
+                  <div key={ex.id} className="p-sm glass-card border rounded flex justify-between">
                     <strong>{ex.name}</strong>
                     <span className="text-secondary font-semibold uppercase text-[10px]">{ex.category}</span>
                   </div>
@@ -1135,31 +1149,31 @@ export default function CoachDashboard({ user, onLogout }) {
             </div>
 
             {/* Food items Library */}
-            <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30 space-y-md">
+            <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30 space-y-md">
               <div className="flex justify-between items-center border-b pb-sm">
                 <h3 className="font-bold text-md text-on-surface">Desi Food database</h3>
                 <button 
                   onClick={() => setShowAddFood(!showAddFood)}
-                  className="text-xs bg-primary text-white px-2 py-1 rounded font-bold"
+                  className="text-xs bg-primary text-on-primary px-2 py-1 rounded font-bold"
                 >
                   Create Food
                 </button>
               </div>
 
               {showAddFood && (
-                <div className="bg-slate-50 p-md rounded-xl border space-y-sm text-xs">
+                <div className="glass-card p-md rounded-xl border space-y-sm text-xs">
                   <input 
                     placeholder="Food Name" 
-                    className="w-full p-sm rounded border bg-white"
+                    className="w-full p-sm rounded border glass-card"
                     value={newFoodName}
                     onChange={(e) => setNewFoodName(e.target.value)}
                   />
                   <div className="grid grid-cols-5 gap-xs">
-                    <input placeholder="Unit" className="p-xs rounded border bg-white" value={newFoodServingUnit} onChange={(e) => setNewFoodServingUnit(e.target.value)} />
-                    <input placeholder="Kcal" className="p-xs rounded border bg-white" type="number" min="0" value={newFoodCalories} onChange={(e) => setNewFoodCalories(e.target.value)} />
-                    <input placeholder="Prot" className="p-xs rounded border bg-white" type="number" min="0" value={newFoodProtein} onChange={(e) => setNewFoodProtein(e.target.value)} />
-                    <input placeholder="Carb" className="p-xs rounded border bg-white" type="number" min="0" value={newFoodCarbs} onChange={(e) => setNewFoodCarbs(e.target.value)} />
-                    <input placeholder="Fats" className="p-xs rounded border bg-white" type="number" min="0" value={newFoodFats} onChange={(e) => setNewFoodFats(e.target.value)} />
+                    <input placeholder="Unit" className="p-xs rounded border glass-card" value={newFoodServingUnit} onChange={(e) => setNewFoodServingUnit(e.target.value)} />
+                    <input placeholder="Kcal" className="p-xs rounded border glass-card" type="number" min="0" value={newFoodCalories} onChange={(e) => setNewFoodCalories(e.target.value)} />
+                    <input placeholder="Prot" className="p-xs rounded border glass-card" type="number" min="0" value={newFoodProtein} onChange={(e) => setNewFoodProtein(e.target.value)} />
+                    <input placeholder="Carb" className="p-xs rounded border glass-card" type="number" min="0" value={newFoodCarbs} onChange={(e) => setNewFoodCarbs(e.target.value)} />
+                    <input placeholder="Fats" className="p-xs rounded border glass-card" type="number" min="0" value={newFoodFats} onChange={(e) => setNewFoodFats(e.target.value)} />
                   </div>
                   <button 
                     onClick={async () => {
@@ -1176,7 +1190,7 @@ export default function CoachDashboard({ user, onLogout }) {
                       setShowAddFood(false);
                       loadData();
                     }}
-                    className="w-full bg-primary text-white p-xs rounded font-bold"
+                    className="w-full bg-primary text-on-primary p-xs rounded font-bold"
                   >
                     Save Food Item
                   </button>
@@ -1185,14 +1199,14 @@ export default function CoachDashboard({ user, onLogout }) {
 
               <div className="max-h-[500px] overflow-y-auto space-y-xs text-xs">
                 {foodLibrary.map((food) => (
-                  <div key={food.id} className="p-sm bg-slate-50 border rounded flex justify-between">
+                  <div key={food.id} className="p-sm glass-card border rounded flex justify-between">
                     <div>
                       <strong>{food.name}</strong>
                       <span className="text-[9px] text-secondary block">Unit: {food.serving_unit}</span>
                     </div>
                     <div className="text-right text-[10px]">
                       <span className="font-bold text-primary">{food.calories} kcal</span>
-                      <div className="text-slate-500">P:{food.protein}g C:{food.carbs}g F:{food.fats}g</div>
+                      <div className="text-on-surface-variant">P:{food.protein}g C:{food.carbs}g F:{food.fats}g</div>
                     </div>
                   </div>
                 ))}
@@ -1204,7 +1218,7 @@ export default function CoachDashboard({ user, onLogout }) {
         {/* AI CHAT TAB */}
         {activeTab === 'chat' && (
           <div className="flex flex-col h-[calc(100vh-160px)] animate-in fade-in duration-500">
-            <div className="bg-white rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col flex-1 overflow-hidden">
+            <div className="glass-card rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col flex-1 overflow-hidden">
               {/* Chat Header */}
               <div className="flex items-center gap-sm px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -1236,8 +1250,8 @@ export default function CoachDashboard({ user, onLogout }) {
                     )}
                     <div className={`p-md rounded-2xl max-w-[75%] text-sm leading-relaxed shadow-sm ${
                       msg.sender === 'user'
-                        ? 'bg-primary text-white rounded-br-sm'
-                        : 'bg-white border border-outline-variant/20 text-on-surface rounded-bl-sm'
+                        ? 'bg-primary text-on-primary rounded-br-sm'
+                        : 'glass-card border border-outline-variant/20 text-on-surface rounded-bl-sm'
                     }`}>
                       {msg.sender === 'assistant' ? (
                         <div className="prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_strong]:text-primary [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_h1]:text-primary [&_h2]:text-primary [&_h3]:text-primary">
@@ -1254,7 +1268,7 @@ export default function CoachDashboard({ user, onLogout }) {
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <span className="material-symbols-outlined text-primary text-[18px] animate-spin">progress_activity</span>
                     </div>
-                    <div className="bg-white border border-outline-variant/20 text-secondary px-md py-sm rounded-2xl rounded-bl-sm text-sm italic shadow-sm">
+                    <div className="glass-card border border-outline-variant/20 text-secondary px-md py-sm rounded-2xl rounded-bl-sm text-sm italic shadow-sm">
                       Thinking...
                     </div>
                   </div>
@@ -1276,7 +1290,7 @@ export default function CoachDashboard({ user, onLogout }) {
               </div>
 
               {/* Message Input */}
-              <div className="flex gap-sm px-lg py-md border-t border-outline-variant/20 bg-white">
+              <div className="flex gap-sm px-lg py-md border-t border-outline-variant/20 glass-card">
                 <input
                   type="text"
                   className="flex-grow bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-md py-sm text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-secondary"
@@ -1288,7 +1302,7 @@ export default function CoachDashboard({ user, onLogout }) {
                 <button
                   onClick={() => handleSendCoachMessage()}
                   disabled={chatLoading || !chatInput.trim()}
-                  className="bg-primary hover:opacity-90 disabled:opacity-50 text-white px-lg py-sm rounded-xl font-bold text-sm transition-all flex items-center gap-xs shadow-sm"
+                  className="bg-primary hover:opacity-90 disabled:opacity-50 text-on-primary px-lg py-sm rounded-xl font-bold text-sm transition-all flex items-center gap-xs shadow-sm"
                 >
                   <span className="material-symbols-outlined text-[18px]">send</span>
                   Send
@@ -1302,7 +1316,7 @@ export default function CoachDashboard({ user, onLogout }) {
         {activeTab === 'intelligence' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg animate-in fade-in duration-500">
             {/* Knowledge Base Overview */}
-            <div className="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col h-[750px]">
+            <div className="lg:col-span-7 glass-card rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col h-[750px]">
               <div className="p-md border-b border-outline-variant/20 flex justify-between items-center">
                 <div className="flex items-center gap-sm">
                   <Database className="text-primary" size={24} />
@@ -1358,7 +1372,7 @@ export default function CoachDashboard({ user, onLogout }) {
               )}
 
               {/* Add Text Note */}
-              <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+              <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30">
                 <h4 className="font-bold text-on-surface mb-sm flex items-center gap-xs">
                   <span className="material-symbols-outlined text-primary">edit_note</span>
                   Add Text Note
@@ -1396,7 +1410,7 @@ export default function CoachDashboard({ user, onLogout }) {
                       }
                     }}
                     disabled={kbLoading || !newNoteTitle || !newNoteContent}
-                    className="w-full bg-primary hover:opacity-90 disabled:opacity-50 text-white py-sm rounded-lg font-bold text-sm transition-all"
+                    className="w-full bg-primary hover:opacity-90 disabled:opacity-50 text-on-primary py-sm rounded-lg font-bold text-sm transition-all"
                   >
                     Embed Text Note
                   </button>
@@ -1404,7 +1418,7 @@ export default function CoachDashboard({ user, onLogout }) {
               </div>
 
               {/* Document Asset Uploader */}
-              <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+              <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30">
                 <h4 className="font-bold text-on-surface mb-sm flex items-center gap-xs">
                   <span className="material-symbols-outlined text-primary">upload_file</span>
                   Document Asset Uploader
@@ -1444,7 +1458,7 @@ export default function CoachDashboard({ user, onLogout }) {
                       }
                     }}
                     disabled={kbLoading || !newAssetFile}
-                    className="w-full bg-primary hover:opacity-90 disabled:opacity-50 text-white py-sm rounded-lg font-bold text-sm transition-all"
+                    className="w-full bg-primary hover:opacity-90 disabled:opacity-50 text-on-primary py-sm rounded-lg font-bold text-sm transition-all"
                   >
                     Start Ingestion Job
                   </button>
@@ -1453,7 +1467,7 @@ export default function CoachDashboard({ user, onLogout }) {
 
               {/* Transcript Preview Section */}
               {previewChunks && (
-                <div className="bg-white rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+                <div className="glass-card rounded-2xl p-lg shadow-sm border border-outline-variant/30">
                   <div className="flex justify-between items-center mb-md">
                     <h4 className="font-bold text-on-surface flex items-center gap-xs">
                       <span className="material-symbols-outlined text-primary">subtitles</span>
@@ -1478,14 +1492,21 @@ export default function CoachDashboard({ user, onLogout }) {
             </div>
           </div>
         )}
+        
+        {/* Feed Tab */}
+        {activeTab === 'feed' && (
+          <div className="animate-in fade-in duration-500 max-w-3xl mx-auto">
+            <CommunityPage user={user} />
+          </div>
+        )}
       </main>
 
       {/* FOOD SELECTOR BUILDER MODAL */}
       {activeBuilder && (
         <div className="fixed inset-0 bg-black/85 flex justify-center items-center z-50 p-md">
-          <div className="bg-white rounded-2xl p-lg max-w-xl w-full max-h-[90vh] overflow-y-auto space-y-md">
+          <div className="glass-card rounded-2xl p-lg max-w-xl w-full max-h-[90vh] overflow-y-auto space-y-md">
             <div className="flex justify-between items-center border-b pb-sm">
-              <h3 className="font-bold text-sm text-slate-800 flex items-center gap-xs">
+              <h3 className="font-bold text-sm text-on-surface flex items-center gap-xs">
                 <span>🍲 Food Item Selector</span>
               </h3>
               <button onClick={() => setActiveBuilder(null)} className="text-secondary hover:text-primary">
@@ -1518,14 +1539,14 @@ export default function CoachDashboard({ user, onLogout }) {
                 {builderFoods.map((bf, idx) => {
                   const food = foodLibrary.find(f => f.name === bf.name);
                   return (
-                    <div key={idx} className="flex gap-xs items-center bg-slate-50 p-sm rounded border text-xs">
+                    <div key={idx} className="flex gap-xs items-center glass-card p-sm rounded border text-xs">
                       <div className="flex-grow">
-                        <strong className="text-slate-800">{bf.name}</strong>
-                        <span className="text-[10px] text-slate-400 block">Unit: {food?.serving_unit}</span>
+                        <strong className="text-on-surface">{bf.name}</strong>
+                        <span className="text-[10px] text-on-surface-variant block">Unit: {food?.serving_unit}</span>
                       </div>
                       <input 
                         type="number"
-                        className="bg-white border w-14 p-xs text-center rounded"
+                        className="glass-card border w-14 p-xs text-center rounded"
                         value={bf.quantity}
                         onChange={(e) => {
                           const updated = [...builderFoods];
@@ -1563,7 +1584,7 @@ export default function CoachDashboard({ user, onLogout }) {
               });
 
               return (
-                <div className="bg-slate-100 p-sm rounded text-xs flex justify-between font-bold">
+                <div className="bg-surface-container-low p-sm rounded text-xs flex justify-between font-bold">
                   <span>Totals: {Math.round(totalCal)} kcal</span>
                   <span>P: {totalProt.toFixed(1)}g | C: {totalCarb.toFixed(1)}g | F: {totalFat.toFixed(1)}g</span>
                 </div>
@@ -1574,13 +1595,13 @@ export default function CoachDashboard({ user, onLogout }) {
               <button 
                 type="button" 
                 onClick={() => setActiveBuilder(null)}
-                className="bg-slate-200 text-slate-700 px-lg py-sm rounded-lg font-bold text-xs"
+                className="bg-surface-container-high text-on-surface-variant px-lg py-sm rounded-lg font-bold text-xs"
               >
                 Cancel
               </button>
               <button 
                 type="button"
-                className="bg-primary text-white px-lg py-sm rounded-lg font-bold text-xs"
+                className="bg-primary text-on-primary px-lg py-sm rounded-lg font-bold text-xs"
                 onClick={() => {
                   const desc = builderFoods.map(bf => {
                     const qty = parseFloat(bf.quantity) || 1;

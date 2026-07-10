@@ -84,8 +84,7 @@ export const api = {
   uploadKnowledge: (formData) => request('/knowledge/upload', { method: 'POST', body: formData }),
   removeKnowledge: (coachId, name) => request('/coach/knowledge', { method: 'DELETE', body: { coachId, name } }),
 
-  // Wger Integration
-  searchWgerExercise: (query) => request(`/exercises/search?q=${encodeURIComponent(query)}`),
+
 
   // Bloodwork
   getBloodworkLogs: (userId) => request(`/bloodwork/${userId}`),
@@ -105,5 +104,8 @@ export const api = {
   // Routines & Templates
   saveRoutine: (userId, name, exercises) => request('/workouts/routines', { method: 'POST', body: { userId, name, exercises } }),
   getRoutines: (userId) => request(`/workouts/routines/${userId}`),
-  importRoutine: (userId, name, exercises) => request('/workouts/routines', { method: 'POST', body: { userId, name, exercises } })
+  importRoutine: (userId, name, exercises) => request('/workouts/routines', { method: 'POST', body: { userId, name, exercises } }),
+  
+  // User Profile
+  updateUserProfile: (userId, data) => request(`/profile/user/${userId}`, { method: 'PUT', body: data })
 };

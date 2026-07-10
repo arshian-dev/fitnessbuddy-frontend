@@ -35,17 +35,17 @@ export default function PlateCalculator() {
     if (unit === 'KG') {
       if (weight >= 25) return 'bg-red-500 text-white';
       if (weight >= 20) return 'bg-blue-500 text-white';
-      if (weight >= 15) return 'bg-yellow-400 text-slate-900';
+      if (weight >= 15) return 'bg-yellow-400 text-on-surface';
       if (weight >= 10) return 'bg-green-500 text-white';
-      if (weight >= 5) return 'bg-gray-100 text-gray-800 border border-gray-300';
-      if (weight >= 2.5) return 'bg-slate-800 text-white';
-      return 'bg-slate-400 text-white';
+      if (weight >= 5) return 'bg-surface-container-high text-on-surface border border-outline-variant';
+      if (weight >= 2.5) return 'bg-surface-container-highest text-white';
+      return 'bg-surface-container text-white';
     } else {
       if (weight >= 45) return 'bg-blue-600 text-white';
-      if (weight >= 35) return 'bg-yellow-400 text-slate-900';
+      if (weight >= 35) return 'bg-yellow-400 text-on-surface';
       if (weight >= 25) return 'bg-green-500 text-white';
-      if (weight >= 10) return 'bg-gray-200 text-gray-800 border border-gray-400';
-      return 'bg-slate-800 text-white';
+      if (weight >= 10) return 'bg-surface-container-high text-on-surface border border-outline-variant';
+      return 'bg-surface-container-highest text-white';
     }
   };
 
@@ -76,7 +76,7 @@ export default function PlateCalculator() {
           <div className="flex items-center">
             <input 
               type="number" 
-              className="bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full text-center font-bold text-lg p-1"
+              className="glass-input rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full text-center font-bold text-lg p-1"
               value={targetWeight}
               onChange={(e) => setTargetWeight(Number(e.target.value))}
             />
@@ -86,7 +86,7 @@ export default function PlateCalculator() {
           <label className="block text-xs font-medium text-on-surface-variant mb-1">Bar</label>
           <input 
             type="number" 
-            className="bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full text-center p-1"
+            className="glass-input rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full text-center p-1"
             value={barWeight}
             onChange={(e) => setBarWeight(Number(e.target.value))}
           />
@@ -94,7 +94,7 @@ export default function PlateCalculator() {
         <div className="w-20">
           <label className="block text-xs font-medium text-on-surface-variant mb-1">Unit</label>
           <select 
-            className="bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full p-1"
+            className="glass-input rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full p-1"
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
           >
@@ -113,9 +113,9 @@ export default function PlateCalculator() {
           <>
             <div className="flex items-center justify-center relative w-full">
               {/* Barbell */}
-              <div className="absolute w-[120%] h-3 bg-slate-300 rounded-sm shadow-inner z-0"></div>
+              <div className="absolute w-[120%] h-3 bg-surface-container-highest rounded-sm shadow-inner z-0"></div>
               {/* Center Stopper */}
-              <div className="absolute w-4 h-10 bg-slate-400 border border-slate-500 rounded z-10 left-4"></div>
+              <div className="absolute w-4 h-10 bg-outline border border-outline-variant rounded z-10 left-4"></div>
               
               {/* Plates (one side) */}
               <div className="flex items-center gap-[2px] z-20 ml-10 overflow-x-visible">

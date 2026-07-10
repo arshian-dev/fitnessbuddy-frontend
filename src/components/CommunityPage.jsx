@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import PostItem from './PostItem';
-import { User, Dumbbell, Activity, Plus } from 'lucide-react';
+import { User, Activity, Image as ImageIcon, Video, BarChart2 } from 'lucide-react';
 
 export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
   const [feed, setFeed] = useState([]);
@@ -9,7 +9,6 @@ export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
   const [loading, setLoading] = useState(true);
   
   // Post creation state
-  const [showPostCreator, setShowPostCreator] = useState(false);
   const [newPostContent, setNewPostContent] = useState('');
   const [postType, setPostType] = useState('TEXT');
   const [isPosting, setIsPosting] = useState(false);
@@ -62,10 +61,9 @@ export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
         content: newPostContent,
         postType: postType,
         referenceId: referenceId,
-        imageUris: [] // Add image support back if needed via UI expansion
+        imageUris: []
       });
       setNewPostContent('');
-      setShowPostCreator(false);
       setPostType('TEXT');
       loadData();
     } catch (err) {
@@ -75,170 +73,178 @@ export default function CommunityPage({ user, workoutPlan, checkinHistory }) {
     }
   };
 
-  // derived data for sidebar
-  const acceptedFriends = friends.filter(f => f.status === 'ACCEPTED');
-  
-  // Create a mock suggested athletes list from friends who are pending or not added
-  // In a real app, this would be an actual suggestion endpoint
   const suggestedAthletes = friends
     .filter(f => f.status !== 'ACCEPTED')
-    .slice(0, 5); // Just show top 5
-
-  // Get user's latest activity from feed (if they have one)
-  const latestActivity = feed.find(p => p.author_id === user?.id);
+    .slice(0, 5);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto py-6 animate-in fade-in">
-      
-      {/* Main Feed Column */}
-      <div className="flex-1 w-full max-w-2xl mx-auto lg:mx-0 space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Home</h1>
-          <button 
-            onClick={() => setShowPostCreator(!showPostCreator)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-          >
-            <Plus size={14} /> New Post
-          </button>
-        </div>
-
-        {/* Minimal Post Creator */}
-        {showPostCreator && (
-          <form onSubmit={handleCreatePost} className="bg-[#121212] rounded-2xl border border-white/5 p-4 shadow-xl">
-            <textarea
-              className="w-full bg-transparent text-white resize-none outline-none placeholder:text-slate-500 mb-2"
-              placeholder="What's on your mind?"
-              rows={3}
-              value={newPostContent}
-              onChange={(e) => setNewPostContent(e.target.value)}
-            />
-            <div className="flex items-center justify-between border-t border-white/5 pt-3">
-              <div className="flex gap-2">
-                <button 
-                  type="button" 
-                  onClick={() => setPostType('WORKOUT')}
-                  disabled={!workoutPlan}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider transition-colors ${postType === 'WORKOUT' ? 'bg-teal-500/20 text-teal-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'} disabled:opacity-30`}
-                >
-                  Attach Workout
-                </button>
-                <button 
-                  type="button" 
-                  onClick={() => setPostType('PROGRESS_LOG')}
-                  disabled={!checkinHistory || checkinHistory.length === 0}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider transition-colors ${postType === 'PROGRESS_LOG' ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'} disabled:opacity-30`}
-                >
-                  Attach Log
-                </button>
-              </div>
-              <button 
-                type="submit" 
-                disabled={isPosting || (!newPostContent.trim() && postType === 'TEXT')}
-                className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-full disabled:opacity-50 transition-colors"
-              >
-                {isPosting ? 'Posting...' : 'Post'}
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* Feed Stream */}
-        {loading ? (
-          <div className="flex justify-center p-12">
-            <div className="animate-spin text-slate-500"><Activity size={24} /></div>
-          </div>
-        ) : feed.length === 0 ? (
-          <div className="text-center p-12 bg-[#121212] rounded-2xl border border-white/5 text-slate-500">
-            <p>Your feed is quiet. Post an update or follow athletes!</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {feed.map((post) => (
-              <PostItem key={post.id} post={post} currentUser={user} onUpdate={() => loadData(true)} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Right Sidebar */}
-      <div className="w-full lg:w-80 flex-shrink-0 space-y-6">
-        
-        {/* Profile Summary Card */}
-        <div className="bg-[#121212] rounded-2xl border border-white/5 overflow-hidden text-center p-6 text-white shadow-lg">
-          <div className="w-16 h-16 mx-auto rounded-full bg-slate-800 border-2 border-[#121212] flex items-center justify-center mb-3 text-slate-400 ring-2 ring-white/10">
-            <User size={32} />
-          </div>
-          <h2 className="font-extrabold text-lg">{user?.name || 'Athlete'}</h2>
-          <p className="text-xs text-slate-500 mb-6">{user?.name || 'Athlete'}</p>
-          
-          <div className="flex justify-around items-center border-t border-b border-white/5 py-4 mb-6">
-            <div>
-              <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Workouts</p>
-              <p className="font-extrabold text-sm">{checkinHistory?.length || 0}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Followers</p>
-              <p className="font-extrabold text-sm">{acceptedFriends.length}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Following</p>
-              <p className="font-extrabold text-sm">{acceptedFriends.length}</p>
-            </div>
-          </div>
-          
-          <button className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2 rounded-lg transition-colors">
-            See your profile
-          </button>
-        </div>
-
-        {/* Latest Activity */}
-        <div className="bg-[#121212] rounded-2xl border border-white/5 p-5 text-white shadow-lg">
-          <h3 className="font-extrabold text-sm mb-4">Latest Activity</h3>
-          {latestActivity ? (
-            <div>
-              <p className="font-bold text-sm text-slate-200">
-                {latestActivity.workout_split || (latestActivity.post_type === 'PROGRESS_LOG' ? 'Progress Update' : 'Text Post')}
-              </p>
-              <p className="text-[11px] text-slate-500 mt-1">
-                {new Date(latestActivity.created_at).toLocaleDateString()}
-              </p>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500">No recent activity.</p>
-          )}
-        </div>
-
-        {/* Suggested Athletes */}
-        <div className="bg-[#121212] rounded-2xl border border-white/5 p-5 text-white shadow-lg">
-          <h3 className="font-extrabold text-sm mb-4">Suggested Athletes</h3>
-          {suggestedAthletes.length > 0 ? (
-            <div className="space-y-4">
-              {suggestedAthletes.map(athlete => (
-                <div key={athlete.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
-                      <User size={16} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-200 leading-tight">{athlete.name}</p>
-                      <p className="text-[10px] text-slate-500">{athlete.name}</p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => handleSendRequest(athlete.id)}
-                    className="text-blue-500 hover:text-blue-400 text-xs font-bold px-2 py-1 transition-colors"
-                  >
-                    Follow
-                  </button>
+    <div className="flex relative z-10 w-full animate-in fade-in">
+      {/* Main Content Canvas */}
+      <div className="flex-1 min-h-screen px-4 md:px-margin-edge py-8">
+        {/* Mobile Top Header (Hidden on Desktop) */}
+        <div className="md:hidden flex justify-between items-center mb-6">
+          <h2 className="font-text-headline-lg-mobile text-primary-fixed">Community</h2>
+          <div className="w-10 h-10 rounded-full border-2 border-primary-container p-0.5 overflow-hidden">
+             {user?.profilePictureUrl ? (
+                <img src={user.profilePictureUrl} alt="User" className="w-full h-full object-cover rounded-full" />
+             ) : (
+                <div className="w-full h-full bg-surface-container-highest rounded-full flex items-center justify-center text-on-surface">
+                   <User size={20} />
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500">No suggestions right now.</p>
-          )}
+             )}
+          </div>
         </div>
 
+        <div className="max-w-2xl mx-auto space-y-8">
+          {/* Share Milestone Input Card */}
+          <div className="glass-card rounded-xl p-6 shadow-sm">
+            <form onSubmit={handleCreatePost}>
+              <div className="flex gap-4">
+                <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-surface-container-highest flex items-center justify-center">
+                  {user?.profilePictureUrl ? (
+                    <img src={user.profilePictureUrl} alt="User" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="text-on-surface-variant" size={24} />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <textarea 
+                    className="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/40 font-text-title-md resize-none h-12" 
+                    placeholder="Share your workout update or milestone..."
+                    value={newPostContent}
+                    onChange={(e) => setNewPostContent(e.target.value)}
+                  />
+                  
+                  {/* Post Type Toggles (Specific to Fitness Buddy) */}
+                  <div className="flex gap-2 mb-3">
+                    <button 
+                      type="button" 
+                      onClick={() => setPostType(postType === 'WORKOUT' ? 'TEXT' : 'WORKOUT')}
+                      disabled={!workoutPlan}
+                      className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider transition-colors border ${postType === 'WORKOUT' ? 'border-primary-container bg-primary-container/10 text-primary-container' : 'border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high'} disabled:opacity-30`}
+                    >
+                      Attach Workout
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => setPostType(postType === 'PROGRESS_LOG' ? 'TEXT' : 'PROGRESS_LOG')}
+                      disabled={!checkinHistory || checkinHistory.length === 0}
+                      className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider transition-colors border ${postType === 'PROGRESS_LOG' ? 'border-secondary bg-secondary/10 text-secondary' : 'border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high'} disabled:opacity-30`}
+                    >
+                      Attach Log
+                    </button>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-4 border-t border-outline-variant/10">
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => alert('Image upload coming soon!')} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+                        <ImageIcon size={20} />
+                      </button>
+                      <button type="button" onClick={() => alert('Video upload coming soon!')} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+                        <Video size={20} />
+                      </button>
+                      <button type="button" onClick={() => alert('Polls coming soon!')} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+                        <BarChart2 size={20} />
+                      </button>
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={isPosting || (!newPostContent.trim() && postType === 'TEXT')}
+                      className="bg-primary-container text-on-primary-container px-6 py-2 rounded-full font-bold font-text-title-md hover:scale-105 active:scale-95 transition-transform shadow-lg shadow-primary-container/20 disabled:opacity-50 disabled:hover:scale-100"
+                    >
+                      {isPosting ? 'Posting...' : 'Post'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          {/* Feed Stream */}
+          <div className="space-y-6">
+            {loading ? (
+              <div className="flex justify-center p-12">
+                <Loader2 className="animate-spin text-primary-container" size={32} />
+              </div>
+            ) : feed.length === 0 ? (
+              <div className="text-center p-12 glass-card rounded-xl text-on-surface-variant">
+                <p>Your feed is quiet. Post an update or follow athletes!</p>
+              </div>
+            ) : (
+              feed.map((post) => (
+                <PostItem key={post.id} post={post} currentUser={user} onUpdate={() => loadData(true)} />
+              ))
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Right Side: Suggestions & Trends */}
+      <aside className="hidden xl:block w-80 h-screen sticky top-0 p-gutter-md border-l border-outline-variant/10 bg-surface-container-low/50 backdrop-blur-md">
+        <div className="space-y-8">
+          {/* Search */}
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+            <input 
+              className="w-full bg-surface-container text-on-surface border border-outline-variant/20 rounded-full pl-10 py-2 text-sm focus:ring-1 focus:ring-primary-container focus:border-primary-container outline-none" 
+              placeholder="Search community..." 
+              type="text" 
+            />
+          </div>
+
+          {/* Trending Topics */}
+          <div className="glass-card rounded-xl p-5">
+            <h3 className="font-text-title-md text-primary mb-4">Trending Tags</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="bg-primary/10 text-primary-fixed-dim px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:bg-primary/20 transition-colors">#120kgClub</span>
+              <span className="bg-primary/10 text-primary-fixed-dim px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:bg-primary/20 transition-colors">#VeganFitness</span>
+              <span className="bg-primary/10 text-primary-fixed-dim px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:bg-primary/20 transition-colors">#MorningRun</span>
+              <span className="bg-primary/10 text-primary-fixed-dim px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:bg-primary/20 transition-colors">#HealthIndia</span>
+            </div>
+          </div>
+
+          {/* Recommended Buddies */}
+          <div className="glass-card rounded-xl p-5">
+            <h3 className="font-text-title-md text-primary mb-4">Fitness Buddies</h3>
+            {suggestedAthletes.length > 0 ? (
+              <div className="space-y-4">
+                {suggestedAthletes.map(athlete => (
+                  <div key={athlete.id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden flex items-center justify-center">
+                      {athlete.profilePictureUrl ? (
+                         <img src={athlete.profilePictureUrl} alt={athlete.name} className="w-full h-full object-cover" />
+                      ) : (
+                         <User className="text-on-surface-variant" size={20} />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-on-surface leading-tight">{athlete.name}</p>
+                      <p className={`text-[10px] font-bold uppercase tracking-wider ${athlete.role === 'COACH' ? 'text-primary' : 'text-on-surface-variant'}`}>
+                        {athlete.role === 'COACH' ? 'Coach' : 'Athlete'}
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => handleSendRequest(athlete.id)}
+                      className="text-primary font-bold text-xs uppercase tracking-tight hover:underline"
+                    >
+                      Follow
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-on-surface-variant">No suggestions right now.</p>
+            )}
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }
+
+// Temporary loader for inline use
+const Loader2 = ({ className, size }) => (
+  <svg className={`animate-spin ${className}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+  </svg>
+);
