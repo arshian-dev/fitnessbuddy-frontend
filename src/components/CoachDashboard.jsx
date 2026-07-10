@@ -1495,7 +1495,7 @@ export default function CoachDashboard({ user, onLogout }) {
         
         {/* Feed Tab */}
         {activeTab === 'feed' && (
-          <div className="animate-in fade-in duration-500 max-w-3xl mx-auto">
+          <div className="h-[calc(100vh-140px)] min-h-[600px] w-full mt-0 animate-in fade-in duration-500">
             <CommunityPage user={user} />
           </div>
         )}
