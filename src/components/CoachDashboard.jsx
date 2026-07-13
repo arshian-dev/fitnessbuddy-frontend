@@ -874,6 +874,20 @@ export default function CoachDashboard({ user, onLogout }) {
                                     .filter(ex => (ex.day || 'Monday') === activeDayTab)
                                     .map((ex, dayIdx) => (
                                       <div key={ex.originalIdx} className="flex gap-xs items-center glass-card p-xs rounded-lg border border-outline-variant/10 shadow-sm">
+                                        <div className="w-8 h-8 rounded bg-surface-container flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                          {ex.name && ex.name !== 'ADD_NEW' ? (
+                                            <img 
+                                              src={`/images/exercises/${ex.name}.png`} 
+                                              alt={ex.name}
+                                              className="w-full h-full object-cover"
+                                              onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextElementSibling.style.display = 'block';
+                                              }}
+                                            />
+                                          ) : null}
+                                          <span className="material-symbols-outlined text-[16px] text-outline" style={{display: ex.name && ex.name !== 'ADD_NEW' ? 'none' : 'block'}}>fitness_center</span>
+                                        </div>
                                         <select 
                                           className="bg-surface-container-low border border-outline-variant/30 rounded-lg p-sm text-xs flex-grow focus:outline-none focus:ring-1 focus:ring-primary"
                                           value={ex.name}
