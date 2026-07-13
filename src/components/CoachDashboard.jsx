@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { api } from '../services/api';
+import { getExerciseImage } from '../utils/exerciseImages';
 import { 
   Dumbbell, 
   Flame, 
@@ -877,7 +878,7 @@ export default function CoachDashboard({ user, onLogout }) {
                                         <div className="w-8 h-8 rounded bg-surface-container flex-shrink-0 flex items-center justify-center overflow-hidden">
                                           {ex.name && ex.name !== 'ADD_NEW' ? (
                                             <img 
-                                              src={`/images/exercises/${ex.name}.png`} 
+                                              src={getExerciseImage(ex.name)} 
                                               alt={ex.name}
                                               className="w-full h-full object-cover"
                                               onError={(e) => {

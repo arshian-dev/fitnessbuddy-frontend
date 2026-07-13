@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 import { api } from '../services/api';
 import PlateCalculator from './PlateCalculator';
 import { useTimer } from '../context/TimerContext';
+import { getExerciseImage } from '../utils/exerciseImages';
 
 const logSetApi = async ({ userId, exerciseId, weight, reps }) => {
   const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/workouts/log-set`, {
@@ -243,7 +244,7 @@ export default function WorkoutPlayer({
           <div className="relative w-full max-w-2xl h-full min-h-[200px] glass-card rounded-2xl overflow-hidden animate-float group">
             <div className="w-full h-full flex items-center justify-center p-4 bg-surface-container-lowest/50 relative">
               <img 
-                src={`/images/exercises/${currentExercise.name}.png`} 
+                src={getExerciseImage(currentExercise.name)} 
                 alt={currentExercise.name}
                 className="w-full h-full object-contain dark:mix-blend-screen dark:invert-0 invert mix-blend-multiply opacity-90"
                 onError={(e) => {

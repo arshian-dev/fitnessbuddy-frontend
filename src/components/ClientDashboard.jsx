@@ -8,6 +8,7 @@ import CommunityPage from './CommunityPage';
 import ExercisesPage from './ExercisesPage';
 import ProfilePage from './ProfilePage';
 import ThemeToggle from './ThemeToggle';
+import { getExerciseImage } from '../utils/exerciseImages';
 import { TextEffect } from '../../components/motion-primitives/text-effect';
 import { 
   Dumbbell, 
@@ -1164,7 +1165,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                                         >
                                           <div className="w-16 h-16 rounded-lg bg-surface-container border border-outline-variant/30 flex items-center justify-center overflow-hidden pointer-events-none">
                                             <img 
-                                              src={`/images/exercises/${ex.name}.png`} 
+                                              src={getExerciseImage(ex.name)} 
                                               alt={ex.name}
                                               className="w-full h-full object-cover opacity-90"
                                               onError={(e) => {
@@ -1728,7 +1729,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
             <h3 className="text-lg font-bold text-white mb-md pr-8">{previewExercise} Preview</h3>
             <div className="w-full h-64 bg-surface-container-lowest rounded-xl flex items-center justify-center relative border border-outline-variant/20 overflow-hidden">
               <img 
-                src={`/images/exercises/${previewExercise}.png`} 
+                src={getExerciseImage(previewExercise)} 
                 alt={previewExercise}
                 className="w-full h-full object-contain dark:mix-blend-screen dark:invert-0 invert mix-blend-multiply opacity-90"
                 onError={(e) => {
