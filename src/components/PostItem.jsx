@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { calculateTotalVolume } from '../utils/calculations';
+import { getExerciseImage } from '../utils/exerciseImages';
 
 export default function PostItem({ post, currentUser, onUpdate, onViewProfile }) {
   const [comments, setComments] = useState([]);
@@ -128,8 +129,17 @@ export default function PostItem({ post, currentUser, onUpdate, onViewProfile })
         <div className="space-y-3">
           {exercises.slice(0, 3).map((ex, i) => (
             <div key={i} className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center flex-shrink-0">
-                 <span className="material-symbols-outlined text-on-surface-variant">fitness_center</span>
+              <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center flex-shrink-0 overflow-hidden border border-outline-variant/30">
+                 <img 
+                   src={getExerciseImage(ex.name)} 
+                   alt={ex.name} 
+                   className="w-full h-full object-cover opacity-90"
+                   onError={(e) => {
+                     e.target.style.display = 'none';
+                     e.target.nextElementSibling.style.display = 'block';
+                   }}
+                 />
+                 <span className="material-symbols-outlined text-on-surface-variant" style={{display: 'none'}}>fitness_center</span>
               </div>
               <div className="text-sm">
                 <span className="text-on-surface font-bold">{ex.sets} sets </span>
