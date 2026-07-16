@@ -1279,7 +1279,7 @@ export default function CoachDashboard({ user, onLogout }) {
                         <span className="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
                       </div>
                     )}
-                    <div className={`p-md rounded-2xl max-w-[75%] text-sm leading-relaxed shadow-sm ${
+                    <div className={`p-md rounded-2xl max-w-[75%] text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${
                       msg.sender === 'user'
                         ? 'bg-primary text-on-primary rounded-br-sm'
                         : 'glass-card border border-outline-variant/20 text-on-surface rounded-bl-sm'
@@ -1322,13 +1322,18 @@ export default function CoachDashboard({ user, onLogout }) {
 
               {/* Message Input */}
               <div className="flex gap-sm px-lg py-md border-t border-outline-variant/20 glass-card">
-                <input
-                  type="text"
-                  className="flex-grow bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-md py-sm text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-secondary"
+                <textarea
+                  rows={1}
+                  className="flex-grow bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-md py-sm text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-secondary resize-none custom-scrollbar"
                   placeholder="Ask about workout programming, client plateaus, nutrition strategies..."
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendCoachMessage()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendCoachMessage();
+                    }
+                  }}
                 />
                 <button
                   onClick={() => handleSendCoachMessage()}

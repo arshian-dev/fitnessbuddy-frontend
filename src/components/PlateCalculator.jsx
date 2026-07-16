@@ -38,14 +38,14 @@ export default function PlateCalculator() {
       if (weight >= 15) return 'bg-yellow-400 text-on-surface';
       if (weight >= 10) return 'bg-green-500 text-white';
       if (weight >= 5) return 'bg-surface-container-high text-on-surface border border-outline-variant';
-      if (weight >= 2.5) return 'bg-surface-container-highest text-white';
-      return 'bg-surface-container text-white';
+      if (weight >= 2.5) return 'bg-surface-container-highest text-on-surface';
+      return 'bg-surface-container text-on-surface';
     } else {
       if (weight >= 45) return 'bg-blue-600 text-white';
       if (weight >= 35) return 'bg-yellow-400 text-on-surface';
       if (weight >= 25) return 'bg-green-500 text-white';
       if (weight >= 10) return 'bg-surface-container-high text-on-surface border border-outline-variant';
-      return 'bg-surface-container-highest text-white';
+      return 'bg-surface-container-highest text-on-surface';
     }
   };
 
@@ -76,7 +76,7 @@ export default function PlateCalculator() {
           <div className="flex items-center">
             <input 
               type="number" 
-              className="glass-input rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full text-center font-bold text-lg p-1"
+              className="glass-input rounded-lg text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full text-center font-bold text-lg p-1"
               value={targetWeight}
               onChange={(e) => setTargetWeight(Number(e.target.value))}
             />
@@ -86,7 +86,7 @@ export default function PlateCalculator() {
           <label className="block text-xs font-medium text-on-surface-variant mb-1">Bar</label>
           <input 
             type="number" 
-            className="glass-input rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full text-center p-1"
+            className="glass-input rounded-lg text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full text-center p-1"
             value={barWeight}
             onChange={(e) => setBarWeight(Number(e.target.value))}
           />
@@ -94,7 +94,7 @@ export default function PlateCalculator() {
         <div className="w-20">
           <label className="block text-xs font-medium text-on-surface-variant mb-1">Unit</label>
           <select 
-            className="glass-input rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full p-1"
+            className="glass-input rounded-lg text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none w-full p-1"
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
           >

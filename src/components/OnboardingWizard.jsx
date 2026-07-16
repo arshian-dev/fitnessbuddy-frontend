@@ -531,7 +531,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                             onChange={() => toggleStaple(staple)}
                             className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-outline-variant checked:border-primary checked:bg-primary transition-all"
                           />
-                          <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity">
+                          <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-on-primary opacity-0 peer-checked:opacity-100 transition-opacity">
                             <span className="material-symbols-outlined text-[16px] font-bold">check</span>
                           </span>
                         </div>
@@ -572,7 +572,7 @@ export default function OnboardingWizard({ user, onComplete }) {
                           onChange={() => toggleCondition(cond)}
                           className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-outline-variant checked:border-primary checked:bg-primary transition-all"
                         />
-                        <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity">
+                        <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-on-primary opacity-0 peer-checked:opacity-100 transition-opacity">
                           <span className="material-symbols-outlined text-[16px] font-bold">check</span>
                         </span>
                       </div>

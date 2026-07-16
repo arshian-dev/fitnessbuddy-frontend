@@ -44,6 +44,8 @@ export const api = {
     request('/profile', { method: 'POST', body: profileData }),
   getProfile: (userId) => 
     request(`/profile/${userId}`),
+  regenerateDiet: (userId) =>
+    request('/profile/regenerate-diet', { method: 'POST', body: { userId } }),
 
   // Checkins
   submitCheckin: (checkinData) => 

@@ -36,6 +36,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
   const [profile, setProfile] = useState(initialData.profile);
   const [workoutPlan, setWorkoutPlan] = useState(initialData.workoutPlan);
   const [nutritionPlan, setNutritionPlan] = useState(initialData.nutritionPlan);
+  const [isRegeneratingDiet, setIsRegeneratingDiet] = useState(false);
   const [activeAlerts, setActiveAlerts] = useState(initialData.activeAlerts || []);
 
   const [checkinHistory, setCheckinHistory] = useState([]);
@@ -47,6 +48,10 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [selectedMealOptions, setSelectedMealOptions] = useState({});
   const [loggedMeals, setLoggedMeals] = useState({});
+  const [editingMealIdx, setEditingMealIdx] = useState(null);
+  const [editMacros, setEditMacros] = useState({ p: 0, c: 0, f: 0, cals: 0 });
+  const [baseMacros, setBaseMacros] = useState({ p: 0, c: 0, f: 0, cals: 0 });
+  const [editPortion, setEditPortion] = useState(1.0);
 
   // AI Food Calculator States
   const [foodQuery, setFoodQuery] = useState('');
@@ -160,6 +165,28 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
       setLinkCoachError(err.message || 'Invalid Coach Code');
     } finally {
       setLinkCoachLoading(false);
+    }
+  };
+
+  const handleRegenerateDiet = async () => {
+    if (!window.confirm("Are you sure you want to regenerate your diet plan? This will overwrite your current meal schedule.")) return;
+    setIsRegeneratingDiet(true);
+    try {
+      const res = await api.regenerateDiet(user.id);
+      if (res.nutritionPlan) {
+        setNutritionPlan(res.nutritionPlan);
+        // Clear logged meals for the day since schedule changed
+        setLoggedMeals({});
+        setCaloriesLogged('0');
+        setLoggedProtein(0);
+        setLoggedCarbs(0);
+        setLoggedFats(0);
+        alert("Diet plan successfully regenerated!");
+      }
+    } catch (err) {
+      alert("Failed to regenerate diet: " + err.message);
+    } finally {
+      setIsRegeneratingDiet(false);
     }
   };
 
@@ -928,7 +955,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                           <span className="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
                         </div>
                       )}
-                      <div className={`p-md rounded-2xl max-w-[75%] text-sm leading-relaxed shadow-sm ${
+                      <div className={`p-md rounded-2xl max-w-[75%] text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${
                         msg.sender === 'user'
                           ? 'bg-primary text-on-primary rounded-br-sm'
                           : 'glass-card border border-outline-variant/20 text-on-surface rounded-bl-sm'
@@ -971,13 +998,18 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
 
                 {/* Message Input */}
                 <div className="flex gap-sm px-lg py-md border-t border-outline-variant/20 glass-card">
-                  <input
-                    type="text"
-                    className="flex-grow bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-md py-sm text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-secondary"
+                  <textarea
+                    rows={1}
+                    className="flex-grow bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-md py-sm text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-secondary resize-none custom-scrollbar"
                     placeholder="Ask about food swaps, workouts, nutrition..."
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
                   />
                   <button
                     onClick={() => handleSendMessage()}
@@ -1255,6 +1287,9 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                       <p className="font-headline-md text-primary mt-1">
                         {loggedCalories} <span className="text-[12px] font-normal text-secondary">/ {targetCalories}</span>
                       </p>
+                      <p className="text-[10px] text-secondary mt-1 font-bold">
+                        {Math.max(0, targetCalories - loggedCalories)} REMAINING
+                      </p>
                     </div>
                   </div>
                   <div className="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant/30 bento-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col justify-center">
@@ -1262,7 +1297,9 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                       <span className="font-label-md text-on-surface-variant font-bold text-xs uppercase tracking-wider">Protein</span>
                       <span className="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.protein || 140}g</span>
                     </div>
-                    <p className="font-headline-md text-on-background mb-md">{loggedProtein}g</p>
+                    <p className="font-headline-md text-on-background mb-md">
+                      {loggedProtein}g <span className="text-[10px] text-secondary font-normal ml-1">({Math.max(0, (nutritionPlan?.protein || 140) - loggedProtein)}g left)</span>
+                    </p>
                     <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
                       <div className="bg-primary h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (loggedProtein / (nutritionPlan?.protein || 140)) * 100)}%` }}></div>
                     </div>
@@ -1272,7 +1309,9 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                       <span className="font-label-md text-on-surface-variant font-bold text-xs uppercase tracking-wider">Carbs</span>
                       <span className="bg-tertiary/10 text-tertiary text-[10px] px-2 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.carbs || 200}g</span>
                     </div>
-                    <p className="font-headline-md text-on-background mb-md">{loggedCarbs}g</p>
+                    <p className="font-headline-md text-on-background mb-md">
+                      {loggedCarbs}g <span className="text-[10px] text-secondary font-normal ml-1">({Math.max(0, (nutritionPlan?.carbs || 200) - loggedCarbs)}g left)</span>
+                    </p>
                     <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
                       <div className="bg-tertiary h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (loggedCarbs / (nutritionPlan?.carbs || 200)) * 100)}%` }}></div>
                     </div>
@@ -1282,7 +1321,9 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                       <span className="font-label-md text-on-surface-variant font-bold text-xs uppercase tracking-wider">Fats</span>
                       <span className="bg-secondary/10 text-on-secondary text-[10px] px-2 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.fats || 70}g</span>
                     </div>
-                    <p className="font-headline-md text-on-background mb-md">{loggedFats}g</p>
+                    <p className="font-headline-md text-on-background mb-md">
+                      {loggedFats}g <span className="text-[10px] text-secondary font-normal ml-1">({Math.max(0, (nutritionPlan?.fats || 70) - loggedFats)}g left)</span>
+                    </p>
                     <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
                       <div className="bg-secondary h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (loggedFats / (nutritionPlan?.fats || 70)) * 100)}%` }}></div>
                     </div>
@@ -1308,6 +1349,16 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                         className={`px-sm py-1.5 rounded-lg text-xs font-bold transition-all ${dietContext === 'STANDARD' ? 'bg-primary text-on-primary shadow-sm' : 'text-secondary hover:text-primary'}`}
                       >
                         Standard Swaps
+                      </button>
+                      <div className="w-px h-4 bg-outline-variant/30 mx-1"></div>
+                      <button 
+                        onClick={handleRegenerateDiet}
+                        disabled={isRegeneratingDiet}
+                        className="px-sm py-1.5 rounded-lg text-xs font-bold transition-all text-tertiary hover:bg-tertiary/10 flex items-center gap-1 disabled:opacity-50"
+                        title="Generate a new AI diet plan based on your current profile"
+                      >
+                        <RefreshCw size={12} className={isRegeneratingDiet ? 'animate-spin' : ''} />
+                        {isRegeneratingDiet ? 'Regenerating...' : 'Regenerate Diet'}
                       </button>
                     </div>
                   </div>
@@ -1346,34 +1397,60 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                             })}
                           </div>
                           <div className="bg-surface-container-low px-lg py-sm border-t border-outline-variant/20 flex justify-end">
-                             <button
-                               onClick={() => {
-                                  if (!loggedMeals[idx]) {
+                             {loggedMeals[idx] ? (
+                               <div className="flex items-center gap-md">
+                                 <span className="text-primary font-bold text-xs flex items-center gap-xs">
+                                   <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                                   Logged
+                                 </span>
+                                 <button
+                                   onClick={() => {
+                                      const proMatch = m.target_macro_estimate.match(/Protein:.*?(\d+)g/i);
+                                      const carbMatch = m.target_macro_estimate.match(/Carbs:.*?(\d+)g/i);
+                                      const fatMatch = m.target_macro_estimate.match(/Fats:.*?(\d+)g/i);
+                                      const p = proMatch ? parseInt(proMatch[1]) : 0;
+                                      const c = carbMatch ? parseInt(carbMatch[1]) : 0;
+                                      const f = fatMatch ? parseInt(fatMatch[1]) : 0;
+                                      const mealCals = (p * 4) + (c * 4) + (f * 9) || 400;
+
+                                      const loggedP = loggedMeals[idx]?.p ?? p;
+                                      const loggedC = loggedMeals[idx]?.c ?? c;
+                                      const loggedF = loggedMeals[idx]?.f ?? f;
+                                      const loggedCals = loggedMeals[idx]?.cals ?? mealCals;
+
+                                      setCaloriesLogged(prev => Math.max(0, (parseInt(prev) || 0) - loggedCals).toString());
+                                      setLoggedProtein(prev => Math.max(0, prev - loggedP));
+                                      setLoggedCarbs(prev => Math.max(0, prev - loggedC));
+                                      setLoggedFats(prev => Math.max(0, prev - loggedF));
+                                      setLoggedMeals(prev => ({...prev, [idx]: false}));
+                                   }}
+                                   className="text-xs text-secondary hover:text-error transition-colors flex items-center gap-1 font-semibold"
+                                 >
+                                   <span className="material-symbols-outlined text-[14px]">undo</span> Undo
+                                 </button>
+                               </div>
+                             ) : (
+                               <button
+                                 onClick={() => {
                                     const proMatch = m.target_macro_estimate.match(/Protein:.*?(\d+)g/i);
                                     const carbMatch = m.target_macro_estimate.match(/Carbs:.*?(\d+)g/i);
                                     const fatMatch = m.target_macro_estimate.match(/Fats:.*?(\d+)g/i);
-                                    
                                     const p = proMatch ? parseInt(proMatch[1]) : 0;
                                     const c = carbMatch ? parseInt(carbMatch[1]) : 0;
                                     const f = fatMatch ? parseInt(fatMatch[1]) : 0;
-                                    const mealCals = (p * 4) + (c * 4) + (f * 9) || 400; // fallback
+                                    const mealCals = (p * 4) + (c * 4) + (f * 9) || 400;
 
-                                    setCaloriesLogged(prev => ((parseInt(prev) || 0) + mealCals).toString());
-                                    setLoggedProtein(prev => prev + p);
-                                    setLoggedCarbs(prev => prev + c);
-                                    setLoggedFats(prev => prev + f);
-
-                                    setLoggedMeals(prev => ({...prev, [idx]: true}));
-                                  }
-                               }}
-                               disabled={loggedMeals[idx]}
-                               className={`px-md py-xs rounded-lg font-bold text-xs flex items-center gap-xs transition-colors ${loggedMeals[idx] ? 'bg-primary/10 text-primary' : 'bg-primary text-on-primary hover:bg-primary/90'}`}
-                             >
-                               <span className="material-symbols-outlined text-[14px]">
-                                 {loggedMeals[idx] ? 'check' : 'add'}
-                               </span>
-                               {loggedMeals[idx] ? 'Logged' : 'Log Meal'}
-                             </button>
+                                      setEditMacros({ p, c, f, cals: mealCals });
+                                      setBaseMacros({ p, c, f, cals: mealCals });
+                                      setEditPortion(1.0);
+                                      setEditingMealIdx(idx);
+                                 }}
+                                 className="px-md py-xs rounded-lg font-bold text-xs flex items-center gap-xs transition-colors bg-primary text-on-primary hover:bg-primary/90"
+                               >
+                                 <span className="material-symbols-outlined text-[14px]">add</span>
+                                 Log Meal
+                               </button>
+                             )}
                           </div>
                         </div>
                       ))}
@@ -1433,7 +1510,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     </div>
                     <div className="p-md space-y-md">
                       <div className="bg-surface-container p-md rounded-xl border border-primary/10">
-                        <p className="text-xs italic text-on-surface-variant leading-relaxed">"Describe your meal, and I'll estimate the exact macros for you so you can easily log them to today's progress."</p>
+                        <p className="text-xs italic text-on-surface-variant leading-relaxed">"Describe your meal with as much detail as possible (including cooking methods like 'fried' or 'grilled', and portion sizes like 'cups' or 'grams'). I'll estimate the exact macros so you can log them instantly."</p>
                       </div>
                       <form onSubmit={handleEstimateMacros} className="relative">
                         <input
@@ -1441,7 +1518,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                           value={foodQuery}
                           onChange={(e) => setFoodQuery(e.target.value)}
                           className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-md py-sm pr-10 focus:ring-1 focus:ring-primary focus:border-primary text-xs shadow-sm transition-all"
-                          placeholder="e.g. 150g tandoori chicken..."
+                          placeholder="e.g. 150g chicken breast pan-fried in 1 tbsp olive oil with 1 cup cooked rice..."
                           required
                         />
                         <button type="submit" disabled={calcLoading} className="absolute right-2 top-1.5 p-1 text-primary disabled:opacity-50 hover:bg-primary/10 rounded-lg transition-colors">
@@ -1723,10 +1800,10 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
       {previewExercise && (
         <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-md animate-in fade-in duration-200" onClick={() => setPreviewExercise(null)}>
           <div className="glass-card rounded-2xl p-lg max-w-md w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setPreviewExercise(null)} className="absolute top-md right-md text-on-surface-variant hover:text-white transition-colors bg-surface-container-high rounded-full w-8 h-8 flex items-center justify-center">
+            <button onClick={() => setPreviewExercise(null)} className="absolute top-md right-md text-on-surface-variant hover:text-on-surface transition-colors bg-surface-container-high rounded-full w-8 h-8 flex items-center justify-center">
               <span className="material-symbols-outlined text-sm">close</span>
             </button>
-            <h3 className="text-lg font-bold text-white mb-md pr-8">{previewExercise} Preview</h3>
+            <h3 className="text-lg font-bold text-on-surface mb-md pr-8">{previewExercise} Preview</h3>
             <div className="w-full h-64 bg-surface-container-lowest rounded-xl flex items-center justify-center relative border border-outline-variant/20 overflow-hidden">
               <img 
                 src={getExerciseImage(previewExercise)} 
@@ -1739,6 +1816,109 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
               />
               <span className="material-symbols-outlined text-[64px] text-outline" style={{display: 'none'}}>fitness_center</span>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Macro Edit Modal */}
+      {editingMealIdx !== null && (
+        <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-md animate-in fade-in duration-200" onClick={() => setEditingMealIdx(null)}>
+          <div className="glass-card rounded-2xl p-xl max-w-sm w-full relative shadow-2xl" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setEditingMealIdx(null)} className="absolute top-md right-md text-on-surface-variant hover:text-on-surface transition-colors bg-surface-container-high rounded-full w-8 h-8 flex items-center justify-center">
+              <span className="material-symbols-outlined text-sm">close</span>
+            </button>
+            <h3 className="text-lg font-bold text-on-surface mb-xs pr-8">Log Exact Macros</h3>
+            <p className="text-xs text-secondary mb-md">Edit the quantities you consumed for this meal.</p>
+            
+            <div className="mb-sm glass-card p-sm rounded-lg border border-primary/20 bg-primary/5">
+              <label className="text-[11px] font-bold text-primary uppercase tracking-wider flex items-center justify-between">
+                <span>Portion Size Multiplier</span>
+                <span className="text-lg">{editPortion}x</span>
+              </label>
+              <div className="flex items-center gap-sm mt-2">
+                <input 
+                  type="range" 
+                  min="0.25" 
+                  max="3.0" 
+                  step="0.25" 
+                  value={editPortion} 
+                  onChange={(e) => {
+                    const portion = parseFloat(e.target.value) || 1;
+                    setEditPortion(portion);
+                    setEditMacros({
+                      p: Math.round(baseMacros.p * portion),
+                      c: Math.round(baseMacros.c * portion),
+                      f: Math.round(baseMacros.f * portion),
+                      cals: Math.round(baseMacros.cals * portion),
+                    });
+                  }}
+                  className="w-full accent-primary"
+                />
+              </div>
+              <p className="text-[10px] text-secondary mt-1">Adjust if you ate more or less than the recommended quantity.</p>
+            </div>
+            
+            <div className="space-y-sm mb-lg">
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-bold text-secondary uppercase tracking-wider">Protein (g)</label>
+                <input 
+                  type="number" 
+                  value={editMacros.p} 
+                  onChange={(e) => setEditMacros({...editMacros, p: parseInt(e.target.value) || 0})}
+                  className="bg-surface-container-low border border-outline-variant/30 rounded-lg p-sm text-on-surface text-sm w-full focus:border-primary transition-colors focus:outline-none"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-bold text-secondary uppercase tracking-wider">Carbs (g)</label>
+                <input 
+                  type="number" 
+                  value={editMacros.c} 
+                  onChange={(e) => setEditMacros({...editMacros, c: parseInt(e.target.value) || 0})}
+                  className="bg-surface-container-low border border-outline-variant/30 rounded-lg p-sm text-on-surface text-sm w-full focus:border-primary transition-colors focus:outline-none"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-bold text-secondary uppercase tracking-wider">Fats (g)</label>
+                <input 
+                  type="number" 
+                  value={editMacros.f} 
+                  onChange={(e) => setEditMacros({...editMacros, f: parseInt(e.target.value) || 0})}
+                  className="bg-surface-container-low border border-outline-variant/30 rounded-lg p-sm text-on-surface text-sm w-full focus:border-primary transition-colors focus:outline-none"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-bold text-secondary uppercase tracking-wider">Calories</label>
+                <div className="flex items-center gap-sm">
+                  <input 
+                    type="number" 
+                    value={editMacros.cals} 
+                    onChange={(e) => setEditMacros({...editMacros, cals: parseInt(e.target.value) || 0})}
+                    className="bg-surface-container-low border border-outline-variant/30 rounded-lg p-sm text-on-surface text-sm w-full focus:border-primary transition-colors focus:outline-none"
+                  />
+                  <button 
+                    onClick={() => setEditMacros({...editMacros, cals: (editMacros.p * 4) + (editMacros.c * 4) + (editMacros.f * 9)})}
+                    className="flex-shrink-0 bg-surface-container hover:bg-surface-container-high text-[10px] text-secondary font-bold px-2 py-1 rounded-md transition-colors border border-outline-variant/20"
+                    title="Auto-calculate from macros"
+                  >
+                    Auto
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setCaloriesLogged(prev => ((parseInt(prev) || 0) + editMacros.cals).toString());
+                setLoggedProtein(prev => prev + editMacros.p);
+                setLoggedCarbs(prev => prev + editMacros.c);
+                setLoggedFats(prev => prev + editMacros.f);
+                setLoggedMeals(prev => ({...prev, [editingMealIdx]: { p: editMacros.p, c: editMacros.c, f: editMacros.f, cals: editMacros.cals }}));
+                setEditingMealIdx(null);
+              }}
+              className="w-full bg-primary text-on-primary font-bold py-md rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-xs shadow-md"
+            >
+              <span className="material-symbols-outlined text-[16px]">check</span> Save & Log
+            </button>
           </div>
         </div>
       )}

@@ -37,10 +37,7 @@ export default function WorkoutPlayer({
   const [setWeights, setSetWeights] = useState({});
   const [setRepsLog, setSetRepsLog] = useState({});
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [isResting, setIsResting] = useState(false);
-  const [restTimeRemaining, setRestTimeRemaining] = useState(0);
-  
-  const { startTimer, stopTimer } = useTimer();
+  const { startTimer, stopTimer, secondsLeft, isActive } = useTimer();
 
   const [weight, setWeight] = useState('');
   const [waist, setWaist] = useState('');
@@ -66,17 +63,7 @@ export default function WorkoutPlayer({
     return () => clearInterval(interval);
   }, [isFinished]);
 
-  useEffect(() => {
-    let restInterval;
-    if (isResting && restTimeRemaining > 0) {
-      restInterval = setInterval(() => {
-        setRestTimeRemaining(prev => prev - 1);
-      }, 1000);
-    } else if (restTimeRemaining === 0) {
-      setIsResting(false);
-    }
-    return () => clearInterval(restInterval);
-  }, [isResting, restTimeRemaining]);
+  // Removed local rest timer logic; using global TimerContext instead.
 
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600);
@@ -125,8 +112,6 @@ export default function WorkoutPlayer({
 
     if (!wasDone) {
       const restSecs = currentExercise.restSeconds || 90;
-      setRestTimeRemaining(restSecs);
-      setIsResting(true);
       startTimer(restSecs);
       
       const customWeight = setWeights[workoutStepIndex]?.[setIdx];
@@ -142,7 +127,6 @@ export default function WorkoutPlayer({
         reps: finalReps
       });
     } else {
-      setIsResting(false);
       stopTimer();
     }
   };
@@ -177,8 +161,6 @@ export default function WorkoutPlayer({
   };
 
   const skipRest = () => {
-    setIsResting(false);
-    setRestTimeRemaining(0);
     stopTimer();
   };
 
@@ -197,8 +179,8 @@ export default function WorkoutPlayer({
         <div className="w-16 h-16 bg-surface-container-highest border border-primary-container/30 text-primary-container rounded-full flex items-center justify-center mx-auto animate-bounce">
           <span className="material-symbols-outlined text-[36px]">celebration</span>
         </div>
-        <h4 className="font-text-headline-lg text-white">Workout Completed! 🎉</h4>
-        <p className="text-on-surface-variant text-sm">Total Time: <strong className="text-white">{formatTime(elapsedTime)}</strong></p>
+        <h4 className="font-text-headline-lg text-on-surface">Workout Completed! 🎉</h4>
+        <p className="text-on-surface-variant text-sm">Total Time: <strong className="text-on-surface">{formatTime(elapsedTime)}</strong></p>
         
         <div className="glass-card p-lg rounded-xl max-w-md w-full mx-auto text-left space-y-md">
           {formSuccess && <p className="text-primary-container">{formSuccess}</p>}
@@ -230,7 +212,7 @@ export default function WorkoutPlayer({
               <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>fitness_center</span>
               <span className="font-text-title-md tracking-wider uppercase">{activeWorkoutDay} — {workoutPlan?.split || 'Custom'}</span>
             </div>
-            <h1 className="font-text-headline-lg text-white">{currentExercise.name}</h1>
+            <h1 className="font-text-headline-lg text-on-surface">{currentExercise.name}</h1>
           </div>
           <div className="flex flex-col items-end">
             <span className="text-on-surface-variant font-text-title-md">{formatTime(elapsedTime)}</span>
@@ -260,7 +242,7 @@ export default function WorkoutPlayer({
                 {nextExercise && (
                   <>
                     <p className="text-on-surface-variant font-medium">Coming Up Next</p>
-                    <p className="text-white font-text-title-md">{nextExercise.name}</p>
+                    <p className="text-on-surface font-text-title-md">{nextExercise.name}</p>
                   </>
                 )}
               </div>
@@ -269,10 +251,10 @@ export default function WorkoutPlayer({
         </div>
 
         {/* Rest Timer Overlay */}
-        <div className={`absolute inset-0 z-20 bg-background/80 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500 ${isResting ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className={`absolute inset-0 z-20 bg-background/80 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
           <p className="text-primary-fixed uppercase tracking-[0.2em] mb-4">Recovery Time</p>
           <div className="text-[120px] md:text-[180px] font-text-headline-lg timer-glow text-primary-container leading-none">
-            {formatTime(restTimeRemaining)}
+            {formatTime(secondsLeft)}
           </div>
           <button 
             className="mt-8 px-8 py-3 border-2 border-primary-container text-primary-container rounded-full font-bold hover:bg-primary-container hover:text-on-primary-container transition-all"
@@ -286,7 +268,7 @@ export default function WorkoutPlayer({
       {/* Right Column: Interactive Log */}
       <section className="w-full md:w-2/5 h-[60vh] md:h-full glass-card border-l border-white/5 p-6 md:p-8 flex flex-col gap-6 no-scrollbar overflow-y-auto relative z-10">
         <div className="flex items-center justify-between">
-          <h2 className="font-text-title-md text-white">Execution Log</h2>
+          <h2 className="font-text-title-md text-on-surface">Execution Log</h2>
           {ghostData && (
             <span className="bg-surface-container-highest px-3 py-1 rounded-full text-text-body-sm text-on-surface-variant">
               Last: {ghostData.weight}kg x {ghostData.reps}
@@ -315,7 +297,7 @@ export default function WorkoutPlayer({
                 isCurrentActiveSet ? 'bg-surface-container active-ring border border-primary-container/30 transform scale-[1.02]' : 
                 'bg-transparent border border-dashed border-white/10 opacity-40'
               }`}>
-                <span className={`font-bold ${isDone ? 'text-white' : isCurrentActiveSet ? 'text-primary-fixed' : 'text-on-surface-variant'}`}>
+                <span className={`font-bold ${isDone ? 'text-on-surface' : isCurrentActiveSet ? 'text-primary-fixed' : 'text-on-surface-variant'}`}>
                   {setIdx + 1}
                 </span>
                 
@@ -326,7 +308,7 @@ export default function WorkoutPlayer({
                       placeholder={ghostData?.weight || profile?.weight || 0}
                       value={setWeights[workoutStepIndex]?.[setIdx] ?? ''}
                       onChange={(e) => setSetWeights(prev => ({...prev, [workoutStepIndex]: {...(prev[workoutStepIndex] || {}), [setIdx]: e.target.value}}))}
-                      className="bg-transparent border-none p-0 w-full font-bold text-lg text-white focus:ring-0"
+                      className="bg-transparent border-none p-0 w-full font-bold text-lg text-on-surface focus:ring-0"
                     />
                     <div className="absolute bottom-0 left-0 w-8 h-[2px] bg-primary-container"></div>
                   </div>
@@ -343,7 +325,7 @@ export default function WorkoutPlayer({
                       placeholder={ghostData?.reps || currentExercise.reps || 10}
                       value={setRepsLog[workoutStepIndex]?.[setIdx] ?? ''}
                       onChange={(e) => setSetRepsLog(prev => ({...prev, [workoutStepIndex]: {...(prev[workoutStepIndex] || {}), [setIdx]: e.target.value}}))}
-                      className="bg-transparent border-none p-0 w-full font-bold text-lg text-white focus:ring-0"
+                      className="bg-transparent border-none p-0 w-full font-bold text-lg text-on-surface focus:ring-0"
                     />
                     <div className="absolute bottom-0 left-0 w-8 h-[2px] bg-primary-container"></div>
                   </div>
@@ -386,7 +368,7 @@ export default function WorkoutPlayer({
                 setWorkoutStepIndex(prev => prev - 1);
                 skipRest();
               }}
-              className="px-lg py-4 bg-surface-container-highest text-white rounded-xl font-bold hover:bg-surface-bright transition-colors disabled:opacity-50"
+              className="px-lg py-4 bg-surface-container-highest text-on-surface rounded-xl font-bold hover:bg-surface-bright transition-colors disabled:opacity-50"
             >
               Prev
             </button>
