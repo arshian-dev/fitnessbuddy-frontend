@@ -2,6 +2,7 @@ export const KNOWN_EXERCISE_IMAGES = [
   "Barbell Back Squat",
   "Barbell Deadlift",
   "Barbell Row",
+  "Bench Press",
   "Bodyweight Bulgarian Split Squats",
   "Cable Bicep Curls",
   "Dips (Chest-focused)",
