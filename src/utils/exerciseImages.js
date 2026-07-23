@@ -1,85 +1,192 @@
-export const KNOWN_EXERCISE_IMAGES = [
-  "Barbell Back Squat",
-  "Barbell Deadlift",
-  "Barbell Row",
-  "Bench Press",
-  "Bodyweight Bulgarian Split Squats",
-  "Cable Bicep Curls",
-  "Dips (Chest-focused)",
-  "Dumbbell Goblet Squats",
-  "Dumbbell Incline Bench Press",
-  "Dumbbell Shoulder Press",
-  "Dumbbell Shrugs",
-  "Face Pulls",
-  "Hanging Knee Raises",
-  "Hyperextensions (Back Extensions)",
-  "Incline Barbell Bench Press",
-  "Lat Pulldown (Gym)",
-  "Leg Press",
-  "Low Stress Walking - LISS Cardio",
-  "Lying Leg Curls",
-  "Machine Chest Press",
-  "Overhead Press",
-  "Plank",
-  "Pull-ups",
-  "Romanian Deadlift",
-  "Rotator Cuff Warmups (External & Internal Rotations)",
-  "Seated Cable Row",
-  "Standard Pushups (on knees if needed)",
-  "Tricep Extensions"
-];
+export const IMAGE_KEY_MAP = {
+  'barbell-back-squat': 'Barbell Back Squat.png',
+  'barbell-deadlift': 'Barbell Deadlift.png',
+  'barbell-row': 'Barbell Row.png',
+  'bench-press': 'Bench Press.png',
+  'incline-bench-press': 'Incline Barbell Bench Press.png',
+  'db-incline-press': 'Dumbbell Incline Bench Press.png',
+  'db-shoulder-press': 'Dumbbell Shoulder Press.png',
+  'overhead-press': 'Overhead Press.png',
+  'goblet-squats': 'Dumbbell Goblet Squats.png',
+  'bulgarian-split-squats': 'Bodyweight Bulgarian Split Squats.png',
+  'leg-press': 'Leg Press.png',
+  'lying-leg-curls': 'Lying Leg Curls.png',
+  'romanian-deadlift': 'Romanian Deadlift.png',
+  'pull-ups': 'Pull-ups.png',
+  'lat-pulldown': 'Lat Pulldown (Gym).png',
+  'banded-lat-pulldown': 'Banded Lat Pulldowns or Banded Rows.png',
+  'seated-cable-row': 'Seated Cable Row.png',
+  'face-pulls': 'Face Pulls.png',
+  'dips': 'Dips (Chest-focused).png',
+  'bicep-curls': 'Bicep Curls.png',
+  'cable-bicep-curls': 'Cable Bicep Curls.png',
+  'tricep-extensions': 'Tricep Extensions.png',
+  'pushups': 'Standard Pushups (on knees if needed).png',
+  'pec-deck': 'Banded Pec Deck (Chest Flies).png',
+  'plank': 'Plank.png',
+  'hanging-knee-raises': 'Hanging Knee Raises.png',
+  'liss-cardio': 'Low Stress Walking - LISS Cardio.png',
+  'rotator-cuff': 'Rotator Cuff Warmups (External & Internal Rotations).png',
+  'hyperextensions': 'Hyperextensions (Back Extensions).png',
+  'shrugs': 'Dumbbell Shrugs.png',
+  'machine-chest-press': 'Machine Chest Press.png',
+};
 
-export function getExerciseImage(exerciseName) {
-  if (!exerciseName) return null;
-  
-  // Exact match
-  if (KNOWN_EXERCISE_IMAGES.includes(exerciseName)) {
-    return `/images/exercises/${exerciseName}.png`;
+const NAME_TO_IMAGE = {
+  // Bench / Chest
+  'barbell flat bench press': 'Bench Press.png',
+  'bench press': 'Bench Press.png',
+  'dumbbell flat bench press': 'Bench Press.png',
+  'dumbbell floor press': 'Bench Press.png',
+  'incline barbell bench press': 'Incline Barbell Bench Press.png',
+  'incline dumbbell bench press': 'Dumbbell Incline Bench Press.png',
+  'incline dumbbell chest press': 'Dumbbell Incline Bench Press.png',
+  'banded pec deck chest flyes': 'Banded Pec Deck (Chest Flies).png',
+  'incline dumbbell chest flyes': 'Banded Pec Deck (Chest Flies).png',
+  'standard pushups (knees if needed)': 'Standard Pushups (on knees if needed).png',
+  'standard pushups (on knees if needed)': 'Standard Pushups (on knees if needed).png',
+  'machine chest press': 'Machine Chest Press.png',
+  'dips (chest-focused)': 'Dips (Chest-focused).png',
+  'dips': 'Dips (Chest-focused).png',
+  'tricep rope pushdowns': 'Tricep Extensions.png',
+  'tricep extensions': 'Tricep Extensions.png',
+
+  // Rows / Back / Pull
+  'barbell bent-over row': 'Barbell Row.png',
+  'barbell row': 'Barbell Row.png',
+  'chest-supported dumbbell rows': 'Barbell Row.png',
+  'dumbbell single-arm rows': 'Barbell Row.png',
+  'seated cable row': 'Seated Cable Row.png',
+  'seated cable row (close grip)': 'Seated Cable Row.png',
+  'seated cable row (wide grip)': 'Seated Cable Row.png',
+  'lat pulldowns (wide grip)': 'Lat Pulldown (Gym).png',
+  'seated cable lat pulldowns': 'Lat Pulldown (Gym).png',
+  'lat pulldown (gym)': 'Lat Pulldown (Gym).png',
+  'banded lat pulldowns (door anchor)': 'Banded Lat Pulldowns or Banded Rows.png',
+  'banded lat pulldowns or banded rows': 'Banded Lat Pulldowns or Banded Rows.png',
+  'weighted pull-ups': 'Pull-ups.png',
+  'pull-ups': 'Pull-ups.png',
+
+  // Shoulders
+  'standing overhead barbell press': 'Overhead Press.png',
+  'overhead press': 'Overhead Press.png',
+  'dumbbell shoulder press': 'Dumbbell Shoulder Press.png',
+  'seated water bottle/dumbbell shoulder press': 'Dumbbell Shoulder Press.png',
+  'dumbbell lateral raises': 'Dumbbell Shoulder Press.png',
+  'standing cable face pulls': 'Face Pulls.png',
+  'face pulls': 'Face Pulls.png',
+  'dumbbell shrugs': 'Dumbbell Shrugs.png',
+
+  // Squats / Lower
+  'barbell back squat': 'Barbell Back Squat.png',
+  'barbell squats (low bar)': 'Barbell Back Squat.png',
+  'goblet squat (dumbbell)': 'Dumbbell Goblet Squats.png',
+  'bodyweight goblet squats': 'Dumbbell Goblet Squats.png',
+  'goblet squats (tempo 3-0-3)': 'Dumbbell Goblet Squats.png',
+  'dumbbell goblet squats': 'Dumbbell Goblet Squats.png',
+  'leg press (machine)': 'Leg Press.png',
+  'leg press (wide/high foot placement)': 'Leg Press.png',
+  'leg press': 'Leg Press.png',
+  'home bulgarian split squats': 'Bodyweight Bulgarian Split Squats.png',
+  'bulgarian split squats': 'Bodyweight Bulgarian Split Squats.png',
+  'bodyweight bulgarian split squats': 'Bodyweight Bulgarian Split Squats.png',
+  'barbell deadlift': 'Barbell Deadlift.png',
+  'conventional barbell deadlifts': 'Barbell Deadlift.png',
+  'dumbbell romanian deadlifts': 'Romanian Deadlift.png',
+  'romanian deadlift': 'Romanian Deadlift.png',
+  'lying leg curls': 'Lying Leg Curls.png',
+  'hamstring swiss ball curls': 'Lying Leg Curls.png',
+  'bodyweight glute bridges': 'Bodyweight Bulgarian Split Squats.png',
+  'weighted glute bridges': 'Bodyweight Bulgarian Split Squats.png',
+  'weighted glute bridges (barbell or db)': 'Bodyweight Bulgarian Split Squats.png',
+  'cable kickbacks (glute focus)': 'Bodyweight Bulgarian Split Squats.png',
+  'standing calf raises': 'Barbell Back Squat.png',
+  'standing single-leg calf raises': 'Barbell Back Squat.png',
+  'seated calf raises': 'Barbell Back Squat.png',
+  'standing barbell calf raises': 'Barbell Back Squat.png',
+  'walking lunges (dumbbell)': 'Bodyweight Bulgarian Split Squats.png',
+
+  // Arms
+  'standing barbell bicep curls': 'Bicep Curls.png',
+  'dumbbell incline bicep curls': 'Bicep Curls.png',
+  'bicep curls': 'Bicep Curls.png',
+  'hammer curls': 'Bicep Curls.png',
+  'cable bicep curls': 'Cable Bicep Curls.png',
+
+  // Core & Cardio
+  'forearm plank hold': 'Plank.png',
+  'forearm side plank': 'Plank.png',
+  'forearm plank to side planks': 'Plank.png',
+  'plank': 'Plank.png',
+  'hanging knee raises': 'Hanging Knee Raises.png',
+  'deadbugs core control': 'Hanging Knee Raises.png',
+  'russian twists': 'Hanging Knee Raises.png',
+  'bird-dogs (alternating)': 'Hanging Knee Raises.png',
+  'pallof press (cable core)': 'Hanging Knee Raises.png',
+  'post-meal liss walk': 'Low Stress Walking - LISS Cardio.png',
+  'stairmaster/incline walk (no running)': 'Low Stress Walking - LISS Cardio.png',
+  'high knee cardio intervals': 'Low Stress Walking - LISS Cardio.png',
+  'low stress walking - liss cardio': 'Low Stress Walking - LISS Cardio.png',
+
+  // Back Extension / Warmups
+  'hyperextensions (back extensions)': 'Hyperextensions (Back Extensions).png',
+  'prone cobra hold': 'Hyperextensions (Back Extensions).png',
+  'rotator cuff warmups (external & internal rotations)': 'Rotator Cuff Warmups (External & Internal Rotations).png'
+};
+
+export const KNOWN_EXERCISE_IMAGES = Object.keys(IMAGE_KEY_MAP);
+
+export function getExerciseImage(exerciseInput) {
+  if (!exerciseInput) return '/images/exercises/Bench Press.png';
+
+  // 1. If passed an object with imageId / image_id / id / image / name
+  if (typeof exerciseInput === 'object' && exerciseInput !== null) {
+    const idKey = exerciseInput.imageId || exerciseInput.image_id || exerciseInput.image;
+    if (idKey && IMAGE_KEY_MAP[String(idKey).toLowerCase()]) {
+      return `/images/exercises/${IMAGE_KEY_MAP[String(idKey).toLowerCase()]}`;
+    }
+    exerciseInput = exerciseInput.name || '';
   }
 
-  // Fuzzy match logic
-  const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').trim();
-  const targetWords = normalize(exerciseName).split(/\s+/).filter(w => w.length > 2);
-  const targetStr = normalize(exerciseName);
-  
-  let bestMatch = null;
-  let bestScore = 0;
+  const str = String(exerciseInput).trim();
+  if (!str) return '/images/exercises/Bench Press.png';
 
-  for (const known of KNOWN_EXERCISE_IMAGES) {
-    const knownWords = normalize(known).split(/\s+/);
-    let score = 0;
-    
-    // Word overlap
-    for (const w of targetWords) {
-      if (knownWords.includes(w)) score += 1;
-    }
-    
-    const knownStr = normalize(known);
-
-    // Special exact substring bonuses
-    if (targetStr.includes('rotator') && knownStr.includes('rotator cuff')) score += 5;
-    if (targetStr.includes('pull up') && knownStr.includes('pull ups')) score += 5;
-    if (targetStr.includes('overhead press') && knownStr.includes('overhead press')) score += 5;
-    if (targetStr.includes('bench press') && knownStr.includes('bench press')) {
-        // Boost if both have incline, or neither have incline
-        if (targetStr.includes('incline') === knownStr.includes('incline')) score += 3;
-    }
-    if (targetStr.includes('squat') && knownStr.includes('squat')) score += 2;
-    if (targetStr.includes('deadlift') && knownStr.includes('deadlift')) {
-        if (targetStr.includes('romanian') === knownStr.includes('romanian')) score += 3;
-    }
-    if (targetStr.includes('flyes') && knownStr.includes('chest')) score += 2;
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatch = known;
-    }
+  // 2. Direct key match
+  if (IMAGE_KEY_MAP[str.toLowerCase()]) {
+    return `/images/exercises/${IMAGE_KEY_MAP[str.toLowerCase()]}`;
   }
-  
-  if (bestScore >= 1) { // Require at least 1 point to map
-    return `/images/exercises/${bestMatch}.png`;
+
+  // 3. Exact normalized name match
+  const rawClean = str.toLowerCase().trim();
+  const cleanName = str.toLowerCase().replace(/\s*\(.*?\)\s*/g, '').trim();
+
+  if (NAME_TO_IMAGE[rawClean]) {
+    return `/images/exercises/${NAME_TO_IMAGE[rawClean]}`;
   }
-  
-  // Fallback to original just in case it's exactly correct but not in the known list
-  return `/images/exercises/${exerciseName}.png`;
+  if (NAME_TO_IMAGE[cleanName]) {
+    return `/images/exercises/${NAME_TO_IMAGE[cleanName]}`;
+  }
+
+  // 4. Deterministic pattern matching rules
+  if (rawClean.includes('rotator')) return `/images/exercises/${IMAGE_KEY_MAP['rotator-cuff']}`;
+  if (rawClean.includes('incline') && (rawClean.includes('bench') || rawClean.includes('press'))) return `/images/exercises/${IMAGE_KEY_MAP['db-incline-press']}`;
+  if (rawClean.includes('bench press') || rawClean.includes('chest press')) return `/images/exercises/${IMAGE_KEY_MAP['bench-press']}`;
+  if (rawClean.includes('overhead press') || rawClean.includes('shoulder press')) return `/images/exercises/${IMAGE_KEY_MAP['db-shoulder-press']}`;
+  if (rawClean.includes('goblet')) return `/images/exercises/${IMAGE_KEY_MAP['goblet-squats']}`;
+  if (rawClean.includes('squat')) return `/images/exercises/${IMAGE_KEY_MAP['barbell-back-squat']}`;
+  if (rawClean.includes('romanian deadlift')) return `/images/exercises/${IMAGE_KEY_MAP['romanian-deadlift']}`;
+  if (rawClean.includes('deadlift')) return `/images/exercises/${IMAGE_KEY_MAP['barbell-deadlift']}`;
+  if (rawClean.includes('row')) return `/images/exercises/${IMAGE_KEY_MAP['barbell-row']}`;
+  if (rawClean.includes('pull-up') || rawClean.includes('pull up')) return `/images/exercises/${IMAGE_KEY_MAP['pull-ups']}`;
+  if (rawClean.includes('lat pulldown')) return `/images/exercises/${IMAGE_KEY_MAP['lat-pulldown']}`;
+  if (rawClean.includes('leg press')) return `/images/exercises/${IMAGE_KEY_MAP['leg-press']}`;
+  if (rawClean.includes('leg curl')) return `/images/exercises/${IMAGE_KEY_MAP['lying-leg-curls']}`;
+  if (rawClean.includes('bicep') || rawClean.includes('curl')) return `/images/exercises/${IMAGE_KEY_MAP['bicep-curls']}`;
+  if (rawClean.includes('tricep') || rawClean.includes('pushdown')) return `/images/exercises/${IMAGE_KEY_MAP['tricep-extensions']}`;
+  if (rawClean.includes('pushup') || rawClean.includes('push-up')) return `/images/exercises/${IMAGE_KEY_MAP['pushups']}`;
+  if (rawClean.includes('plank')) return `/images/exercises/${IMAGE_KEY_MAP['plank']}`;
+  if (rawClean.includes('walk') || rawClean.includes('cardio') || rawClean.includes('liss')) return `/images/exercises/${IMAGE_KEY_MAP['liss-cardio']}`;
+
+  // Default fallback
+  return `/images/exercises/Bench Press.png`;
 }

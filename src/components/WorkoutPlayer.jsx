@@ -226,7 +226,7 @@ export default function WorkoutPlayer({
           <div className="relative w-full max-w-2xl h-full min-h-[200px] glass-card rounded-2xl overflow-hidden animate-float group">
             <div className="w-full h-full flex items-center justify-center p-4 bg-surface-container-lowest/50 relative">
               <img 
-                src={getExerciseImage(currentExercise.name)} 
+                src={getExerciseImage(currentExercise)} 
                 alt={currentExercise.name}
                 className="w-full h-full object-contain dark:mix-blend-screen dark:invert-0 invert mix-blend-multiply opacity-90"
                 onError={(e) => {

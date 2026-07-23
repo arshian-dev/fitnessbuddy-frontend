@@ -53,6 +53,39 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
   const [baseMacros, setBaseMacros] = useState({ p: 0, c: 0, f: 0, cals: 0 });
   const [editPortion, setEditPortion] = useState(1.0);
 
+  // Workout Split Selection Modal State
+  const [showChangeSplitModal, setShowChangeSplitModal] = useState(false);
+  const [selectedSplitKey, setSelectedSplitKey] = useState('FULL_BODY_3DAY');
+  const [changeSplitLoading, setChangeSplitLoading] = useState(false);
+  const [changeSplitError, setChangeSplitError] = useState('');
+
+  const handleChangeSplit = async () => {
+    if (!user?.id || !selectedSplitKey) return;
+    setChangeSplitLoading(true);
+    setChangeSplitError('');
+
+    try {
+      const response = await fetch('/api/workouts/change-split', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, splitKey: selectedSplitKey }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to change workout split.');
+      }
+
+      const data = await response.json();
+      setWorkoutPlan(data);
+      setShowChangeSplitModal(false);
+    } catch (err) {
+      console.error('Error changing split:', err);
+      setChangeSplitError('Failed to change workout split. Please try again.');
+    } finally {
+      setChangeSplitLoading(false);
+    }
+  };
+
   // AI Food Calculator States
   const [foodQuery, setFoodQuery] = useState('');
   const [calcResult, setCalcResult] = useState(null);
@@ -1099,7 +1132,19 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                     <div className="flex justify-between items-center bg-surface-container-low p-md rounded-xl border border-outline-variant/10">
                       <div>
                         <span className="font-label-md text-primary uppercase text-[10px] tracking-widest font-bold">Active Protocol</span>
-                        <h4 className="font-headline-md text-headline-md text-on-surface font-extrabold">{workoutPlan?.split || 'Custom Split'}</h4>
+                        <div className="flex flex-wrap items-center gap-md mt-0.5">
+                          <h4 className="font-headline-md text-headline-md text-on-surface font-extrabold">{workoutPlan?.split || 'Custom Split'}</h4>
+                          <button
+                            onClick={() => {
+                              setSelectedSplitKey('FULL_BODY_3DAY');
+                              setShowChangeSplitModal(true);
+                            }}
+                            className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-xs border border-primary/20 hover:scale-105"
+                          >
+                            <RefreshCw size={12} />
+                            <span>Change Split</span>
+                          </button>
+                        </div>
                       </div>
                       <div className="text-right">
                         <p className="text-xs text-secondary">Weekly Target</p>
@@ -1197,7 +1242,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                                         >
                                           <div className="w-16 h-16 rounded-lg bg-surface-container border border-outline-variant/30 flex items-center justify-center overflow-hidden pointer-events-none">
                                             <img 
-                                              src={getExerciseImage(ex.name)} 
+                                              src={getExerciseImage(ex)} 
                                               alt={ex.name}
                                               className="w-full h-full object-cover opacity-90"
                                               onError={(e) => {
@@ -1919,6 +1964,134 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
             >
               <span className="material-symbols-outlined text-[16px]">check</span> Save & Log
             </button>
+          </div>
+        </div>
+      )}
+      {/* Change Workout Split Modal */}
+      {showChangeSplitModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-md">
+          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl max-w-2xl w-full p-lg md:p-xl shadow-2xl space-y-md max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start border-b border-outline-variant/20 pb-md">
+              <div>
+                <h3 className="font-headline-md text-xl text-on-surface font-extrabold flex items-center gap-xs">
+                  <Dumbbell className="text-primary" size={20} />
+                  <span>Select Workout Split</span>
+                </h3>
+                <p className="text-xs text-secondary mt-1">
+                  Choose a split that fits your schedule. Your workout routine will be updated while maintaining joint safety guidelines.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowChangeSplitModal(false)}
+                className="text-secondary hover:text-on-surface font-bold text-lg p-1 rounded-lg hover:bg-surface-container transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {changeSplitError && (
+              <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold p-md rounded-xl flex items-center gap-xs">
+                <AlertTriangle size={14} />
+                <span>{changeSplitError}</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-md pt-xs">
+              {[
+                {
+                  key: 'FULL_BODY_3DAY',
+                  title: 'Full Body Split',
+                  tag: '3 Days/Week • Gym',
+                  desc: 'High efficiency 3-day split hitting all major muscle groups each session with balanced recovery.'
+                },
+                {
+                  key: 'UPPER_LOWER_4DAY',
+                  title: 'Upper / Lower Split',
+                  tag: '4 Days/Week • Gym',
+                  desc: 'Alternating upper and lower body workout days for optimal strength and muscle volume.'
+                },
+                {
+                  key: 'PPL_6DAY',
+                  title: 'Push / Pull / Legs (PPL)',
+                  tag: '6 Days/Week • Gym',
+                  desc: 'Dedicated push, pull, and leg training days for serious hyper-focused hypertrophy.'
+                },
+                {
+                  key: 'PCOS_3DAY',
+                  title: 'PCOS Low-Cortisol Split',
+                  tag: '3 Days/Week • Gentle',
+                  desc: 'Low-stress workouts with controlled tempos to manage glucose and optimize hormone balance.'
+                },
+                {
+                  key: 'KNEE_FRIENDLY_3DAY',
+                  title: 'Knee-Friendly Split',
+                  tag: '3 Days/Week • Joint Safe',
+                  desc: 'Replaces heavy quad shear with glute, hamstring, and upper body focus for joint longevity.'
+                },
+                {
+                  key: 'DESI_HOME_3DAY',
+                  title: 'Desi Home-Fitness',
+                  tag: '3 Days/Week • Home',
+                  desc: 'Effective home workouts utilizing bodyweight movements, resistance bands, and dumbbells.'
+                }
+              ].map((item) => {
+                const isSelected = selectedSplitKey === item.key;
+                return (
+                  <div
+                    key={item.key}
+                    onClick={() => setSelectedSplitKey(item.key)}
+                    className={`cursor-pointer p-md rounded-xl border transition-all duration-200 flex flex-col justify-between ${
+                      isSelected
+                        ? 'border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md'
+                        : 'border-outline-variant/20 hover:border-primary/40 bg-surface-container-low/50 hover:bg-surface-container-low'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex justify-between items-start mb-xs">
+                        <h4 className="font-bold text-sm text-on-surface">{item.title}</h4>
+                        {isSelected && (
+                          <span className="bg-primary text-on-primary rounded-full p-0.5">
+                            <Check size={12} />
+                          </span>
+                        )}
+                      </div>
+                      <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full inline-block mb-xs">
+                        {item.tag}
+                      </span>
+                      <p className="text-xs text-secondary leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-end gap-sm pt-md border-t border-outline-variant/20">
+              <button
+                type="button"
+                onClick={() => setShowChangeSplitModal(false)}
+                className="px-lg py-md rounded-xl text-xs font-bold text-secondary hover:bg-surface-container transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={changeSplitLoading}
+                onClick={handleChangeSplit}
+                className="bg-primary hover:bg-primary/95 text-on-primary font-bold px-xl py-md rounded-xl text-xs transition-all shadow-md flex items-center gap-xs disabled:opacity-50"
+              >
+                {changeSplitLoading ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Updating Split...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check size={14} />
+                    <span>Apply New Split</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
