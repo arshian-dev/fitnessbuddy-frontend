@@ -1295,7 +1295,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   <div className="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant/30 bento-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col justify-center">
                     <div className="flex justify-between items-start mb-sm">
                       <span className="font-label-md text-on-surface-variant font-bold text-xs uppercase tracking-wider">Protein</span>
-                      <span className="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.protein || 140}g</span>
+                      <span className="bg-primary/10 text-primary text-[10px] px-2.5 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.protein || 140}g</span>
                     </div>
                     <p className="font-headline-md text-on-background mb-md">
                       {loggedProtein}g <span className="text-[10px] text-secondary font-normal ml-1">({Math.max(0, (nutritionPlan?.protein || 140) - loggedProtein)}g left)</span>
@@ -1307,7 +1307,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   <div className="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant/30 bento-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col justify-center">
                     <div className="flex justify-between items-start mb-sm">
                       <span className="font-label-md text-on-surface-variant font-bold text-xs uppercase tracking-wider">Carbs</span>
-                      <span className="bg-tertiary/10 text-tertiary text-[10px] px-2 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.carbs || 200}g</span>
+                      <span className="bg-primary/10 text-primary text-[10px] px-2.5 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.carbs || 200}g</span>
                     </div>
                     <p className="font-headline-md text-on-background mb-md">
                       {loggedCarbs}g <span className="text-[10px] text-secondary font-normal ml-1">({Math.max(0, (nutritionPlan?.carbs || 200) - loggedCarbs)}g left)</span>
@@ -1319,7 +1319,7 @@ export default function ClientDashboard({ user, initialData, onReOnboard, onUpda
                   <div className="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant/30 bento-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col justify-center">
                     <div className="flex justify-between items-start mb-sm">
                       <span className="font-label-md text-on-surface-variant font-bold text-xs uppercase tracking-wider">Fats</span>
-                      <span className="bg-secondary/10 text-on-secondary text-[10px] px-2 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.fats || 70}g</span>
+                      <span className="bg-primary/10 text-primary text-[10px] px-2.5 py-0.5 rounded-full font-bold">TARGET: {nutritionPlan?.fats || 70}g</span>
                     </div>
                     <p className="font-headline-md text-on-background mb-md">
                       {loggedFats}g <span className="text-[10px] text-secondary font-normal ml-1">({Math.max(0, (nutritionPlan?.fats || 70) - loggedFats)}g left)</span>
